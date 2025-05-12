@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Concert Finder</string>
+    <string name="loading_failed">loading Api data failed</string>
+    <string name="loading_succeeded">loading Api succeeded</string>
+</resources>
