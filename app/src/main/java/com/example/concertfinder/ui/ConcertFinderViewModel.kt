@@ -12,7 +12,7 @@ import com.example.concertfinder.ConcertFinderApplication
 import com.example.concertfinder.data.EventsRepository
 import com.example.concertfinder.model.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
-import com.example.concertfinder.ui.utils.NavigationBarElement
+import com.example.concertfinder.ui.utils.TopLevelRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,15 +29,6 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
 
     init {
 
-    }
-
-    // update current screen
-    fun updateCurrentScreen(screen: NavigationBarElement) {
-        _uiState.update {
-            currentState -> currentState.copy(
-                currentScreen = screen
-            )
-        }
     }
 
     // update show bottom bar

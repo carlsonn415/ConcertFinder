@@ -1,9 +1,10 @@
 package com.example.concertfinder.model
 
-import com.example.concertfinder.ui.utils.NavigationBarElement
+import com.example.concertfinder.ui.utils.ConcertFinderScreen
+import com.example.concertfinder.ui.utils.TopLevelRoute
+import com.example.concertfinder.ui.utils.topLevelRoutes
 
 data class ConcertFinderUiState(
     val loadingStatus: LoadingStatus = LoadingStatus.Loading,
-    val currentScreen: NavigationBarElement = NavigationBarElement.Events,
     val showBottomBar: Boolean = true,
 )

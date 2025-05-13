@@ -28,19 +28,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.concertfinder.R
-import com.example.concertfinder.ui.screens.ConcertFinderHomeScreen
+import com.example.concertfinder.ui.screens.CalendarScreen
 import com.example.concertfinder.ui.screens.DayDetailsScreen
 import com.example.concertfinder.ui.screens.EventDetailsScreen
+import com.example.concertfinder.ui.screens.EventsScreen
+import com.example.concertfinder.ui.screens.SearchBarScreen
 import com.example.concertfinder.ui.screens.SearchResultsScreen
 import com.example.concertfinder.ui.utils.ConcertFinderContentType
-import com.example.concertfinder.ui.utils.NavigationBarElement
 import com.example.concertfinder.ui.utils.ConcertFinderScreen
+import com.example.concertfinder.ui.utils.TopLevelRoute
+import com.example.concertfinder.ui.utils.topLevelRoutes
 
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -53,9 +60,6 @@ fun ConcertFinderApp(
 ) {
     // get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = ConcertFinderScreen.valueOf(
-        backStackEntry?.destination?.route ?: ConcertFinderScreen.Home.name
-    )
 
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
@@ -68,14 +72,12 @@ fun ConcertFinderApp(
         else -> ConcertFinderContentType.Compact
     }
 
-    // check if current screen is home screen
-    if (currentScreen.name == ConcertFinderScreen.Home.name) {
-        // update show bottom bar to true
+    // update show bottom bar based on current destination
+    if (backStackEntry?.destination?.route in topLevelRoutes.map { it.route }) {
         viewModel.updateShowBottomBar(true)
-        // clear back stack
-        navController.clearBackStack<ConcertFinderScreen>()
+    } else {
+        viewModel.updateShowBottomBar(false)
     }
-
 
     Scaffold(
         // add top bar and bottom bar to scaffold
@@ -91,15 +93,22 @@ fun ConcertFinderApp(
         bottomBar = {
             if (uiState.value.showBottomBar) {
                 ConcertFinderNavigationBar(
-                    currentScreen = uiState.value.currentScreen,
+                    backStackEntry = backStackEntry,
                     onClick = {
-                        // update current screen
-                        viewModel.updateCurrentScreen(it)
-
-                        // ensures that the back stack won't fill up with screens
-                        navController.clearBackStack(ConcertFinderScreen.Home.name)
-                    },
-                    modifier = modifier
+                        navController.navigate(it.route) {
+                            // Pop up to the start destination of the graph to
+                            // avoid building up a large stack of destinations
+                            // on the back stack as users select items
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
+                    }
                 )
             }
         }
@@ -107,34 +116,41 @@ fun ConcertFinderApp(
 
         NavHost(
             navController = navController,
-            startDestination = ConcertFinderScreen.Home.name,
+            startDestination = topLevelRoutes[0].route,
             modifier = modifier.padding(innerPadding)
         ) {
-            // home screen composable
-            composable(route = ConcertFinderScreen.Home.name) {
-                ConcertFinderHomeScreen(
-                    uiState = uiState.value,
+            // my events screen composable
+            composable(route = ConcertFinderScreen.MyEvents.name) {
+                EventsScreen(
                     onClick = {
-                        when (it) {
-                            NavigationBarElement.Events -> {
-                                navController.navigate(ConcertFinderScreen.EventDetails.name)
-                                viewModel.updateShowBottomBar(false)
-                            }
-                            NavigationBarElement.Search -> {
-                                navController.navigate(ConcertFinderScreen.Results.name)
-                                viewModel.updateShowBottomBar(false)
-                            }
-                            NavigationBarElement.Calendar -> {
-                                navController.navigate(ConcertFinderScreen.DayDetails.name)
-                                viewModel.updateShowBottomBar(false)
-                            }
-                        }
+                        navController.navigate(ConcertFinderScreen.EventDetails.name)
                     },
-                    modifier = modifier,
+                    modifier = modifier
                 )
             }
+
+            // search screen composable
+            composable(route = ConcertFinderScreen.Search.name) {
+                SearchBarScreen(
+                    onClick = {
+                        navController.navigate(ConcertFinderScreen.SearchResults.name)
+                    },
+                    modifier = modifier
+                )
+            }
+
+            // calendar screen composable
+            composable(route = ConcertFinderScreen.Calendar.name) {
+                CalendarScreen(
+                    onClick = {
+                        navController.navigate(ConcertFinderScreen.DayDetails.name)
+                    },
+                    modifier = modifier
+                )
+            }
+
             // search results screen composable
-            composable(route = ConcertFinderScreen.Results.name) {
+            composable(route = ConcertFinderScreen.SearchResults.name) {
                 SearchResultsScreen(
                     onClick = {
                         navController.navigate(ConcertFinderScreen.EventDetails.name)
@@ -142,6 +158,7 @@ fun ConcertFinderApp(
                     modifier = modifier
                 )
             }
+
             // day details screen composable
             composable(route = ConcertFinderScreen.DayDetails.name) {
                 DayDetailsScreen(
@@ -151,6 +168,7 @@ fun ConcertFinderApp(
                     modifier = modifier
                 )
             }
+
             // event details screen composable
             composable(route = ConcertFinderScreen.EventDetails.name) {
                 EventDetailsScreen(
@@ -165,26 +183,28 @@ fun ConcertFinderApp(
 
 @Composable
 fun ConcertFinderNavigationBar(
-    currentScreen: NavigationBarElement,
-    onClick: (NavigationBarElement) -> Unit,
+    backStackEntry: NavBackStackEntry?,
+    onClick: (TopLevelRoute<String>) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(modifier = modifier) {
-        for (screen in NavigationBarElement.entries) {
+    NavigationBar {
+        val currentDestination = backStackEntry?.destination
+
+        topLevelRoutes.forEach { topLevelRoute ->
             NavigationBarItem(
                 icon = {
                     Icon(
-                        screen.icon,
-                        contentDescription = stringResource(screen.title)
+                        topLevelRoute.icon,
+                        contentDescription = stringResource(topLevelRoute.title)
                     )
                 },
                 label = {
                     Text(
-                        text = stringResource(screen.title)
+                        text = stringResource(topLevelRoute.title)
                     )
                 },
-                selected = currentScreen == screen,
-                onClick = { onClick(screen) },
+                selected = currentDestination?.hierarchy?.any {it.route == topLevelRoute.route} == true,
+                onClick = { onClick(topLevelRoute) },
             )
         }
     }
