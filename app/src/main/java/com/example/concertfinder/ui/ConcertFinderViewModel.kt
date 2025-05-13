@@ -12,6 +12,7 @@ import com.example.concertfinder.ConcertFinderApplication
 import com.example.concertfinder.data.EventsRepository
 import com.example.concertfinder.model.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
+import com.example.concertfinder.ui.utils.NavigationBarElement
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,9 +28,29 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
     val uiState = _uiState.asStateFlow()
 
     init {
-        getEvents()
+
     }
 
+    // update current screen
+    fun updateCurrentScreen(screen: NavigationBarElement) {
+        _uiState.update {
+            currentState -> currentState.copy(
+                currentScreen = screen
+            )
+        }
+    }
+
+    // update show bottom bar
+    fun updateShowBottomBar(show: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                showBottomBar = show
+            )
+        }
+    }
+
+
+    // load events from repository
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getEvents() {
 
@@ -67,6 +88,7 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
         }
     }
 
+    // injects view model with events repository
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {

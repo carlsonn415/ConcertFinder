@@ -54,10 +54,17 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
 
+    // Navigation
+    implementation("androidx.navigation:navigation-compose:2.9.0")
+
+    // WindowWidthSizeClass
+    implementation("androidx.compose.material3:material3-window-size-class")
+
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     // Retrofit with Kotlin serialization Converter
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
     // Gson converter
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
 

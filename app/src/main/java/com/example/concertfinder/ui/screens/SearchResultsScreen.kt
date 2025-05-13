@@ -10,20 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun CalendarScreen(
+fun SearchResultsScreen(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()
     ) {
         Button(
-            onClick = onClick
+            onClick = onClick,
         ) {
             Text(
-                text = "Calendar"
+                text = "Results"
             )
         }
     }
@@ -31,8 +30,8 @@ fun CalendarScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun CalendarScreenPreview() {
-    CalendarScreen(
+private fun SearchResultsScreenPreview() {
+    SearchResultsScreen(
         onClick = {},
         modifier = Modifier
     )
