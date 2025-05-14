@@ -2,6 +2,7 @@ package com.example.concertfinder.ui
 
 import android.net.http.HttpException
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -40,10 +41,44 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
         }
     }
 
+    // update search expanded
+    fun updateSearchExpanded(expanded: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchExpanded = expanded
+            )
+        }
+    }
+
+    // update search text
+    fun updateSearchText(text: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchText = text
+            )
+        }
+    }
+
+    // reset search bar
+    fun resetSearchBar() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchExpanded = false,
+                searchText = ""
+            )
+        }
+    }
+
+
 
     // load events from repository
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    fun getEvents() {
+    fun getEvents(
+        //radius: String = "50",
+        //postalCode: String = "TX 78701, US",
+        keyWord: String? = null,
+        //page: String? = null,
+    ) {
 
         // launch coroutine to get events from repository
         viewModelScope.launch(Dispatchers.IO) {
@@ -54,13 +89,17 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
             )
             }
              try { // try to get events from repository
-                val events = eventsRepository.getEvents()
+                val events = eventsRepository.getEvents(
+                    //radius = radius,
+                    //postalCode = postalCode,
+                    keyWord = keyWord,
+                    //page = page
+                )
+                Log.d("ConcertFinderViewModel", "getEvents: $events")
                 _uiState.update {
                     currentState -> currentState.copy(
-                        loadingStatus = LoadingStatus.Success(
-                            message = "Success: ${events.size}",
-                            eventList = events
-                        ),
+                        loadingStatus = LoadingStatus.Success,
+                        searchResults = events
                     )
                 }
             } catch (e: IOException) { // catch exceptions

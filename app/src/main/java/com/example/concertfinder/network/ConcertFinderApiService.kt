@@ -11,8 +11,10 @@ interface ConcertFinderApiService {
 
     @GET("events")
     suspend fun getApiResponse(
-        @Query("dmaId") locale: String = "245",
-        @Query("size") size: Int = 20,
+        //@Query("radius") radius: String,
+        //@Query("postalCode") postalCode: String,
+        @Query("keyword") keyWord: String?,
+        //@Query("page") page: String?,
         @Query("apikey") apiKey: String = com.example.concertfinder.network.apiKey,
     ): ApiResponse
 }

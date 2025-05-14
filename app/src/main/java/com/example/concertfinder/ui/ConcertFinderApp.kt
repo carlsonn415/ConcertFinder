@@ -38,10 +38,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.concertfinder.R
+import com.example.concertfinder.model.LoadingStatus
 import com.example.concertfinder.ui.screens.CalendarScreen
 import com.example.concertfinder.ui.screens.DayDetailsScreen
+import com.example.concertfinder.ui.screens.ErrorScreen
 import com.example.concertfinder.ui.screens.EventDetailsScreen
 import com.example.concertfinder.ui.screens.EventsScreen
+import com.example.concertfinder.ui.screens.LoadingScreen
 import com.example.concertfinder.ui.screens.SearchBarScreen
 import com.example.concertfinder.ui.screens.SearchResultsScreen
 import com.example.concertfinder.ui.utils.ConcertFinderContentType
@@ -117,7 +120,7 @@ fun ConcertFinderApp(
         NavHost(
             navController = navController,
             startDestination = topLevelRoutes[0].route,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier
         ) {
             // my events screen composable
             composable(route = ConcertFinderScreen.MyEvents.name) {
@@ -132,31 +135,57 @@ fun ConcertFinderApp(
             // search screen composable
             composable(route = ConcertFinderScreen.Search.name) {
                 SearchBarScreen(
-                    onClick = {
+                    uiState = uiState.value,
+                    onExpandedChange = {
+                        viewModel.updateSearchExpanded(it)
+                    },
+                    onQueryChange = {
+                        viewModel.updateSearchText(it)
+                    },
+                    onSearch = {
+                        viewModel.getEvents(
+                            keyWord = it
+                        )
                         navController.navigate(ConcertFinderScreen.SearchResults.name)
                     },
-                    modifier = modifier
+                    onDispose = {
+                        viewModel.resetSearchBar()
+                    },
+                    modifier = modifier.padding(innerPadding)
                 )
             }
 
             // calendar screen composable
             composable(route = ConcertFinderScreen.Calendar.name) {
-                CalendarScreen(
-                    onClick = {
-                        navController.navigate(ConcertFinderScreen.DayDetails.name)
-                    },
-                    modifier = modifier
-                )
+                if (uiState.value.loadingStatus is LoadingStatus.Loading) {
+                    LoadingScreen()
+                } else if (uiState.value.loadingStatus is LoadingStatus.Error) {
+                    ErrorScreen()
+                } else {
+                    CalendarScreen(
+                        onClick = {
+                            navController.navigate(ConcertFinderScreen.DayDetails.name)
+                        },
+                        modifier = modifier
+                    )
+                }
             }
 
             // search results screen composable
             composable(route = ConcertFinderScreen.SearchResults.name) {
-                SearchResultsScreen(
-                    onClick = {
-                        navController.navigate(ConcertFinderScreen.EventDetails.name)
-                    },
-                    modifier = modifier
-                )
+                if (uiState.value.loadingStatus is LoadingStatus.Loading) {
+                    LoadingScreen()
+                } else if (uiState.value.loadingStatus is LoadingStatus.Error) {
+                    ErrorScreen()
+                } else {
+                    SearchResultsScreen(
+                        eventList = uiState.value.searchResults,
+                        onClick = {
+                            navController.navigate(ConcertFinderScreen.EventDetails.name)
+                        },
+                        modifier = modifier
+                    )
+                }
             }
 
             // day details screen composable
