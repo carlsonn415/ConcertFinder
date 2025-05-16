@@ -11,10 +11,12 @@ interface ConcertFinderApiService {
 
     @GET("events")
     suspend fun getApiResponse(
-        //@Query("radius") radius: String,
-        //@Query("postalCode") postalCode: String,
+        @Query("radius") radius: String,
+        @Query("geoPoint") geoPoint: String,
+        @Query("startDateTime") startDateTime: String,
+        @Query("sort") sort: String,
         @Query("keyword") keyWord: String?,
-        //@Query("page") page: String?,
+        @Query("page") page: String?,
         @Query("apikey") apiKey: String = com.example.concertfinder.network.apiKey,
     ): ApiResponse
 }

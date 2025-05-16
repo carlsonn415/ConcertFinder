@@ -1,4 +1,4 @@
-package com.example.concertfinder.ui.screens
+package com.example.concertfinder.ui.commonui
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,9 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun EventDetailsScreen(modifier: Modifier = Modifier) {
+fun EventDetailsScreen(modifier: Modifier = Modifier.Companion) {
     Box(
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.Companion.Center,
         modifier = modifier.fillMaxSize()
     ) {
         Text(

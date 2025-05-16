@@ -1,6 +1,7 @@
 package com.example.concertfinder.ui.screens
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
 import com.example.concertfinder.model.DateInfo
 import com.example.concertfinder.model.Event
@@ -22,11 +24,12 @@ import com.example.concertfinder.model.StartDateInfo
 fun SearchResultsScreen(
     eventList: List<Event>,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize().padding(innerPadding)
     ) {
         LazyColumn {
             items(eventList) { event ->

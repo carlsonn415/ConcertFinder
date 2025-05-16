@@ -5,8 +5,14 @@ import com.example.concertfinder.model.EmbeddedData
 import com.example.concertfinder.network.ConcertFinderApiService
 
 class FakeConcertFinderApiService : ConcertFinderApiService {
+
     override suspend fun getApiResponse(
-        size: Int,
+        radius: String,
+        geoPoint: String,
+        startDateTime: String,
+        sort: String,
+        keyWord: String?,
+        page: String?,
         apiKey: String
     ): ApiResponse {
         return ApiResponse(

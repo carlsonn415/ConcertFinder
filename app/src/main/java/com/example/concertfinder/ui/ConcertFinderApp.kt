@@ -29,7 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -41,10 +40,10 @@ import com.example.concertfinder.R
 import com.example.concertfinder.model.LoadingStatus
 import com.example.concertfinder.ui.screens.CalendarScreen
 import com.example.concertfinder.ui.screens.DayDetailsScreen
-import com.example.concertfinder.ui.screens.ErrorScreen
-import com.example.concertfinder.ui.screens.EventDetailsScreen
+import com.example.concertfinder.ui.commonui.ErrorScreen
+import com.example.concertfinder.ui.commonui.EventDetailsScreen
 import com.example.concertfinder.ui.screens.EventsScreen
-import com.example.concertfinder.ui.screens.LoadingScreen
+import com.example.concertfinder.ui.commonui.LoadingScreen
 import com.example.concertfinder.ui.screens.SearchBarScreen
 import com.example.concertfinder.ui.screens.SearchResultsScreen
 import com.example.concertfinder.ui.utils.ConcertFinderContentType
@@ -183,7 +182,8 @@ fun ConcertFinderApp(
                         onClick = {
                             navController.navigate(ConcertFinderScreen.EventDetails.name)
                         },
-                        modifier = modifier
+                        modifier = modifier,
+                        innerPadding = innerPadding
                     )
                 }
             }
