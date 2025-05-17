@@ -2,6 +2,8 @@ package com.example.concertfinder.ui
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -23,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -48,6 +51,7 @@ import com.example.concertfinder.ui.screens.SearchBarScreen
 import com.example.concertfinder.ui.screens.SearchResultsScreen
 import com.example.concertfinder.ui.utils.ConcertFinderContentType
 import com.example.concertfinder.ui.utils.ConcertFinderScreen
+import com.example.concertfinder.ui.utils.LaunchLocationPermission
 import com.example.concertfinder.ui.utils.TopLevelRoute
 import com.example.concertfinder.ui.utils.topLevelRoutes
 
@@ -81,6 +85,12 @@ fun ConcertFinderApp(
         viewModel.updateShowBottomBar(false)
     }
 
+    // launch location permission launcher
+    LaunchLocationPermission(
+        context = LocalContext.current,
+        viewModel = viewModel
+    )
+
     Scaffold(
         // add top bar and bottom bar to scaffold
         topBar = {
@@ -104,10 +114,9 @@ fun ConcertFinderApp(
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
+                            // Avoid multiple copies of the same destination when re-selecting the same item
                             launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
+                            // Restore state when re-selecting a previously selected item
                             restoreState = true
                         }
                     }
@@ -119,7 +128,13 @@ fun ConcertFinderApp(
         NavHost(
             navController = navController,
             startDestination = topLevelRoutes[0].route,
-            modifier = modifier
+            modifier = modifier,
+            enterTransition = {
+                fadeIn()
+            },
+            exitTransition = {
+                fadeOut()
+            }
         ) {
             // my events screen composable
             composable(route = ConcertFinderScreen.MyEvents.name) {
@@ -135,20 +150,12 @@ fun ConcertFinderApp(
             composable(route = ConcertFinderScreen.Search.name) {
                 SearchBarScreen(
                     uiState = uiState.value,
-                    onExpandedChange = {
-                        viewModel.updateSearchExpanded(it)
-                    },
-                    onQueryChange = {
-                        viewModel.updateSearchText(it)
-                    },
+                    viewModel = viewModel,
                     onSearch = {
                         viewModel.getEvents(
                             keyWord = it
                         )
                         navController.navigate(ConcertFinderScreen.SearchResults.name)
-                    },
-                    onDispose = {
-                        viewModel.resetSearchBar()
                     },
                     modifier = modifier.padding(innerPadding)
                 )
@@ -214,7 +221,6 @@ fun ConcertFinderApp(
 fun ConcertFinderNavigationBar(
     backStackEntry: NavBackStackEntry?,
     onClick: (TopLevelRoute<String>) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     NavigationBar {
         val currentDestination = backStackEntry?.destination

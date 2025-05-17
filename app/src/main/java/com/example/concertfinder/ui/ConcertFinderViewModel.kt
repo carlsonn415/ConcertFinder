@@ -12,10 +12,13 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.concertfinder.ConcertFinderApplication
 import com.example.concertfinder.data.EventsRepository
+import com.example.concertfinder.local.LocationPreferences
 import com.example.concertfinder.model.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,13 +30,26 @@ import java.util.Calendar
 
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : ViewModel() {
+class ConcertFinderViewModel(
+    private val eventsRepository: EventsRepository,
+    private val locationManager: com.example.concertfinder.network.LocationManager,
+    private val locationPreferences: LocationPreferences
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ConcertFinderUiState())
     val uiState = _uiState.asStateFlow()
 
-    init {
+    // Event to signal UI to request location permissions
+    private val _requestLocationPermissionEvent = MutableSharedFlow<Unit>()
+    val requestLocationPermissionEvent = _requestLocationPermissionEvent.asSharedFlow()
 
+    init {
+        // loads saved address into UI on startup
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentAddress = getCurrentAddress()
+            )
+        }
     }
 
     // update show bottom bar
@@ -74,12 +90,11 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
     }
 
 
-
     // load events from repository
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getEvents(
         radius: String = "50",
-        geoPoint: String = "40.7128,-74.0060",
+        geoPoint: String = getLocation(),
         startDateTime: String = getFormattedDate(Calendar.getInstance()),
         sort: String = "date,asc",
         keyWord: String? = null,
@@ -88,12 +103,14 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
 
         // launch coroutine to get events from repository
         viewModelScope.launch(Dispatchers.IO) {
+
             // update ui state to loading
             _uiState.update {
-                    currentState -> currentState.copy(
-                loadingStatus = LoadingStatus.Loading
-            )
+                currentState -> currentState.copy(
+                    loadingStatus = LoadingStatus.Loading
+                )
             }
+
              try { // try to get events from repository
                 val events = eventsRepository.getEvents(
                     radius = radius,
@@ -121,10 +138,60 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
                         loadingStatus = LoadingStatus.Error(e.message.toString())
                     )
                  }
+            } catch (e: Exception) {
+                _uiState.update {
+                    currentState -> currentState.copy(
+                        loadingStatus = LoadingStatus.Error(e.message.toString())
+                    )
+                }
+             }
+        }
+    }
+
+    // get current location from location manager, then save to location preferences
+    fun onLocationPermissionGranted() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val currentLocation = locationManager.getLocation()
+
+                if (currentLocation != null) {
+                    // save location to location preferences
+                    locationPreferences.saveLocation(
+                        latitude = currentLocation.latitude,
+                        longitude = currentLocation.longitude
+                    )
+                    // update current address in UI
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            currentAddress = getCurrentAddress()
+                        )
+                    }
+                }
+            } catch (e: Exception) { // Catch any exception from locationManager.getLocation()
+                Log.d("Location", e.message.toString())
             }
         }
     }
 
+    // This function is called by the UI when it wants to initiate a location update.
+    // The ViewModel will check if it thinks permission might be needed.
+    fun initiateLocationUpdate() {
+        viewModelScope.launch {
+            _requestLocationPermissionEvent.emit(Unit)
+        }
+    }
+
+    // get location from location preferences
+    private fun getLocation(): String {
+        return locationPreferences.getLocation()
+    }
+
+    // get current address from location preferences
+    private fun getCurrentAddress(): String {
+        return locationPreferences.getAddress()
+    }
+
+    // get formatted date from calendar
     @SuppressLint("NewApi")
     private fun getFormattedDate(calendar: Calendar): String {
         // convert calendar to instant
@@ -136,13 +203,19 @@ class ConcertFinderViewModel(private val eventsRepository: EventsRepository) : V
         return formatter.format(instant)
     }
 
-    // injects view model with events repository
+    // injects view model with events repository, location manager, and location preferences
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as ConcertFinderApplication)
                 val eventsRepository = application.container.eventsRepository
-                ConcertFinderViewModel(eventsRepository = eventsRepository)
+                val locationManager = application.container.locationManager
+                val locationPreferences = application.container.userLocationPreferences
+                ConcertFinderViewModel(
+                    eventsRepository = eventsRepository,
+                    locationManager = locationManager,
+                    locationPreferences = locationPreferences
+                )
             }
         }
     }

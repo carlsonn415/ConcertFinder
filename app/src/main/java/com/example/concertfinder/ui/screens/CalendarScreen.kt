@@ -14,7 +14,6 @@ fun CalendarScreen(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()

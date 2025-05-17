@@ -16,15 +16,19 @@ class ConcertFinderViewModelTest {
 
     @Test
     fun concertFinderViewModel_getEvents_verifyConcertFinderUiStateSuccess() = runTest {
+
         val concertFinderViewModel = ConcertFinderViewModel(
-            eventsRepository = FakeNetworkEventsRepository()
+            eventsRepository = FakeNetworkEventsRepository(),
+            locationManager = FakeLocationManager(),
+            locationPreferences = FakeLocationPreferences()
         )
+
+        concertFinderViewModel.getEvents()
+
         assertEquals(
-            ConcertFinderUiState(loadingStatus =
-                LoadingStatus.Success(
-                    message = "Success: ${FakeDataSource.eventsList.size}",
-                    eventList = FakeDataSource.eventsList
-                )
+            ConcertFinderUiState(
+                loadingStatus = LoadingStatus.Success,
+                currentAddress = "New York, NY",
             ),
             concertFinderViewModel.uiState.value
         )

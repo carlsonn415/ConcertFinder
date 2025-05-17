@@ -1,6 +1,11 @@
 package com.example.concertfinder.data
 
+import android.content.Context
+import com.example.concertfinder.local.UserLocationPreferences
 import com.example.concertfinder.network.ConcertFinderApiService
+import com.example.concertfinder.network.DefaultLocationManager
+import com.example.concertfinder.network.LocationManager
+import com.google.android.gms.location.LocationServices
 import com.google.gson.GsonBuilder
 
 import retrofit2.Retrofit
@@ -10,9 +15,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 interface AppContainer {
     val eventsRepository: EventsRepository
+    val locationManager: LocationManager
+    val userLocationPreferences: UserLocationPreferences
 }
 
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(
+    private val applicationContext: Context
+) : AppContainer {
 
     private val baseUrl = "https://app.ticketmaster.com/discovery/v2/"
 
@@ -31,4 +40,14 @@ class DefaultAppContainer : AppContainer {
         NetworkEventsRepository(retrofitService)
     }
 
+    override val locationManager: LocationManager by lazy {
+        DefaultLocationManager(
+            context = applicationContext,
+            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(applicationContext)
+        )
+    }
+
+    override val userLocationPreferences: UserLocationPreferences by lazy {
+        UserLocationPreferences(applicationContext)
+    }
 }
