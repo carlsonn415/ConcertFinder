@@ -8,4 +8,5 @@ data class SearchScreenUiState(
     val isLocationPreferencesMenuExpanded: Boolean = false,
     val isRadiusPreferencesExpanded: Boolean = false,
     val searchResults: List<Event> = emptyList(),
+    val locationSearchQuery: String = "",
 )

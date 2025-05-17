@@ -4,13 +4,19 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.location.Address
 import android.location.Geocoder
+import android.util.Log.e
+import android.widget.Toast
 import androidx.core.content.edit
 import java.io.IOException
 import java.lang.NumberFormatException
 import java.util.Locale
 
 interface LocationPreferences {
-    fun saveLocation(latitude: Double, longitude: Double)
+    fun saveLocation(
+        latitude: Double? = null,
+        longitude: Double? = null,
+        address: String? = null
+    )
     fun getLocation(): String
     fun getAddress(): String
 }
@@ -33,12 +39,24 @@ class UserLocationPreferences(
         return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
     }
 
-    override fun saveLocation(latitude: Double, longitude: Double) {
-        getPrefs(context).edit() {
-            putString(keyLatitude, latitude.toString())
-            putString(keyLongitude, longitude.toString())
+    override fun saveLocation(
+        latitude: Double?,
+        longitude: Double?,
+        address: String?
+    ) {
+        if (latitude != null && longitude != null) {
+            getPrefs(context).edit() {
+                putString(keyLatitude, latitude.toString())
+                putString(keyLongitude, longitude.toString())
+            }
+            reverseGeocode(context, latitude, longitude)
+        } else if (address != null) {
+            // Get the latitude and longitude from the address and save
+            geocode(context, address)
+
+        } else {
+            e("UserLocationPreferences", "Invalid location data")
         }
-        reverseGeocode(context, latitude, longitude)
     }
 
     override fun getLocation(): String {
@@ -76,6 +94,29 @@ class UserLocationPreferences(
                 getPrefs(context).edit() {
                     putString(address, addressString)
                 }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        } catch (e: IllegalArgumentException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun geocode(
+        context: Context,
+        address: String
+    ) {
+        val geocoder = Geocoder(context, Locale.getDefault())
+
+        try {
+            val addresses: List<Address>? = geocoder.getFromLocationName(address, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val latitude = addresses[0].latitude
+                val longitude = addresses[0].longitude
+
+                saveLocation(latitude, longitude)
             }
         } catch (e: IOException) {
             e.printStackTrace()

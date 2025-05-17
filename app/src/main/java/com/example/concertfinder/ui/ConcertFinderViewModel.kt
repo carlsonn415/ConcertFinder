@@ -58,72 +58,6 @@ class ConcertFinderViewModel(
         }
     }
 
-    // update show bottom bar
-    fun updateShowBottomBar(show: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                showBottomBar = show
-            )
-        }
-    }
-
-    // update search expanded
-    fun updateSearchExpanded(expanded: Boolean) {
-        _searchScreenUiState.update { currentState ->
-            currentState.copy(
-                isSearchBarExpanded = expanded
-            )
-        }
-    }
-
-    // update search text
-    fun updateSearchText(text: String) {
-        _searchScreenUiState.update { currentState ->
-            currentState.copy(
-                searchQuery = text
-            )
-        }
-    }
-
-    // reset search bar
-    fun resetSearchBar() {
-        _searchScreenUiState.update { currentState ->
-            currentState.copy(
-                isSearchBarExpanded = false,
-                searchQuery = "",
-                isRadiusPreferencesExpanded = false,
-                isLocationPreferencesMenuExpanded = false
-            )
-        }
-    }
-
-    // update location expanded
-    fun updateLocationMenuExpanded(expanded: Boolean) {
-        _searchScreenUiState.update { currentState ->
-            currentState.copy(
-                isLocationPreferencesMenuExpanded = expanded
-            )
-        }
-    }
-
-    // update drop down expanded
-    fun updateDropDownExpanded(expanded: Boolean) {
-        _searchScreenUiState.update { currentState ->
-            currentState.copy(
-                isRadiusPreferencesExpanded = expanded
-            )
-        }
-    }
-
-    // update search radius
-    fun updateSearchRadius(radius: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                searchRadius = radius
-            )
-        }
-    }
-
     // load events from repository
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getEvents(
@@ -211,6 +145,23 @@ class ConcertFinderViewModel(
         }
     }
 
+    fun onLocationSearch(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (query.isNotBlank()) {
+                    locationPreferences.saveLocation(address = query)
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            currentAddress = getCurrentAddress()
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("Location", e.message.toString())
+            }
+        }
+    }
+
     // This function is called by the UI when it wants to initiate a location update.
     // The ViewModel will check if it thinks permission might be needed.
     fun initiateLocationUpdate() {
@@ -218,6 +169,9 @@ class ConcertFinderViewModel(
             _requestLocationPermissionEvent.emit(Unit)
         }
     }
+
+    // INTERNAL FUNCTIONS BELOW THIS LINE
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     // get location from location preferences
     private fun getLocation(): String {
@@ -239,6 +193,84 @@ class ConcertFinderViewModel(
             .withZone(ZoneId.of("UTC"))
 
         return formatter.format(instant)
+    }
+
+    // UI STATE UPDATES BELOW THIS LINE
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    // update show bottom bar
+    fun updateShowBottomBar(show: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                showBottomBar = show
+            )
+        }
+    }
+
+    // update search expanded
+    fun updateSearchExpanded(expanded: Boolean) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isSearchBarExpanded = expanded
+            )
+        }
+    }
+
+    // update search text
+    fun updateSearchText(text: String) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                searchQuery = text
+            )
+        }
+    }
+
+    // reset search bar
+    fun resetSearchBar() {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isSearchBarExpanded = false,
+                searchQuery = "",
+                isRadiusPreferencesExpanded = false,
+                isLocationPreferencesMenuExpanded = false
+            )
+        }
+    }
+
+    // update location expanded
+    fun updateLocationMenuExpanded(expanded: Boolean) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isLocationPreferencesMenuExpanded = expanded
+            )
+        }
+    }
+
+    // update drop down expanded
+    fun updateDropDownExpanded(expanded: Boolean) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isRadiusPreferencesExpanded = expanded
+            )
+        }
+    }
+
+    // update search radius
+    fun updateSearchRadius(radius: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchRadius = radius
+            )
+        }
+    }
+
+    // update location search query
+    fun updateLocationSearchQuery(query: String) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                locationSearchQuery = query
+            )
+        }
     }
 
     // injects view model with events repository, location manager, and location preferences

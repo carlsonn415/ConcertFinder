@@ -185,6 +185,12 @@ fun SearchBarScreen(
             onGetCurrentLocation = {
                 viewModel.initiateLocationUpdate()
             },
+            onLocationQueryUpdate = {
+                viewModel.updateLocationSearchQuery(it)
+            },
+            onLocationSearch = {
+                viewModel.onLocationSearch(it)
+            },
             radiusOptions = radiusOptions
         )
     }
