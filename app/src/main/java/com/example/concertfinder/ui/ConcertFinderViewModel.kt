@@ -11,10 +11,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.concertfinder.ConcertFinderApplication
-import com.example.concertfinder.data.EventsRepository
-import com.example.concertfinder.local.LocationPreferences
-import com.example.concertfinder.model.ConcertFinderUiState
+import com.example.concertfinder.data.repositories.EventsRepository
+import com.example.concertfinder.data.LocationPreferences
+import com.example.concertfinder.model.uistate.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
+import com.example.concertfinder.model.uistate.SearchScreenUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,8 +37,13 @@ class ConcertFinderViewModel(
     private val locationPreferences: LocationPreferences
 ) : ViewModel() {
 
+    // Top level ui state
     private val _uiState = MutableStateFlow(ConcertFinderUiState())
     val uiState = _uiState.asStateFlow()
+
+    // search screen ui state
+    private val _searchScreenUiState = MutableStateFlow(SearchScreenUiState())
+    val searchScreenUiState = _searchScreenUiState.asStateFlow()
 
     // Event to signal UI to request location permissions
     private val _requestLocationPermissionEvent = MutableSharedFlow<Unit>()
@@ -63,37 +69,65 @@ class ConcertFinderViewModel(
 
     // update search expanded
     fun updateSearchExpanded(expanded: Boolean) {
-        _uiState.update { currentState ->
+        _searchScreenUiState.update { currentState ->
             currentState.copy(
-                searchExpanded = expanded
+                isSearchBarExpanded = expanded
             )
         }
     }
 
     // update search text
     fun updateSearchText(text: String) {
-        _uiState.update { currentState ->
+        _searchScreenUiState.update { currentState ->
             currentState.copy(
-                searchText = text
+                searchQuery = text
             )
         }
     }
 
     // reset search bar
     fun resetSearchBar() {
-        _uiState.update { currentState ->
+        _searchScreenUiState.update { currentState ->
             currentState.copy(
-                searchExpanded = false,
-                searchText = ""
+                isSearchBarExpanded = false,
+                searchQuery = "",
+                isRadiusPreferencesExpanded = false,
+                isLocationPreferencesMenuExpanded = false
             )
         }
     }
 
+    // update location expanded
+    fun updateLocationMenuExpanded(expanded: Boolean) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isLocationPreferencesMenuExpanded = expanded
+            )
+        }
+    }
+
+    // update drop down expanded
+    fun updateDropDownExpanded(expanded: Boolean) {
+        _searchScreenUiState.update { currentState ->
+            currentState.copy(
+                isRadiusPreferencesExpanded = expanded
+            )
+        }
+    }
+
+    // update search radius
+    fun updateSearchRadius(radius: String) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                searchRadius = radius
+            )
+        }
+    }
 
     // load events from repository
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getEvents(
-        radius: String = "50",
+        radius: String = uiState.value.searchRadius, // TODO: store this value on-device
         geoPoint: String = getLocation(),
         startDateTime: String = getFormattedDate(Calendar.getInstance()),
         sort: String = "date,asc",
@@ -123,8 +157,12 @@ class ConcertFinderViewModel(
                 _uiState.update {
                     currentState -> currentState.copy(
                         loadingStatus = LoadingStatus.Success,
-                        searchResults = events
                     )
+                }
+                _searchScreenUiState.update {
+                    currentState -> currentState.copy(
+                       searchResults = events
+                   )
                 }
             } catch (e: IOException) { // catch exceptions
                 _uiState.update {

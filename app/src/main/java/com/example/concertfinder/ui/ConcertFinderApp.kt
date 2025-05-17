@@ -70,6 +70,9 @@ fun ConcertFinderApp(
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
 
+    // collect search screen ui state from view model
+    val searchScreenUiState = viewModel.searchScreenUiState.collectAsState()
+
     /* TODO: add support for different screen sizes */
     val contentType = when(windowSize) {
         WindowWidthSizeClass.Compact -> ConcertFinderContentType.Compact
@@ -150,6 +153,7 @@ fun ConcertFinderApp(
             composable(route = ConcertFinderScreen.Search.name) {
                 SearchBarScreen(
                     uiState = uiState.value,
+                    searchScreenUiState = searchScreenUiState.value,
                     viewModel = viewModel,
                     onSearch = {
                         viewModel.getEvents(
@@ -185,7 +189,7 @@ fun ConcertFinderApp(
                     ErrorScreen()
                 } else {
                     SearchResultsScreen(
-                        eventList = uiState.value.searchResults,
+                        eventList = searchScreenUiState.value.searchResults,
                         onClick = {
                             navController.navigate(ConcertFinderScreen.EventDetails.name)
                         },

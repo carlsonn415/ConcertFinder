@@ -3,4 +3,6 @@
     <dimen name="app_icon_size">48.dp</dimen>
     <dimen name="padding_medium">16.dp</dimen>
     <dimen name="padding_small">8.dp</dimen>
+    <dimen name="icon_button_size">28.dp</dimen>
+    <dimen name="location_textfield_height">64.dp</dimen>
 </resources>

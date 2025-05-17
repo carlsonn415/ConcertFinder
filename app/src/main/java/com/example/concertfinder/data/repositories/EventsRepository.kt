@@ -1,4 +1,4 @@
-package com.example.concertfinder.data
+package com.example.concertfinder.data.repositories
 
 import com.example.concertfinder.model.Event
 import com.example.concertfinder.network.ConcertFinderApiService

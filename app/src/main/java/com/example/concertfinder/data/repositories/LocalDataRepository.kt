@@ -1,4 +1,4 @@
-package com.example.concertfinder.data
+package com.example.concertfinder.data.repositories
 
 import com.example.concertfinder.local.LocalDatabase
 

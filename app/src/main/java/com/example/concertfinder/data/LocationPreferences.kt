@@ -1,4 +1,4 @@
-package com.example.concertfinder.local
+package com.example.concertfinder.data
 
 import android.content.Context
 import android.content.SharedPreferences

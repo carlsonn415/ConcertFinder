@@ -1,7 +1,7 @@
 package com.example.concertfinder.fake
 
 import com.example.concertfinder.fake.rules.TestDispatcherRule
-import com.example.concertfinder.model.ConcertFinderUiState
+import com.example.concertfinder.model.uistate.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
 import com.example.concertfinder.ui.ConcertFinderViewModel
 import junit.framework.TestCase.assertEquals

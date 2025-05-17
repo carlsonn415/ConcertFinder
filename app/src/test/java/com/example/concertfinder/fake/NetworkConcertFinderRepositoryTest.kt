@@ -1,6 +1,6 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.data.NetworkEventsRepository
+import com.example.concertfinder.data.repositories.NetworkEventsRepository
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import kotlinx.coroutines.test.runTest

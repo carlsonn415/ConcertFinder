@@ -1,7 +1,8 @@
 package com.example.concertfinder.data
 
 import android.content.Context
-import com.example.concertfinder.local.UserLocationPreferences
+import com.example.concertfinder.data.repositories.EventsRepository
+import com.example.concertfinder.data.repositories.NetworkEventsRepository
 import com.example.concertfinder.network.ConcertFinderApiService
 import com.example.concertfinder.network.DefaultLocationManager
 import com.example.concertfinder.network.LocationManager

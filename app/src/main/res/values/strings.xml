@@ -11,5 +11,9 @@
     <string name="event_details">Event Details</string>
     <string name="day_details">Day Details</string>
     <string name="home">Home</string>
-    <string name="search_placeholder">Search for event, artist, venue...</string>
+    <string name="search_placeholder">Search for event, artist, venue&#8230;</string>
+    <string name="drop_down_arrow">drop down arrow</string>
+    <string name="update_location">update location</string>
+    <string name="search_for_city_state_or_zip_code">Search for city, state, or zip code</string>
+    <string name="no_search_history">No search history</string>
 </resources>

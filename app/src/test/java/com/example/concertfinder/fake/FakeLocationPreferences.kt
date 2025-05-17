@@ -1,6 +1,6 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.local.LocationPreferences
+import com.example.concertfinder.data.LocationPreferences
 
 class FakeLocationPreferences : LocationPreferences {
     override fun saveLocation(latitude: Double, longitude: Double) {
