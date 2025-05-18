@@ -1,9 +1,7 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.model.DateInfo
-import com.example.concertfinder.model.Event
-import com.example.concertfinder.model.EventImage
-import com.example.concertfinder.model.StartDateInfo
+import com.example.concertfinder.model.apidata.Event
+import com.example.concertfinder.model.apidata.EventImage
 
 object FakeDataSource {
 
@@ -11,8 +9,7 @@ object FakeDataSource {
         Event(
             id = "1",
             name = "Test Event 1",
-            location = Pair(1.0, 2.0),
-            imageList = listOf(
+            images = listOf(
                 EventImage(
                     url = "https://example.com/image1.jpg"
                 ),
@@ -20,18 +17,11 @@ object FakeDataSource {
                     url = "https://example.com/image2.jpg"
                 )
             ),
-            dateInfo = DateInfo(
-                start = StartDateInfo(
-                    date = "2023-09-15",
-                    time = "19:30:00"
-                )
-            )
         ),
         Event(
             id = "2",
             name = "Test Event 2",
-            location = Pair(1.0, 2.0),
-            imageList = listOf(
+            images = listOf(
                 EventImage(
                     url = "https://example.com/image1.jpg"
                 ),
@@ -39,12 +29,6 @@ object FakeDataSource {
                     url = "https://example.com/image2.jpg"
                 )
             ),
-            dateInfo = DateInfo(
-                start = StartDateInfo(
-                    date = "2023-09-15",
-                    time = "19:30:00"
-                )
-            )
         )
     )
 }

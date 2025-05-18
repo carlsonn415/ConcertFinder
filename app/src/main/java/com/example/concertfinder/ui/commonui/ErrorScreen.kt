@@ -8,11 +8,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ErrorScreen() {
+fun ErrorScreen(
+    message: String
+) {
     Box(
         contentAlignment = Alignment.Companion.Center,
         modifier = Modifier.Companion.fillMaxSize()
     ) {
-        Text(text = "Error")
+        Text(text = "Error: $message")
     }
 }

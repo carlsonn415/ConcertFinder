@@ -1,6 +1,6 @@
 package com.example.concertfinder.model.uistate
 
-import com.example.concertfinder.model.Event
+import com.example.concertfinder.model.apidata.Event
 
 data class SearchScreenUiState(
     val isSearchBarExpanded: Boolean = false,

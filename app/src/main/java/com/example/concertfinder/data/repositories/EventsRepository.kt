@@ -1,6 +1,6 @@
 package com.example.concertfinder.data.repositories
 
-import com.example.concertfinder.model.Event
+import com.example.concertfinder.model.apidata.Event
 import com.example.concertfinder.network.ConcertFinderApiService
 
 interface EventsRepository {

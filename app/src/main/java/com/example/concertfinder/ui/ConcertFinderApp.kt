@@ -170,7 +170,7 @@ fun ConcertFinderApp(
                 if (uiState.value.loadingStatus is LoadingStatus.Loading) {
                     LoadingScreen()
                 } else if (uiState.value.loadingStatus is LoadingStatus.Error) {
-                    ErrorScreen()
+                    ErrorScreen((uiState.value.loadingStatus as LoadingStatus.Error).message)
                 } else {
                     CalendarScreen(
                         onClick = {
@@ -186,11 +186,12 @@ fun ConcertFinderApp(
                 if (uiState.value.loadingStatus is LoadingStatus.Loading) {
                     LoadingScreen()
                 } else if (uiState.value.loadingStatus is LoadingStatus.Error) {
-                    ErrorScreen()
+                    ErrorScreen((uiState.value.loadingStatus as LoadingStatus.Error).message)
                 } else {
                     SearchResultsScreen(
                         eventList = searchScreenUiState.value.searchResults,
                         onClick = {
+                            viewModel.updateCurrentEvent(it)
                             navController.navigate(ConcertFinderScreen.EventDetails.name)
                         },
                         modifier = modifier,
@@ -211,9 +212,16 @@ fun ConcertFinderApp(
 
             // event details screen composable
             composable(route = ConcertFinderScreen.EventDetails.name) {
-                EventDetailsScreen(
-                    modifier = modifier
-                )
+                if (uiState.value.currentEvent != null) {
+                    EventDetailsScreen(
+                        event = uiState.value.currentEvent!!,
+                        modifier = modifier,
+                        innerPadding = innerPadding
+                    )
+                } else {
+                    // TODO: Change this behavior
+                    LoadingScreen()
+                }
             }
         }
     }

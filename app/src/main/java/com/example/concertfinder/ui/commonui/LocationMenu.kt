@@ -139,6 +139,7 @@ fun LocationMenu(
                                 onLocationSearch(searchScreenUiState.locationSearchQuery)
                             }
                         ),
+                        singleLine = true,
                         shape = MaterialTheme.shapes.small,
                         modifier = modifier
                             .weight(1f)

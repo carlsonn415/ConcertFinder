@@ -1,6 +1,6 @@
 package com.example.concertfinder.network
 
-import com.example.concertfinder.model.ApiResponse
+import com.example.concertfinder.model.apidata.ApiResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

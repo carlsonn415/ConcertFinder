@@ -15,6 +15,7 @@ import com.example.concertfinder.data.repositories.EventsRepository
 import com.example.concertfinder.data.LocationPreferences
 import com.example.concertfinder.model.uistate.ConcertFinderUiState
 import com.example.concertfinder.model.LoadingStatus
+import com.example.concertfinder.model.apidata.Event
 import com.example.concertfinder.model.uistate.SearchScreenUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -269,6 +270,15 @@ class ConcertFinderViewModel(
         _searchScreenUiState.update { currentState ->
             currentState.copy(
                 locationSearchQuery = query
+            )
+        }
+    }
+
+    // update current event
+    fun updateCurrentEvent(event: Event) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentEvent = event
             )
         }
     }

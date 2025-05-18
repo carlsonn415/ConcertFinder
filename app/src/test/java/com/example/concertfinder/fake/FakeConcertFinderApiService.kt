@@ -1,7 +1,7 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.model.ApiResponse
-import com.example.concertfinder.model.EmbeddedData
+import com.example.concertfinder.model.apidata.ApiResponse
+import com.example.concertfinder.model.apidata.EmbeddedApiData
 import com.example.concertfinder.network.ConcertFinderApiService
 
 class FakeConcertFinderApiService : ConcertFinderApiService {
@@ -16,7 +16,7 @@ class FakeConcertFinderApiService : ConcertFinderApiService {
         apiKey: String
     ): ApiResponse {
         return ApiResponse(
-            embedded = EmbeddedData(
+            embedded = EmbeddedApiData(
                 events = FakeDataSource.eventsList
             )
         )
