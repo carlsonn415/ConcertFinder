@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -78,6 +80,10 @@ dependencies {
     // Location Services
     implementation("com.google.android.gms:play-services-location:21.3.0")
 
+    //Dagger - Hilt
+    implementation("com.google.dagger:hilt-android:2.56.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.56.2")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Test dependencies
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")

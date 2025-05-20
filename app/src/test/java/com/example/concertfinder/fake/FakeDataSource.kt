@@ -1,7 +1,7 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.model.apidata.Event
-import com.example.concertfinder.model.apidata.EventImage
+import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.domain.model.EventImage
 
 object FakeDataSource {
 

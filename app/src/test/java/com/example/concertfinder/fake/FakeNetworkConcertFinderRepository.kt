@@ -1,7 +1,7 @@
 package com.example.concertfinder.fake
 
-import com.example.concertfinder.data.repositories.EventsRepository
-import com.example.concertfinder.model.apidata.Event
+import com.example.concertfinder.data.repository.EventsRepository
+import com.example.concertfinder.data.model.Event
 
 class FakeNetworkEventsRepository : EventsRepository {
 

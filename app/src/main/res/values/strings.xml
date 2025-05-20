@@ -18,4 +18,7 @@
     <string name="no_search_history">No search history</string>
     <string name="no_events_found">No events found in your selected area</string>
     <string name="try_different_search">Please try a different search or change locations.</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="getting_location">Getting location&#8230;</string>
+    <string name="searching_in">"Searching in "</string>
 </resources>

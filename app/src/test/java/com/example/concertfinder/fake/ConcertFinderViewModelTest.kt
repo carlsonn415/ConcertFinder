@@ -1,8 +1,8 @@
 package com.example.concertfinder.fake
 
 import com.example.concertfinder.fake.rules.TestDispatcherRule
-import com.example.concertfinder.model.uistate.ConcertFinderUiState
-import com.example.concertfinder.model.LoadingStatus
+import com.example.concertfinder.presentation.app.AppUiState
+import com.example.concertfinder.domain.model.LoadingStatus
 import com.example.concertfinder.ui.ConcertFinderViewModel
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
@@ -19,16 +19,16 @@ class ConcertFinderViewModelTest {
 
         val concertFinderViewModel = ConcertFinderViewModel(
             eventsRepository = FakeNetworkEventsRepository(),
-            locationManager = FakeLocationManager(),
-            locationPreferences = FakeLocationPreferences()
+            locationManager = FakeLocationManagerService(),
+            locationPreferences = FakeLocationPreferencesRepository()
         )
 
         concertFinderViewModel.getEvents()
 
         assertEquals(
-            ConcertFinderUiState(
+            AppUiState(
                 loadingStatus = LoadingStatus.Success,
-                currentAddress = "New York, NY",
+                address = "New York, NY",
             ),
             concertFinderViewModel.uiState.value
         )
