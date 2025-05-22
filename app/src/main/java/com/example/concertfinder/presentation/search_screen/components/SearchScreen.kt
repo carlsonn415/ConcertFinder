@@ -38,7 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.LocationMenu
+import com.example.concertfinder.presentation.common_ui.preference_menus.LocationMenu
 import com.example.concertfinder.presentation.search_screen.SearchScreenViewModel
 import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
@@ -80,6 +80,7 @@ fun SearchScreen(
             modifier = Modifier
                 .heightIn(max = 500.dp)
         ) {
+
             SearchBar(
                 inputField = {
                     SearchBarDefaults.InputField(
@@ -119,8 +120,8 @@ fun SearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = dimensionResource(R.dimen.padding_medium),
-                        vertical = dimensionResource(R.dimen.padding_small)
+                        horizontal = dimensionResource(id = R.dimen.padding_medium),
+                        vertical = dimensionResource(id = R.dimen.padding_small)
                     )
                     .background(MaterialTheme.colorScheme.background)
             ) {
@@ -158,8 +159,7 @@ fun SearchScreen(
                                         )
                                     },
                                     modifier = Modifier.clickable {
-                                        viewModel.updateSearchText(historyItem)
-                                        onSearch(uiState.value.searchQuery)
+                                        onSearch(historyItem)
                                     }
                                 )
                             }
@@ -170,9 +170,9 @@ fun SearchScreen(
                 } else {
                     Box( // Show a message if history is empty
                         modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
                             .heightIn(min = 56.dp, max = 500.dp)
-                            .fillMaxSize()
-                            .padding(16.dp),
+                            .fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(stringResource(R.string.no_search_history))

@@ -16,6 +16,7 @@ data class Venue(
     @SerializedName("parkingDetail") val parkingDetail: String? = null,
     @SerializedName("generalInfo") val generalInfo: GeneralInfo? = null,
     @SerializedName("additionalInfo") val additionalInfo: String? = null,
+    @SerializedName("location") val location: LocationData? = null,
 )
 
 @Serializable

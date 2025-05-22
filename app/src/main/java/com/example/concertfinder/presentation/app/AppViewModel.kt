@@ -3,6 +3,7 @@ package com.example.concertfinder.presentation.app
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
+import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.presentation.utils.AppDestinations
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,6 +33,14 @@ class AppViewModel() : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 showBottomBar = show
+            )
+        }
+    }
+
+    fun updateCurrentEvent(event: Event) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentEvent = event
             )
         }
     }

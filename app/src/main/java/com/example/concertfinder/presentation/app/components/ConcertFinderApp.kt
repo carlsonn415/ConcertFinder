@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +42,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
-import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.calendar_screen.components.CalendarScreen
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
@@ -52,7 +50,6 @@ import com.example.concertfinder.presentation.saved_events_screen.components.Sav
 import com.example.concertfinder.presentation.search_screen.components.SearchScreen
 import com.example.concertfinder.presentation.utils.AppContentType
 import com.example.concertfinder.presentation.utils.AppDestinations
-import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 import com.example.concertfinder.presentation.utils.TopLevelRoute
 import com.example.concertfinder.presentation.utils.topLevelRoutes
 
@@ -177,6 +174,7 @@ fun ConcertFinderApp(
             ) {
                 EventListScreen(
                     onClick = {
+                        viewModel.updateCurrentEvent(it)
                         navController.navigate(AppDestinations.EVENT_DETAILS)
                     },
                     modifier = modifier,
@@ -187,7 +185,7 @@ fun ConcertFinderApp(
             // event details screen composable
             composable(route = AppDestinations.EVENT_DETAILS) {
                 EventDetailScreen(
-                    event = Event(),
+                    event = uiState.value.currentEvent,
                     modifier = modifier,
                     innerPadding = innerPadding
                 )

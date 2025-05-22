@@ -21,4 +21,6 @@
     <string name="loading">Loading&#8230;</string>
     <string name="getting_location">Getting location&#8230;</string>
     <string name="searching_in">"Searching in "</string>
+    <string name="back">Back</string>
+    <string name="close">Close</string>
 </resources>
