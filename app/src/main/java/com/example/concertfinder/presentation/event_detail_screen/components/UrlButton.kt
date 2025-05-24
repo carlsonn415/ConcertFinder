@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.core.net.toUri
 
 @Composable
@@ -21,6 +22,7 @@ fun UrlButton(
     enabled: Boolean = true,
     context: Context = LocalContext.current,
     url: String = "",
+    fontSize: TextUnit = TextUnit.Unspecified
 ) {
     if (enabled) {
         Button(
@@ -52,6 +54,7 @@ fun UrlButton(
         ) {
             Text(
                 text = content,
+                fontSize = fontSize,
                 maxLines = 1
             )
         }
@@ -64,6 +67,7 @@ fun UrlButton(
         ) {
             Text(
                 text = content,
+                fontSize = fontSize,
                 maxLines = 1
             )
         }

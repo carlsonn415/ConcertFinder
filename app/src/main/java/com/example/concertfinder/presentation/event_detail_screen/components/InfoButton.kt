@@ -7,6 +7,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 
 @Composable
 fun InfoButton(
@@ -14,6 +15,7 @@ fun InfoButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    fontSize: TextUnit = TextUnit.Unspecified
 ) {
     if (enabled) {
         Button(
@@ -23,6 +25,7 @@ fun InfoButton(
         ) {
             Text(
                 text = text,
+                fontSize = fontSize,
                 maxLines = 1
             )
         }
@@ -35,6 +38,7 @@ fun InfoButton(
         ) {
             Text(
                 text = text,
+                fontSize = fontSize,
                 maxLines = 1
             )
         }

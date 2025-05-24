@@ -5,9 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,15 +21,18 @@ import com.example.concertfinder.data.remote.event_dto.Classification
 @Composable
 fun ClassificationFlowRow(
     classifications: List<Classification>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showSegment: Boolean = true,
 ) {
     if (classifications.isNotEmpty()) {
         FlowRow(
             modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
         ) {
-            FlowRowItem(
-                text = classifications.first().segment?.name.toString(),
-            )
+            if (showSegment) {
+                FlowRowItem(
+                    text = classifications.first().segment?.name.toString(),
+                )
+            }
 
             classifications.forEach {
                 FlowRowItem(

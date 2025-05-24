@@ -45,14 +45,6 @@ class EventDetailViewModel @Inject constructor(
         }
     }
 
-    fun toggleVenuePageExpanded() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isVenuePageExpanded = !currentState.isVenuePageExpanded
-            )
-        }
-    }
-
     fun toggleAttractionPageExpanded() {
         _uiState.update { currentState ->
             currentState.copy(
@@ -69,16 +61,19 @@ class EventDetailViewModel @Inject constructor(
         }
     }
 
-    fun getImageUrl(images: List<EventImage>?): String? {
+    fun getImageUrl(
+        images: List<EventImage>?,
+        aspectRatio: String = "16_9",
+        minImageWidth: Int = 1080
+    ): String? {
         if (images != null) {
-            var currentImage = images[0]
+            val currentImage = images[0]
 
             for (image in images) {
-                if (image.ratio == "16_9" && (image.width ?: 0) >= 1080) {
-                    currentImage = image
+                if (image.ratio == aspectRatio && (image.width ?: 0) >= minImageWidth) {
+                    return image.url
                 }
             }
-
             return currentImage.url
         } else {
             return null

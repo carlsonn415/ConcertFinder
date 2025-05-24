@@ -42,4 +42,9 @@
     <string name="attraction_image">Attraction image</string>
     <string name="venue_page">Venue page</string>
     <string name="Profile">Profile</string>
+    <string name="profile">Profile</string>
+    <string name="info">Info</string>
+    <string name="page">Page</string>
+    <string name="venue">Venue</string>
+    <string name="venues">Venues</string>
 </resources>
