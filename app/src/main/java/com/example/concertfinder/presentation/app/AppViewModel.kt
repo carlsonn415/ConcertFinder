@@ -19,7 +19,12 @@ class AppViewModel() : ViewModel() {
         navController: NavController,
         searchQuery: String,
     ) {
-        var route = AppDestinations.EVENT_LIST + "/$searchQuery"
+        var modifiedSearchQuery = searchQuery
+        if (searchQuery.contains("/")) {
+            modifiedSearchQuery = modifiedSearchQuery.replace("/", "")
+        }
+
+        var route = AppDestinations.EVENT_LIST + "/${modifiedSearchQuery}"
 
         Log.d("navigation", "Navigating to $route")
         navController.navigate(route)

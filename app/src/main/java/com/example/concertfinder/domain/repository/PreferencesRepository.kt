@@ -12,6 +12,8 @@ interface PreferencesRepository {
 
         fun getLocation(): String
         fun getAddress(): String
+        fun getLatitude(): Double
+        fun getLongitude(): Double
     }
 
     fun getLocationPreferences(): LocationPreferencesRepository

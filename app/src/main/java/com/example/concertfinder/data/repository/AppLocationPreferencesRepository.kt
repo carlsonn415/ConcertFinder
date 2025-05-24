@@ -71,6 +71,14 @@ class AppLocationPreferencesRepository(
         return getPrefs(context).getString(keyAddress, defaultAddress) ?: defaultAddress
     }
 
+    override fun getLatitude(): Double {
+        return getPrefs(context).getString(keyLatitude, defaultLatitude.toString())?.toDouble() ?: defaultLatitude
+    }
+
+    override fun getLongitude(): Double {
+        return getPrefs(context).getString(keyLongitude, defaultLongitude.toString())?.toDouble() ?: defaultLongitude
+    }
+
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
     }

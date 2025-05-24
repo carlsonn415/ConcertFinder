@@ -23,4 +23,23 @@
     <string name="searching_in">"Searching in "</string>
     <string name="back">Back</string>
     <string name="close">Close</string>
+    <string name="description_not_provided">Description not provided.</string>
+    <string name="event_description">Event description</string>
+    <string name="event_information">Event information</string>
+    <string name="additional_information">Additional information</string>
+    <string name="please_note">Please note:</string>
+    <string name="get_tickets">Get tickets</string>
+    <string name="additional_info">Additional info</string>
+    <string name="no_tickets_found">No tickets found</string>
+    <string name="no_additional_info">No additional information found</string>
+    <string name="venue_information">Venue information</string>
+    <string name="event_page">Event page</string>
+    <string name="venue_image">Venue image</string>
+    <string name="event_image">Event Image</string>
+    <string name="no_event_name">No Event Name</string>
+    <string name="information">Information</string>
+    <string name="attraction_information">Attraction information</string>
+    <string name="attraction_image">Attraction image</string>
+    <string name="venue_page">Venue page</string>
+    <string name="Profile">Profile</string>
 </resources>

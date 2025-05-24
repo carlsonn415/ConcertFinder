@@ -30,7 +30,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     // Default values
     private val defaultRadius = "50"
     private val defaultStartDateTime = getFormattedDate(Calendar.getInstance())
-    private val defaultSort = "date,asc"
+    private val defaultSort = "relevance,desc"
     private val defaultGenre = null
     private val defaultSubgenre = null
     private val defaultSegment = null

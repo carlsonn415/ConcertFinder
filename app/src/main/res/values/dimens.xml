@@ -2,7 +2,12 @@
 <resources>
     <dimen name="app_icon_size">48.dp</dimen>
     <dimen name="padding_medium">16.dp</dimen>
+    <dimen name="padding_large">24.dp</dimen>
+    <dimen name="padding_medium_large">20.dp</dimen>
+    <dimen name="padding_extra_large">32.dp</dimen>
+    <dimen name="padding_medium_small">12.dp</dimen>
     <dimen name="padding_small">8.dp</dimen>
+    <dimen name="padding_extra_small">4.dp</dimen>
     <dimen name="icon_button_size">28.dp</dimen>
     <dimen name="location_textfield_height">72.dp</dimen>
 </resources>

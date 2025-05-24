@@ -1,10 +1,15 @@
 package com.example.concertfinder.presentation.event_detail_screen.components
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,10 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,33 +37,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
-import com.example.concertfinder.data.remote.event_dto.Attraction
-import com.example.concertfinder.data.remote.event_dto.EmbeddedEventData
-import com.example.concertfinder.data.remote.event_dto.LocationData
-import com.example.concertfinder.data.remote.event_dto.PriceRange
-import com.example.concertfinder.data.remote.event_dto.Venue
+import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.presentation.event_detail_screen.EventDetailViewModel
 
+@OptIn(ExperimentalLayoutApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventDetailScreen(
     event: Event,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
-    viewModel: EventDetailViewModel = viewModel()
+    viewModel: EventDetailViewModel = hiltViewModel()
 ) {
 
     val uiState = viewModel.uiState.collectAsState()
-    
-    Box(
+
+    // Queue of info to display, as info is displayed, it is removed from the queue
+    val infoQueue = mutableMapOf<String, String>(
+        Pair(stringResource(R.string.event_description), event.description ?: ""),
+        Pair(stringResource(R.string.event_information), event.info ?: ""),
+        Pair(stringResource(R.string.additional_information), event.additionalInfo ?: ""),
+        Pair(stringResource(R.string.please_note), event.pleaseNote ?: "")
+    )
+
+    Box( // Displays additional info over event screen if applicable
         contentAlignment = Alignment.Center
     ) {
-        Column(
+        Column( // Displays event screen
             horizontalAlignment = Alignment.Start,
             modifier = modifier
                 .verticalScroll(rememberScrollState())
@@ -76,10 +89,10 @@ fun EventDetailScreen(
                     }
                 )
         ) {
-            // Event image
+            // ------------------------------------------------------------------------------------------------------------Event image
             AsyncImage(
-                model = event.images?.get(0)?.url.toString(),
-                contentDescription = "Event Image",
+                model = viewModel.getImageUrl(event.images),
+                contentDescription = stringResource(R.string.event_image),
                 contentScale = ContentScale.Crop,
                 modifier = modifier
                     .fillMaxWidth()
@@ -87,366 +100,404 @@ fun EventDetailScreen(
                     .background(color = MaterialTheme.colorScheme.secondary)
             )
 
-            // Event name
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+
+            // -------------------------------------------------------------------------------------------------------------Event name
             Text(
-                text = event.name.toString(),
+                text = event.name ?: stringResource(R.string.no_event_name),
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = modifier
                     .padding(
-                        horizontal = dimensionResource(id = R.dimen.padding_medium),
-                        vertical = dimensionResource(id = R.dimen.padding_small)
+                        horizontal = dimensionResource(id = R.dimen.padding_medium)
                     )
             )
 
-            // Event price and location row
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = modifier
-                    .padding(horizontal = dimensionResource(id = R.dimen.padding_medium))
-                    .padding(bottom = dimensionResource(id = R.dimen.padding_small))
-            ) {
-                // Check if event has price ranges
-                if (
-                    event.priceRanges != null
-                    && event.priceRanges.first().currency != null
-                    && event.priceRanges.first().min != null
-                    && event.priceRanges.first().max != null
-                ) {
-                    if (event.priceRanges.first().currency == "USD") {
-                        // USD
-                        Text(
-                            text = "$" + event.priceRanges.first().min?.toInt()
-                                .toString() + " - $" + event.priceRanges.first().max?.toInt()
-                                .toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    } else {
-                        // TODO: add support for other currencies
-                        Text(
-                            text = event.priceRanges.first().min.toString() + " " +
-                                    event.priceRanges.first().currency.toString() + " - " +
-                                    event.priceRanges.first().max.toString() + " " +
-                                    event.priceRanges.first().currency.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
-                    Box(
-                        modifier = modifier
-                            .padding(horizontal = dimensionResource(R.dimen.padding_small))
-                            .size(height = 16.dp, width = 1.dp)
-                            .background(color = MaterialTheme.colorScheme.onBackground)
-                    )
-                }
-                // Check if event has location, if not use venue location
-                if (event.place != null && event.place.address != null && event.place.city != null && event.place.state != null) {
-                    Text(
-                        text = event.place.address.line1 + ", " + event.place.city.name + ", " + event.place.state,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                } else if (
-                    event.embedded?.venues != null
-                    && event.embedded.venues.first().address != null
-                    && event.embedded.venues.first().city != null
-                    && event.embedded.venues.first().state != null
-                ) {
-                    Text(
-                        text = event.embedded.venues.first().address?.line1 + ", " + event.embedded.venues.first().city?.name + ", " + event.embedded.venues.first().state?.name,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
 
-            // Event url button
-            if (event.url != null) {
-                UrlButton(
-                    context = LocalContext.current,
-                    content = "Get Tickets",
-                    url = event.url.toString(),
-                    modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            // Gets distance from location
+            val distanceFromLocation = viewModel.getDistanceFromLocation(
+                event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                event.location?.longitude ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                DistanceUnit.Miles // TODO: Allow user to select distance unit
+            )
+
+            // -------------------------------------------------------------------------------------------------------------Event price, location, and distance from location
+            PriceAndLocationRow(event, distanceFromLocation, modifier)
+
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+
+            val eventStartDate = viewModel.getFormattedEventStartDates(event.dates)
+            val eventEndDate = viewModel.getFormattedEventEndDates(event.dates)
+
+            // -------------------------------------------------------------------------------------------------------------Event start date
+            if (eventStartDate != null) {
+                Text(
+                    text = eventStartDate,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = modifier
+                        .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 )
+
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+            }
+            // -------------------------------------------------------------------------------------------------------------Event end date
+            if (eventEndDate != null) {
+                Text(
+                    text = eventEndDate,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = modifier
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.padding_medium),
+                        )
+                )
+
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
             }
 
-            // Displays most event info in order of importance, if there is undisplayed info it will be accessible in the button below
-            if (event.description == null) {
-                if (event.info == null) {
-                    if (event.additionalInfo == null) {
-                        if (event.pleaseNote == null) {
-                            Text(
-                                text = "No details found",
-                                style = MaterialTheme.typography.bodyMedium,
+            // ------------------------------------------------------------------------------------------------------------Event description
+            // Displays most relevant info on screen,
+            // any additional info will be displayed when additional info button is clicked
+            TextBlock(
+                title = determineTextBlockTitle(infoQueue),
+                text = determineTextBlockText(infoQueue),
+                expanded = uiState.value.isDescriptionExpanded,
+                onClick = { viewModel.toggleDescriptionExpanded() },
+                clickable = true,
+                modifier = modifier
+                    .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            )
+
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
+
+            // ------------------------------------------------------------------------------------------------------------Event additional info and get tickets buttons
+            EventButtonRow(
+                url = event.url,
+                infoQueue = infoQueue,
+                onToggleDisplayAdditionalInfo = {
+                    viewModel.toggleDisplayAdditionalInfo()
+                    viewModel.updateInfoQueue(infoQueue)
+                },
+                modifier = modifier
+            )
+
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
+
+            // ------------------------------------------------------------------------------------------------------------Event classifications
+            ClassificationFlowRow(
+                classifications = event.classifications ?: emptyList(),
+                modifier = modifier
+            )
+
+            Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
+
+            // ------------------------------------------------------------------------------------------------------------Event venue(s)
+
+            // Checks if event has at least one venue
+            if (event.embedded?.venues?.isNotEmpty() == true) {
+                Column(
+                    modifier = modifier
+                        .animateContentSize()
+                ) {
+                    HorizontalDivider()
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = modifier
+                            .clickable { viewModel.toggleVenuePageExpanded() }
+                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Text(
+                            text = stringResource(R.string.venue_information),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = modifier.padding(vertical = dimensionResource(R.dimen.padding_medium))
+                        )
+                        Spacer(modifier = modifier.weight(1f))
+                        if (uiState.value.isVenuePageExpanded) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp,
+                                contentDescription = null,
                                 modifier = modifier.padding(
-                                    start = dimensionResource(R.dimen.padding_medium),
-                                    bottom = dimensionResource(R.dimen.padding_small)
+                                    end = dimensionResource(R.dimen.padding_small)
                                 )
+
                             )
                         } else {
-                            TextBlock(
-                                title = "Please note",
-                                text = event.pleaseNote.toString(),
-                                modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = modifier.padding(
+                                    end = dimensionResource(R.dimen.padding_small)
+                                )
                             )
                         }
-                    } else {
-                        TextBlock(
-                            title = "Event info",
-                            text = event.additionalInfo.toString(),
-                            modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
-                        )
                     }
-                } else {
-                    TextBlock(
-                        title = "Event info",
-                        text = event.info.toString(),
-                        modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
-                    )
-                }
-            } else {
-                TextBlock(
-                    title = "Event description",
-                    text = event.description.toString(),
-                    modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
-                )
-            }
+                    HorizontalDivider()
 
-            InfoButton(
-                text = "Additional info",
-                onClick = {
-                    viewModel.toggleDisplayAdditionalInfo()
-                },
-                modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
-            )
-
-
-            Text(
-                text = "Info: " + event.info.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Additional Info: " + event.additionalInfo.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Please Note: " + event.pleaseNote.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Location: " + event.location?.latitude.toString() + ", " + event.location?.longitude.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Date: " + event.dates?.start?.localDate.toString() + " " + event.dates?.start?.localTime.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Status: " + event.dates?.status?.code.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            Text(
-                text = "Place: " + event.place?.address?.line1.toString() + ", " + event.place?.city?.name.toString() + ", " + event.place?.state?.name.toString(),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            if (event.classifications != null) {
-                for (classification in event.classifications) {
-                    Text(
-                        text = "Classification: " + classification.segment?.name.toString() + ", " + classification.genre?.name.toString() + ", " + classification.subGenre?.name.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = modifier.padding(16.dp)
-                    )
-                }
-            } else {
-                Text(
-                    text = "No classifications found",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = modifier.padding(16.dp)
-                )
-            }
-
-            Text(
-                text = "Attractions:",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            HorizontalDivider()
-
-            Column {
-                for (attraction in event.embedded?.attractions ?: emptyList()) {
-                    AttractionItem(attraction = attraction)
+                    if (uiState.value.isVenuePageExpanded) {
+                        Column {
+                            for (venue in event.embedded.venues) {
+                                VenueItem(
+                                    findImage = { viewModel.getImageUrl(it) },
+                                    onDisplayAdditionalInfo = {
+                                        viewModel.updateInfoQueue(it)
+                                        viewModel.toggleDisplayAdditionalInfo()
+                                    },
+                                    venue = venue
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            Text(
-                text = "Venues:",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = modifier.padding(16.dp)
-            )
-            HorizontalDivider()
+            // Checks if event has at least one attraction
+            if (event.embedded?.attractions?.isNotEmpty() == true) {
+                Column(
+                    modifier = modifier
+                        .animateContentSize()
+                ) {
 
-            Column {
-                for (venue in event.embedded?.venues ?: emptyList()) {
-                    VenueItem(venue = venue)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = modifier
+                            .clickable { viewModel.toggleAttractionPageExpanded() }
+                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                    ) {
+                        Text(
+                            text = stringResource(R.string.attraction_information),
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = modifier.padding(vertical = dimensionResource(R.dimen.padding_medium))
+                        )
+                        Spacer(modifier = modifier.weight(1f))
+                        if (uiState.value.isAttractionPageExpanded) {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp,
+                                contentDescription = null,
+                                modifier = modifier.padding(
+                                    end = dimensionResource(R.dimen.padding_small)
+                                )
+
+                            )
+                        } else {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = modifier.padding(
+                                    end = dimensionResource(R.dimen.padding_small)
+                                )
+                            )
+                        }
+                    }
+                    HorizontalDivider()
+
+                    if (uiState.value.isAttractionPageExpanded) {
+                        Column {
+                            for (attraction in event.embedded.attractions) {
+                                AttractionItem(
+                                    attraction = attraction,
+                                    findImage = { viewModel.getImageUrl(it) },
+                                    onDisplayAdditionalInfo = {
+                                        viewModel.updateInfoQueue(it)
+                                        viewModel.toggleDisplayAdditionalInfo()
+                                    },
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        // Displays additional info popup if applicable
         if (uiState.value.showAdditionalInfo) {
 
+            // Handle back button press to close additional info popup
             BackHandler {
                 viewModel.toggleDisplayAdditionalInfo()
             }
 
-            Box(
+            AdditionalInfoPopup(
+                infoMap = uiState.value.infoQueue,
+                onDismiss = { viewModel.toggleDisplayAdditionalInfo() },
                 modifier = modifier
-                    .fillMaxWidth()
-                    .padding(innerPadding)
-                    .padding(24.dp)
-                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
+            )
+        }
+    }
+}
+
+@Composable
+fun AdditionalInfoPopup(
+    infoMap: MutableMap<String, String>,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    // Additional info popup
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(innerPadding)
+            .padding(24.dp)
+            .background(color = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
+        Box(
+            modifier = modifier.padding(dimensionResource(R.dimen.padding_medium)),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+            Column(
+                modifier = modifier.verticalScroll(rememberScrollState())
             ) {
-                Box(
-                    modifier = modifier.padding(16.dp),
-                    contentAlignment = Alignment.BottomCenter
-                ) {
-                    Column(
-                        modifier = modifier.verticalScroll(rememberScrollState())
-                    ) {
+                infoMap.forEach {
+                    if (it.value.isNotEmpty()) {
                         Row {
                             TextBlock(
-                                title = "Event information",
-                                text = event.info.toString(),
+                                title = it.key,
+                                text = it.value,
                                 modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
                             )
                             Spacer(modifier = modifier.weight(1f))
                         }
-                        Row {
-                            TextBlock(
-                                title = "Additional information",
-                                text = event.additionalInfo.toString(),
-                                modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
-                            )
-                            Spacer(modifier = modifier.weight(1f))
-                        }
-                        Row {
-                            TextBlock(
-                                title = "Please note:",
-                                text = event.pleaseNote.toString(),
-                                modifier = modifier.padding(start = dimensionResource(R.dimen.padding_medium))
-                            )
-                            Spacer(modifier = modifier.weight(1f))
-                        }
-                        Spacer(modifier = modifier.height(32.dp))
-                    }
-                    Row(
-                        modifier = modifier.background(color = MaterialTheme.colorScheme.surfaceContainer),
-                    ) {
-                        Spacer(modifier = modifier.weight(1f))
-                        Text(
-                            text = stringResource(R.string.close),
-                            style = MaterialTheme.typography.labelLarge,
-                            textDecoration = TextDecoration.Underline,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = modifier
-                                .clickable {
-                                    viewModel.toggleDisplayAdditionalInfo()
-                                }
-                                .padding(
-                                    horizontal = dimensionResource(R.dimen.padding_medium),
-                                    vertical = dimensionResource(R.dimen.padding_small)
-                                )
-                        )
                     }
                 }
+                Spacer(modifier = modifier.height(32.dp))
+            }
+            // Close button
+            Row(
+                modifier = modifier.background(color = MaterialTheme.colorScheme.surfaceContainer),
+            ) {
+                Spacer(modifier = modifier.weight(1f))
+                Text(
+                    text = stringResource(R.string.close),
+                    style = MaterialTheme.typography.labelLarge,
+                    textDecoration = TextDecoration.Underline,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = modifier
+                        .clickable {
+                            onDismiss()
+                        }
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.padding_medium),
+                            vertical = dimensionResource(R.dimen.padding_small)
+                        )
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun EventDetailsScreenPreview() {
-    EventDetailScreen(
-        event = Event(
-            name = "Test Event",
-            description = "This is a test event",
-            info = "This is a test event",
-            additionalInfo = "This is a test event",
-            url = "https://www.test.com",
-            pleaseNote = "This is a test event",
-            priceRanges = listOf(
-                PriceRange(
-                    min = 10.0,
-                    max = 20.0,
-                    currency = "USD"
-                )
-            ),
-            location = LocationData(
-                latitude = 37.7749,
-                longitude = -122.4194
-            ),
-            dates = null,
-            embedded = EmbeddedEventData(
-                attractions = listOf(
-                    Attraction(
-                        name = "Test Attraction",
-                        description = "This is a test attraction",
-                        url = "https://www.test.com",
-                        images = listOf(
-                            com.example.concertfinder.data.remote.event_dto.EventImage(
-                                url = "https://www.test.com/image.jpg"
-                            )
-                        ),
-                        additionalInfo = "This is a test attraction",
-                        classifications = listOf(
-                            com.example.concertfinder.data.remote.event_dto.Classification(
-                                segment = com.example.concertfinder.data.remote.event_dto.Segment(
-                                    name = "Test Segment"
-                                ),
-                                genre = com.example.concertfinder.data.remote.event_dto.Genre(
-                                    name = "Test Genre"
-                                ),
-                                subGenre = com.example.concertfinder.data.remote.event_dto.SubGenre(
-                                    name = "Test SubGenre"
-                                )
-                            )
-                        )
+private fun EventButtonRow(
+    url: String?,
+    infoQueue: MutableMap<String, String>,
+    onToggleDisplayAdditionalInfo: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    // Event button row
+    Row {
+        // Checks if there is any undisplayed info
+        if (infoQueue.values.any { it.isNotEmpty() }) {
+            // Event additional info button
+            InfoButton(
+                text = stringResource(R.string.additional_info),
+                onClick = onToggleDisplayAdditionalInfo,
+                modifier = modifier
+                    .padding(
+                        start = dimensionResource(R.dimen.padding_medium),
+                        end = dimensionResource(R.dimen.padding_small)
                     )
-                ),
-                venues = listOf(
-                    Venue(
-                        name = "Test Venue",
-                        description = "This is a test venue",
-                        url = "https://www.test.com",
-                        images = listOf(
-                            com.example.concertfinder.data.remote.event_dto.EventImage(
-                                url = "https://www.test.com/image.jpg"
-                            )
-                        ),
-                        additionalInfo = "This is a test venue",
-                        location = LocationData(
-                            latitude = 37.7749,
-                            longitude = -122.4194
-                        ),
-                        parkingDetail = "This is a test venue",
-                        generalInfo = com.example.concertfinder.data.remote.event_dto.GeneralInfo(
-                            generalRule = "This is a test venue",
-                            childRule = "This is a test venue"
-                        ),
-                        address = com.example.concertfinder.data.remote.event_dto.Address(
-                            line1 = "123 Test St"
-                        ),
-                        city = com.example.concertfinder.data.remote.event_dto.City(
-                            name = "Test City"
-                        ),
-                        state = com.example.concertfinder.data.remote.event_dto.State(
-                            name = "Test State"
-                        )
-                    )
-                )
+                    .fillMaxWidth()
+                    .weight(1f)
             )
-        )
-    )
+        } else {
+            InfoButton(
+                text = stringResource(R.string.additional_info),
+                enabled = false,
+                modifier = modifier
+                    .padding(
+                        start = dimensionResource(R.dimen.padding_medium),
+                        end = dimensionResource(R.dimen.padding_small)
+                    )
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        }
+
+        // Checks if event has a url
+        if (url != null) {
+            // Event get tickets button
+            UrlButton(
+                context = LocalContext.current,
+                content = stringResource(R.string.get_tickets),
+                url = url.toString(),
+                modifier = modifier
+                    .padding(
+                        end = dimensionResource(R.dimen.padding_medium),
+                        start = dimensionResource(R.dimen.padding_small)
+                    )
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        } else {
+            UrlButton(
+                content = stringResource(R.string.get_tickets),
+                enabled = false,
+                modifier = modifier
+                    .padding(
+                        end = dimensionResource(R.dimen.padding_medium),
+                        start = dimensionResource(R.dimen.padding_small)
+                    )
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+        }
+    }
+}
+
+private fun determineTextBlockTitle(infoQueue: MutableMap<String, String>): String {
+    // Displays most relevant info on screen, any additional info will be displayed when additional info button is clicked
+    return if (infoQueue.values.first().isNotEmpty()) {
+        infoQueue.keys.first()
+
+    } else if (infoQueue.values.elementAt(1).isNotEmpty()) {
+        infoQueue.keys.elementAt(1)
+
+    } else if (infoQueue.values.elementAt(2).isNotEmpty()) {
+        infoQueue.keys.elementAt(2)
+
+    } else if (infoQueue.values.elementAt(3).isNotEmpty()) {
+        infoQueue.keys.elementAt(3)
+
+    } else {
+        "Event description"
+    }
+}
+
+private fun determineTextBlockText(infoQueue: MutableMap<String, String>): String {
+    // Displays most relevant info on screen, any additional info will be displayed when additional info button is clicked
+    if (infoQueue.values.first().isNotEmpty()) {
+        val result = infoQueue.values.first()
+        infoQueue.remove(infoQueue.keys.first()) // Remove first element
+        return result
+
+    } else if (infoQueue.values.elementAt(1).isNotEmpty()) {
+        val result = infoQueue.values.elementAt(1)
+        infoQueue.remove(infoQueue.keys.first()) // Remove first element
+        infoQueue.remove(infoQueue.keys.first()) // Remove second element
+        return result
+
+    } else if (infoQueue.values.elementAt(2).isNotEmpty()) {
+        val result = infoQueue.values.elementAt(2)
+        infoQueue.remove(infoQueue.keys.first()) // Remove first element
+        infoQueue.remove(infoQueue.keys.first()) // Remove second element
+        infoQueue.remove(infoQueue.keys.first()) // Remove third element
+        return result
+
+    } else if (infoQueue.values.elementAt(3).isNotEmpty()) {
+        val result = infoQueue.values.elementAt(3)
+        infoQueue.clear() // Remove all elements
+        return result
+
+    } else {
+        infoQueue.clear() // Remove all elements
+        return "Description not provided."
+    }
 }

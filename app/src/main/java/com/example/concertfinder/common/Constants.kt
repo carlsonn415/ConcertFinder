@@ -1,5 +1,6 @@
 package com.example.concertfinder.common
 
+import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.domain.model.Radius
 
 object Constants {
@@ -15,13 +16,13 @@ object Constants {
 
     // List of radius options user can select
     val radiusOptions = listOf(
-        Radius("10", "Miles"),
-        Radius("25", "Miles"),
-        Radius("50", "Miles"),
-        Radius("75", "Miles"),
-        Radius("100", "Miles"),
-        Radius("250", "Miles"),
-        Radius("500", "Miles"),
-        Radius("1000", "Miles"),
+        Radius("10", DistanceUnit.Miles),
+        Radius("25", DistanceUnit.Miles),
+        Radius("50", DistanceUnit.Miles),
+        Radius("75", DistanceUnit.Miles),
+        Radius("100", DistanceUnit.Miles),
+        Radius("250", DistanceUnit.Miles),
+        Radius("500", DistanceUnit.Miles),
+        Radius("1000", DistanceUnit.Miles),
     )
 }

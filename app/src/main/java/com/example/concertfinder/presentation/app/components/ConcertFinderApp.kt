@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -54,6 +55,7 @@ import com.example.concertfinder.presentation.utils.TopLevelRoute
 import com.example.concertfinder.presentation.utils.topLevelRoutes
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun ConcertFinderApp(
@@ -207,10 +209,17 @@ fun ConcertFinderNavigationBar(
         topLevelRoutes.forEach { topLevelRoute ->
             NavigationBarItem(
                 icon = {
-                    Icon(
-                        topLevelRoute.icon,
-                        contentDescription = stringResource(topLevelRoute.title)
-                    )
+                    if (currentDestination?.hierarchy?.any {it.route == topLevelRoute.route} == true) {
+                        Icon(
+                            topLevelRoute.icon,
+                            contentDescription = stringResource(topLevelRoute.title)
+                        )
+                    } else {
+                        Icon(
+                            topLevelRoute.iconOutlined,
+                            contentDescription = stringResource(topLevelRoute.title)
+                        )
+                    }
                 },
                 label = {
                     Text(
