@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.event_detail_screen.components
+package com.example.concertfinder.presentation.event_detail_screen.components.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -27,6 +27,7 @@ import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.data.remote.event_dto.Genre
 import com.example.concertfinder.data.remote.event_dto.Segment
 import com.example.concertfinder.data.remote.event_dto.SubGenre
+import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
 
 @Composable
 fun AttractionItem(

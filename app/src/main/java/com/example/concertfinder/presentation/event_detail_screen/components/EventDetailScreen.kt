@@ -44,6 +44,14 @@ import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.presentation.event_detail_screen.EventDetailViewModel
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.AdditionalInfoDialog
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.AttractionItem
+import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.InfoButton
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.PriceAndLocationRow
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.TextBlock
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.UrlButton
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.VenueItem
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -194,7 +202,7 @@ fun EventDetailScreen(
                 // ------------------------------------------------------------------------------------------------------------Event classifications
                 ClassificationFlowRow(
                     classifications = event.classifications ?: emptyList(),
-                    modifier = modifier
+                    modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 )
 
                 Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))

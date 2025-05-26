@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.event_detail_screen.components
+package com.example.concertfinder.presentation.event_detail_screen.components.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn

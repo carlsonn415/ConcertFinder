@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.event_detail_screen.components
+package com.example.concertfinder.presentation.event_detail_screen.components.composables
 
 import android.content.Context
 import android.content.Intent

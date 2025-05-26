@@ -1,14 +1,20 @@
 package com.example.concertfinder.presentation.event_list_screen
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.common.Resource
+import com.example.concertfinder.data.remote.event_dto.DateData
+import com.example.concertfinder.data.remote.event_dto.EventImage
+import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.domain.repository.PreferencesRepository
+import com.example.concertfinder.domain.use_case.display_event.DisplayEventUseCase
 import com.example.concertfinder.domain.use_case.get_events_from_network.GetEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +29,7 @@ import javax.inject.Inject
 class EventListViewModel @Inject constructor(
     private val getEventsUseCase: GetEventsUseCase,
     private val preferencesRepository: PreferencesRepository,
+    private val displayEventUseCase: DisplayEventUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -140,5 +147,32 @@ class EventListViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun getDistanceFromLocation(
+        latitude: Double?,
+        longitude: Double?,
+        unit: DistanceUnit
+    ): String {
+        return if (latitude != null && longitude != null && unit == DistanceUnit.Miles) {
+            "${displayEventUseCase.getDistanceToEvent(latitude, longitude, unit)} mi"
+        } else if (latitude != null && longitude != null && unit == DistanceUnit.Kilometers) {
+            "${displayEventUseCase.getDistanceToEvent(latitude, longitude, unit)} km"
+        } else {
+            ""
+        }
+    }
+
+    @SuppressLint("NewApi")
+    fun getFormattedEventStartDates(dates: DateData?): String? {
+        return displayEventUseCase.getFormattedEventStartDates(dates)
+    }
+
+    fun getImageUrl(
+        images: List<EventImage>?,
+        aspectRatio: String = "16_9",
+        minImageWidth: Int = 1080
+    ): String? {
+        return displayEventUseCase.getImageUrl(images, aspectRatio, minImageWidth)
     }
 }

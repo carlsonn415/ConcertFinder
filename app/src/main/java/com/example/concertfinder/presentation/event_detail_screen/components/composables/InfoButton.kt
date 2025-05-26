@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.event_detail_screen.components
+package com.example.concertfinder.presentation.event_detail_screen.components.composables
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme

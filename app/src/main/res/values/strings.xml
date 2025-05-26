@@ -47,4 +47,7 @@
     <string name="page">Page</string>
     <string name="venue">Venue</string>
     <string name="venues">Venues</string>
+    <string name="save_event">Save Event</string>
+    <string name="address_not_provided">Address not provided</string>
+    <string name="saved_events">Saved</string>
 </resources>

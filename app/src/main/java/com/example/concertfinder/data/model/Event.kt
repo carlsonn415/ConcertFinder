@@ -39,4 +39,6 @@ data class Event(
     val classifications: List<Classification>? = null, // List of classifications for the event
 
     val place: Place? = null, // Place information for the event, ONLY USE IF NO VENUES ARE PROVIDED
+
+    val saved: Boolean = false // Whether the event is saved by the user or not
 )

@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.event_detail_screen.components
+package com.example.concertfinder.presentation.common_ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,7 +26,7 @@ fun ClassificationFlowRow(
 ) {
     if (classifications.isNotEmpty()) {
         FlowRow(
-            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            modifier = modifier
         ) {
             if (showSegment) {
                 FlowRowItem(

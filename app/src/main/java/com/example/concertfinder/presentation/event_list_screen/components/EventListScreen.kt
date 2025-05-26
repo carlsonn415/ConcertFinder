@@ -2,15 +2,13 @@ package com.example.concertfinder.presentation.event_list_screen.components
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,7 +21,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.presentation.common_ui.ErrorScreen
+import com.example.concertfinder.presentation.common_ui.EventListItem
 import com.example.concertfinder.presentation.common_ui.LoadingScreen
 import com.example.concertfinder.presentation.common_ui.NoEventsFoundScreen
 import com.example.concertfinder.presentation.event_list_screen.EventListViewModel
@@ -54,14 +54,26 @@ fun EventListScreen(
             if (uiState.value.events.data?.isEmpty() == true) {
                 NoEventsFoundScreen(modifier = modifier)
             } else {
-                LazyColumn {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+                ) {
                     items(uiState.value.events.data ?: emptyList()) { event ->
-                        SearchResultItem(
+
+                        // Gets distance from location
+                        val distanceFromLocation = viewModel.getDistanceFromLocation(
+                            event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                            event.location?.longitude
+                                ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                            DistanceUnit.Miles // TODO: Allow user to select distance unit
+                        )
+
+                        EventListItem(
                             event = event,
-                            onClick = {
-                                onClick(event)
-                            },
-                            modifier = modifier
+                            onClick = onClick,
+                            distanceToEvent = distanceFromLocation,
+                            startDateTime = viewModel.getFormattedEventStartDates(event.dates) ?: "No start date found",
+                            imageUrl = viewModel.getImageUrl(event.images) ?: "",
+                            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
                         )
                     }
                 }
@@ -71,25 +83,6 @@ fun EventListScreen(
         } else if (uiState.value.events is Resource.Error) {
             ErrorScreen(message = uiState.value.events.message ?: "Unknown error")
         }
-    }
-}
-
-@Composable
-fun SearchResultItem(
-    event: Event,
-    onClick: (Event) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = { onClick(event) },
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(dimensionResource(id = R.dimen.padding_small))
-    ) {
-        Text(
-            text = event.name.toString(),
-            modifier = modifier.padding(dimensionResource(R.dimen.padding_small))
-        )
     }
 }
 

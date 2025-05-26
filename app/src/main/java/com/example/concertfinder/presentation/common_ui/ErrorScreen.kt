@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.concertfinder.R
 
 @Composable
 fun ErrorScreen(
@@ -15,6 +17,11 @@ fun ErrorScreen(
         contentAlignment = Alignment.Companion.Center,
         modifier = Modifier.Companion.fillMaxSize()
     ) {
-        Text(text = "Error: $message")
+        if (message == "No events found") {
+            Text(text = stringResource(R.string.no_events_found))
+            Text(text = stringResource(R.string.try_different_search))
+        } else {
+            Text(text = "Error: $message")
+        }
     }
 }

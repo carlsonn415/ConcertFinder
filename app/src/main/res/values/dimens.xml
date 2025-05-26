@@ -10,4 +10,5 @@
     <dimen name="padding_extra_small">4.dp</dimen>
     <dimen name="icon_button_size">28.dp</dimen>
     <dimen name="location_textfield_height">72.dp</dimen>
+    <dimen name="event_list_item_height">200.dp</dimen>
 </resources>
