@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,7 +36,6 @@ fun ClassificationFlowRow(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small)),
             horizontalArrangement = horizontalArrangement,
             maxLines = maxLines,
-            overflow = FlowRowOverflow.Clip,
             modifier = modifier
         ) {
             if (showSegment) {
@@ -72,7 +70,7 @@ fun FlowRowItem(
         modifier = modifier
             .padding(end = dimensionResource(R.dimen.padding_extra_small))
             .clip(MaterialTheme.shapes.extraSmall)
-            .background(color = MaterialTheme.colorScheme.surfaceContainer)
+            .background(color = MaterialTheme.colorScheme.secondaryContainer)
             .border(
                 width = 2.dp,
                 color = MaterialTheme.colorScheme.secondary,

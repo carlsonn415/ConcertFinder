@@ -162,11 +162,13 @@ class DisplayEventUseCase @Inject constructor(
             localDate = LocalDate.parse(date, inputDateFormatter)
             localTime = LocalTime.parse(time, inputTimeFormatter)
         } catch (e: Exception) {
-            Log.e("EventDetailViewModel", "Error formatting event dates", e)
+            Log.e("DisplayEventUseCase", "Error formatting event date/time", e)
             return "Invalid date or time"
         }
 
         val localDateTime = LocalDateTime.of(localDate, localTime)
+
+        val dayOfWeekName = localDateTime.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
 
         val outputTimeFormatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
         val formattedTime = localDateTime.format(outputTimeFormatter)
@@ -179,9 +181,9 @@ class DisplayEventUseCase @Inject constructor(
 
         // Checks if event is happening this year, if so does not return year in string
         return if (year != LocalDate.now().year) {
-            "$monthName $dayOfMonth$daySuffix, $year at $formattedTime"
+            "$dayOfWeekName, $monthName $dayOfMonth$daySuffix, $year at $formattedTime"
         } else {
-            "$monthName $dayOfMonth$daySuffix at $formattedTime "
+            "$dayOfWeekName, $monthName $dayOfMonth$daySuffix at $formattedTime"
         }
     }
 
@@ -193,7 +195,7 @@ class DisplayEventUseCase @Inject constructor(
         try {
             localTime = LocalTime.parse(time, inputTimeFormatter)
         } catch (e: Exception) {
-            Log.e("EventDetailViewModel", "Error formatting event time", e)
+            Log.e("DisplayEventUseCase", "Error formatting event time", e)
             return "Invalid time"
         }
 
@@ -210,10 +212,11 @@ class DisplayEventUseCase @Inject constructor(
         try {
             localDate = LocalDate.parse(date, inputDateFormatter)
         } catch (e: Exception) {
-            Log.e("EventDetailViewModel", "Error formatting event date", e)
+            Log.e("DisplayEventUseCase", "Error formatting event date", e)
             return "Invalid date"
         }
 
+        val dayOfWeekName = localDate.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
         val monthName = localDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
         val dayOfMonth = localDate.dayOfMonth
         val year = localDate.year
@@ -222,9 +225,9 @@ class DisplayEventUseCase @Inject constructor(
 
         // Checks if event is happening this year, if so does not return year in string
         return if (year != LocalDate.now().year) {
-            "$monthName $dayOfMonth$daySuffix, $year"
+            "$dayOfWeekName, $monthName $dayOfMonth$daySuffix, $year"
         } else {
-            "$monthName $dayOfMonth$daySuffix"
+            "$dayOfWeekName, $monthName $dayOfMonth$daySuffix"
         }
     }
 

@@ -39,6 +39,7 @@ fun TextBlock(
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_extra_small))
         )
 

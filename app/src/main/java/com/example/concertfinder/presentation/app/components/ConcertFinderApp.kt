@@ -1,48 +1,27 @@
 package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.Card
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -51,8 +30,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
+import com.example.concertfinder.presentation.app.AppUiState
 import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.calendar_screen.components.CalendarScreen
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
@@ -61,10 +40,10 @@ import com.example.concertfinder.presentation.saved_events_screen.components.Sav
 import com.example.concertfinder.presentation.search_screen.components.SearchScreen
 import com.example.concertfinder.presentation.utils.AppContentType
 import com.example.concertfinder.presentation.utils.AppDestinations
-import com.example.concertfinder.presentation.utils.TopLevelRoute
 import com.example.concertfinder.presentation.utils.topLevelRoutes
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
@@ -76,6 +55,9 @@ fun ConcertFinderApp(
 ) {
     // get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
+
+    // create scroll behavior for top app bar
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
@@ -101,14 +83,17 @@ fun ConcertFinderApp(
     }
 
     Scaffold(
-        // add top bar and bottom bar to scaffold
+        // allows top bar to scroll
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             ConcertFinderTopBar(
                 onBackPressed = {
                     // navigate back
                     navController.navigateUp()
                 },
-                showBackButton = !uiState.value.showBottomBar
+                showBackButton = !uiState.value.showBottomBar,
+                scrollBehavior = scrollBehavior,
+                modifier = modifier
             )
         },
         bottomBar = {
@@ -116,7 +101,6 @@ fun ConcertFinderApp(
                 ConcertFinderNavigationBar(
                     backStackEntry = backStackEntry,
                     onClick = {
-
                         navController.navigate(it.route) {
                             // Pop up to the start destination of the graph to
                             // avoid building up a large stack of destinations
@@ -134,6 +118,7 @@ fun ConcertFinderApp(
             }
         },
         floatingActionButton = {
+            // animates fab in and out
             AnimatedVisibility(
                 visible = uiState.value.showFab,
                 enter = fadeIn(tween(durationMillis = 100)),
@@ -149,198 +134,99 @@ fun ConcertFinderApp(
         }
     ) { innerPadding ->
 
-        NavHost(
+        ConcertFinderNavHost(
             navController = navController,
-            startDestination = topLevelRoutes[0].route,
+            viewModel = viewModel,
+            uiState = uiState,
             modifier = modifier,
-            enterTransition = {
-                fadeIn()
-            },
-            exitTransition = {
-                fadeOut()
-            }
-        ) {
-            // my events screen composable
-            composable(route = AppDestinations.MY_EVENTS) {
-                SavedEventsScreen(
-                    onClick = { event ->
-                        navController.navigate(AppDestinations.EVENT_DETAILS)
-                    },
-                    modifier = modifier
-                )
-            }
-
-            // search screen composable
-            composable(route = AppDestinations.SEARCH) {
-                SearchScreen(
-                    onSearch = {
-                        viewModel.onNavigateToEventList(
-                            navController = navController,
-                            searchQuery = it
-                        )
-                    },
-                    innerPadding = innerPadding,
-                    modifier = modifier
-                )
-            }
-
-            // calendar screen composable
-            composable(route = AppDestinations.CALENDAR) {
-                CalendarScreen(
-                    onClick = {
-                        // TODO: navigate to event list screen
-                    },
-                    modifier = modifier
-                )
-            }
-
-            // event list screen composable
-            composable(
-                route = AppDestinations.EVENT_LIST + "/{$PARAM_KEYWORD}",
-                arguments = listOf(
-                    navArgument(PARAM_KEYWORD) {
-                        type = NavType.StringType
-                    }
-                )
-            ) {
-                EventListScreen(
-                    onEventClicked = {
-                        viewModel.updateCurrentEvent(it)
-                        navController.navigate(AppDestinations.EVENT_DETAILS)
-                    },
-                    modifier = modifier,
-                    innerPadding = innerPadding
-                )
-            }
-
-            // event details screen composable
-            composable(route = AppDestinations.EVENT_DETAILS) {
-                EventDetailScreen(
-                    event = uiState.value.currentEvent,
-                    modifier = modifier,
-                    innerPadding = innerPadding
-                )
-            }
-        }
+            innerPadding = innerPadding
+        )
     }
 }
 
-
-
+@RequiresApi(Build.VERSION_CODES.O)
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
-fun ConcertFinderNavigationBar(
-    backStackEntry: NavBackStackEntry?,
-    onClick: (TopLevelRoute<String>) -> Unit,
-) {
-    NavigationBar {
-        val currentDestination = backStackEntry?.destination
-
-        topLevelRoutes.forEach { topLevelRoute ->
-            NavigationBarItem(
-                icon = {
-                    if (currentDestination?.hierarchy?.any {it.route == topLevelRoute.route} == true) {
-                        Icon(
-                            topLevelRoute.icon,
-                            contentDescription = stringResource(topLevelRoute.title)
-                        )
-                    } else {
-                        Icon(
-                            topLevelRoute.iconOutlined,
-                            contentDescription = stringResource(topLevelRoute.title)
-                        )
-                    }
-                },
-                label = {
-                    Text(
-                        text = stringResource(topLevelRoute.title)
-                    )
-                },
-                selected = currentDestination?.hierarchy?.any {it.route == topLevelRoute.route} == true,
-                onClick = { onClick(topLevelRoute) },
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ConcertFinderTopBar(
-    onBackPressed: () -> Unit,
-    showBackButton: Boolean,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.app_icon),
-                    contentDescription = stringResource(id = R.string.app_name),
-                    modifier = modifier
-                        .size(dimensionResource(id = R.dimen.app_icon_size))
-                        .padding(end = 8.dp)
-                )
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-        },
-        navigationIcon = {
-            if (showBackButton) {
-                IconButton(
-                    onClick = { onBackPressed() }
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(id = R.string.back_button)
-                    )
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun FloatingAppButton(
-    onClick: () -> Unit,
+private fun ConcertFinderNavHost(
+    navController: NavHostController,
+    viewModel: AppViewModel,
+    uiState: State<AppUiState>,
     modifier: Modifier = Modifier,
-    filled: Boolean = false,
+    innerPadding: PaddingValues = PaddingValues(0.dp),
 ) {
-
-    val context = LocalContext.current
-
-    Card(
-        onClick = {
-            onClick()
-            // show toast if event is saved or unsaved
-            // TODO: make these snackbars
-            if (filled == false) {
-                Toast.makeText(context, context.getString(R.string.event_saved), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, context.getString(R.string.event_unsaved), Toast.LENGTH_SHORT).show()
-            }
+    NavHost(
+        navController = navController,
+        startDestination = topLevelRoutes[0].route,
+        modifier = modifier,
+        enterTransition = {
+            fadeIn()
         },
-        modifier = modifier
-            .size(dimensionResource(id = R.dimen.fab_size))
-            .clip(MaterialTheme.shapes.large)
+        exitTransition = {
+            fadeOut()
+        }
     ) {
-        if (!filled) {
-            Icon(
-                imageVector = Icons.Default.FavoriteBorder,
-                contentDescription = stringResource(id = R.string.save_event),
+        // saved events screen composable
+        composable(route = AppDestinations.MY_EVENTS) {
+            SavedEventsScreen(
+                onClick = { event ->
+                    navController.navigate(AppDestinations.EVENT_DETAILS)
+                },
                 modifier = modifier
-                    .padding(dimensionResource(R.dimen.padding_medium))
-                    .fillMaxSize()
             )
-        } else {
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = stringResource(id = R.string.save_event),
+        }
+
+        // search screen composable
+        composable(route = AppDestinations.SEARCH) {
+            SearchScreen(
+                onSearch = {
+                    viewModel.onNavigateToEventList(
+                        navController = navController,
+                        searchQuery = it
+                    )
+                },
+                innerPadding = innerPadding,
                 modifier = modifier
-                    .padding(dimensionResource(R.dimen.padding_medium))
-                    .fillMaxSize()
+            )
+        }
+
+        // calendar screen composable
+        composable(route = AppDestinations.CALENDAR) {
+            CalendarScreen(
+                onClick = {
+                    viewModel.onNavigateToEventList(
+                        navController = navController,
+                        searchQuery = ""
+                    )
+                },
+                modifier = modifier
+            )
+        }
+
+        // event list screen composable
+        composable(
+            route = AppDestinations.EVENT_LIST + "/{$PARAM_KEYWORD}",
+            arguments = listOf(
+                navArgument(PARAM_KEYWORD) {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            EventListScreen(
+                onEventClicked = {
+                    viewModel.updateCurrentEvent(it)
+                    navController.navigate(AppDestinations.EVENT_DETAILS)
+                },
+                modifier = modifier,
+                innerPadding = innerPadding
+            )
+        }
+
+        // event details screen composable
+        composable(route = AppDestinations.EVENT_DETAILS) {
+            EventDetailScreen(
+                event = uiState.value.currentEvent,
+                modifier = modifier,
+                innerPadding = innerPadding
             )
         }
     }

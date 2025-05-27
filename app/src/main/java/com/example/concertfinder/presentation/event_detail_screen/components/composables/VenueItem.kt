@@ -38,7 +38,7 @@ fun VenueItem(
     val infoMap = mutableMapOf<String, String>(
         Pair("Description", venue.description ?: ""),
         Pair("Additional Info", venue.additionalInfo ?: ""),
-        Pair("Parking Detail", venue.parkingDetail ?: ""),
+        Pair("Parking Details", venue.parkingDetail ?: ""),
         Pair("General Rules", venue.generalInfo?.generalRule ?: ""),
         Pair("Child Rules", venue.generalInfo?.childRule ?: ""),
     )
@@ -97,7 +97,7 @@ fun VenueItem(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun VenueItemPreview() {
     VenueItem(

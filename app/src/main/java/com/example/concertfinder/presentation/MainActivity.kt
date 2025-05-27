@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ConcertFinderTheme {
+            ConcertFinderTheme(dynamicColor = false) {
                 val windowSize = calculateWindowSizeClass(this)
                 ConcertFinderApp(
                     windowSize = windowSize.widthSizeClass
