@@ -2,6 +2,7 @@ package com.example.concertfinder.presentation.common_ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,6 @@ import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.event_dto.Address
 import com.example.concertfinder.data.remote.event_dto.City
 import com.example.concertfinder.data.remote.event_dto.Classification
-import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.data.remote.event_dto.Genre
 import com.example.concertfinder.data.remote.event_dto.Place
 import com.example.concertfinder.data.remote.event_dto.PriceRange
@@ -53,11 +53,13 @@ fun EventListItem(
     imageUrl: String?,
     modifier: Modifier = Modifier,
 ) {
+    //---------------------------------------------------------------------------------------------- event list item
     Column(
         modifier = modifier.clickable {
             onClick(event)
         }
     ) {
+        //------------------------------------------------------------------------------------------ image box
         Box(
             contentAlignment = Alignment.BottomEnd,
             modifier = Modifier
@@ -77,12 +79,15 @@ fun EventListItem(
 
             ClassificationFlowRow(
                 classifications = event.classifications ?: listOf(),
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small),)
+                horizontalArrangement = Arrangement.End,
+                maxLines = 1,
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
             )
         }
 
         Spacer(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)))
 
+        //------------------------------------------------------------------------------------------ name and save button
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -96,7 +101,7 @@ fun EventListItem(
             )
 
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { /*TODO: Allow user to save event*/ },
             ) {
                 Icon(
                     imageVector = if (event.saved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -105,6 +110,7 @@ fun EventListItem(
             }
         }
 
+        //------------------------------------------------------------------------------------------ start date and distance
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -132,9 +138,12 @@ fun EventListItem(
 
         Spacer(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_extra_small)))
 
-        if (event.priceRanges?.getOrNull(0)?.min != null) {
+        //------------------------------------------------------------------------------------------ starting price
+        val price = event.priceRanges?.getOrNull(0)?.min?.toInt()
+
+        if (price != null) {
             Text(
-                text = "From $${event.priceRanges.getOrNull(0)?.min}",
+                text = if (price > 0) "From $${price.toInt()}" else stringResource(R.string.free),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -145,6 +154,7 @@ fun EventListItem(
     }
 }
 
+//-------------------------------------------------------------------------------------------------- preview
 @Preview(showBackground = true)
 @Composable
 private fun EventListItemPreview() {

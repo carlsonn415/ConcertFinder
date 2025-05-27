@@ -49,4 +49,22 @@ class AppViewModel() : ViewModel() {
             )
         }
     }
+
+    fun toggleCurrentEventSaved() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                currentEvent = currentState.currentEvent.copy(
+                    saved = !currentState.currentEvent.saved
+                )
+            )
+        }
+    }
+
+    fun updateFabVisibility(show : Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                showFab = show
+            )
+        }
+    }
 }

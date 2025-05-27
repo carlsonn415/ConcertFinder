@@ -6,9 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
@@ -52,7 +57,9 @@ fun TextBlock(
                 modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
             )
         }
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             if (text.length > 200 && clickable) {
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
@@ -60,6 +67,10 @@ fun TextBlock(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
+                )
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = null
                 )
             }
         }

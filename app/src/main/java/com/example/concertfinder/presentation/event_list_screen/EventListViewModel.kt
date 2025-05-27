@@ -3,7 +3,6 @@ package com.example.concertfinder.presentation.event_list_screen
 import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -33,53 +32,32 @@ class EventListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    // initialize state with data from saved state handle and preferences
-    private val _uiState = MutableStateFlow(
-        EventListUiState(
-            currentRadius = preferencesRepository.getFilterPreferences().getRadius(),
-            currentGeoPoint = preferencesRepository.getLocationPreferences().getLocation(),
-            currentStartDateTime = preferencesRepository.getFilterPreferences().getStartDateTime(),
-            currentSort = preferencesRepository.getFilterPreferences().getSort(),
-            currentKeyWord = savedStateHandle.get<String>(PARAM_KEYWORD),
-            currentGenres = preferencesRepository.getFilterPreferences().getGenres(),
-            currentSubgenres = preferencesRepository.getFilterPreferences().getSubgenres(),
-            currentSegment = preferencesRepository.getFilterPreferences().getSegment()
-        )
-    )
+
+    private val _uiState = MutableStateFlow(EventListUiState())
     val uiState = _uiState.asStateFlow()
+
+    init {                                                                                          // initialize events
+        getEvents()
+    }
 
 
     // load events from repository
     fun getEvents(
-        keyWord: String? = savedStateHandle.get<String>(PARAM_KEYWORD),
-        geoPoint: String = preferencesRepository.getLocationPreferences().getLocation(),
-        radius: String = preferencesRepository.getFilterPreferences().getRadius(),
-        startDateTime: String = preferencesRepository.getFilterPreferences().getStartDateTime(),
-        sort: String = preferencesRepository.getFilterPreferences().getSort(),
-        genres: List<String>? = preferencesRepository.getFilterPreferences().getGenres(),
-        subgenres: List<String>? = preferencesRepository.getFilterPreferences().getSubgenres(),
-        segment: String? = preferencesRepository.getFilterPreferences().getSegment(),
-        page: String? = null,
+        keyWord: String? = savedStateHandle.get<String>(PARAM_KEYWORD),                             // keyword to gets passed from search bar screen
+        geoPoint: String = preferencesRepository.getLocationPreferences().getLocation(),            // \
+        radius: String = preferencesRepository.getFilterPreferences().getRadius(),                  // |
+        startDateTime: String = preferencesRepository.getFilterPreferences().getStartDateTime(),    // |
+        sort: String = preferencesRepository.getFilterPreferences().getSort(),                      // filters are fetched from saved preferences
+        genres: List<String>? = preferencesRepository.getFilterPreferences().getGenres(),           // |
+        subgenres: List<String>? = preferencesRepository.getFilterPreferences().getSubgenres(),     // |
+        segment: String? = preferencesRepository.getFilterPreferences().getSegment(),               // /
+        page: String = uiState.value.page.toString(),                                               // ui state holds current page number
     ) {
-
-        // check if any parameters have changed from last call, if not return and use saved event list
-        if (
-            radius == _uiState.value.currentRadius &&
-            geoPoint == _uiState.value.currentGeoPoint &&
-            startDateTime == _uiState.value.currentStartDateTime &&
-            sort == _uiState.value.currentSort &&
-            keyWord == _uiState.value.currentKeyWord &&
-            genres == _uiState.value.currentGenres &&
-            subgenres == _uiState.value.currentSubgenres &&
-            segment == _uiState.value.currentSegment &&
-            _uiState.value.hasLoadedOnce == true
-        ) return
-
 
         // launch coroutine to get events from repository
         viewModelScope.launch(Dispatchers.IO) {
 
-            Log.d("EventListViewModel", "Getting events")
+            Log.d("EventListViewModel", "Getting events")                                           // log for debugging
             Log.d("EventListViewModel", "Radius: $radius")
             Log.d("EventListViewModel", "GeoPoint: $geoPoint")
             Log.d("EventListViewModel", "StartDateTime: $startDateTime")
@@ -89,21 +67,6 @@ class EventListViewModel @Inject constructor(
             Log.d("EventListViewModel", "Subgenres: $subgenres")
             Log.d("EventListViewModel", "Segment: $segment")
             Log.d("EventListViewModel", "Page: $page")
-
-            // update state with new parameters
-            _uiState.update { currentState ->
-                currentState.copy(
-                    currentRadius = radius,
-                    currentGeoPoint = geoPoint,
-                    currentStartDateTime = startDateTime,
-                    currentSort = sort,
-                    currentKeyWord = keyWord,
-                    currentGenres = genres,
-                    currentSubgenres = subgenres,
-                    currentSegment = segment,
-                    hasLoadedOnce = true
-                )
-            }
 
             // get events from repository
             getEventsUseCase(
@@ -118,31 +81,45 @@ class EventListViewModel @Inject constructor(
                 page = page,
             ).collect { result ->
                 when (result) {
-                    is Resource.Success -> {
+                    is Resource.Success -> {                                                        // if success, update ui state
                         _uiState.update { currentState ->
                             currentState.copy(
-                                events = result,
+
+                                eventsResource = if (currentState.hasLoadedOnce) {                          // If this is not a new search, add the new events to the existing list
+                                    val currentEvents = currentState.eventsResource.data ?: emptyList()
+                                    Resource.Success(currentEvents + (result.data ?: emptyList()))
+                                } else result,                                                      // If this is a new search, set the events to the new list
+                                // Checks if there are more events to load
+                                canLoadMore = (result.totalPages?.toInt() ?: 0) > page.toInt() + 1, // If there are more events to load, set canLoadMore to true
+                                isLoadingMore = false,                                              // Set isLoadingMore to false since load is complete
+                                hasLoadedOnce = true                                                // Set hasLoadedOnce to true since a search has been performed
                             )
                         }
-                        Log.d("EventListViewModel", "Success")
+
+                        Log.d("EventListViewModel", "Success, total pages: ${result.totalPages}")
                     }
 
-                    is Resource.Error -> {
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                events = result
-                            )
+                    is Resource.Error -> {                                                          // if error, update ui state
+                        if (uiState.value.eventsResource.data?.isEmpty() != false) {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    eventsResource = result,
+                                )
+                            }
+                            Log.d("EventListViewModel", "Error: ${result.message}")
                         }
-                        Log.d("EventListViewModel", "Error: ${result.message}")
                     }
 
-                    is Resource.Loading -> {
-                        _uiState.update { currentState ->
-                            currentState.copy(
-                                events = result
-                            )
+                    is Resource.Loading -> {                                                        // if loading, update ui state
+                        if (uiState.value.eventsResource.data?.isEmpty() != false) {
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    eventsResource = result,
+                                    isLoadingMore = true
+                                )
+                            }
+                            Log.d("EventListViewModel", "Loading")
                         }
-                        Log.d("EventListViewModel", "Loading")
                     }
                 }
             }
@@ -174,5 +151,24 @@ class EventListViewModel @Inject constructor(
         minImageWidth: Int = 1080
     ): String? {
         return displayEventUseCase.getImageUrl(images, aspectRatio, minImageWidth)
+    }
+
+    fun loadMoreEvents() {
+        // Ensure that there is more events to load and that we are not already loading more events
+        if (_uiState.value.canLoadMore && !_uiState.value.isLoadingMore) {
+            // Update page number
+            if (uiState.value.hasLoadedOnce) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        // Increase page number by 1
+                        page = (currentState.page.toInt() + 1).toString(),
+                        isLoadingMore = true
+                    )
+                }
+            }
+
+            // Get the events
+            getEvents()
+        }
     }
 }

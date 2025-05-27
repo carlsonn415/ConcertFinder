@@ -27,7 +27,7 @@ class AppEventsRepository @Inject constructor(
         page: String?
     ): Resource<List<Event>> {
         return try {
-            val events = apiService.getEventsApiResponse(
+            val eventApiResponse = apiService.getEventsApiResponse(
                 radius = radius,
                 geoPoint = geoPoint,
                 startDateTime = startDateTime,
@@ -38,10 +38,13 @@ class AppEventsRepository @Inject constructor(
                 segment = segment,
                 keyWord = keyWord,
                 page = page
-            ).embedded?.events?.map { it.toEvent() }
+            )
 
-            return if (events != null) {
-                Resource.Success(events)
+            val eventsList = eventApiResponse.embedded?.events?.map { it.toEvent() }
+            val totalPages = eventApiResponse.pageData?.totalPages.toString()
+
+            return if (eventsList != null) {
+                Resource.Success(eventsList, totalPages)
             } else {
                 Resource.Error("No events found")
             }

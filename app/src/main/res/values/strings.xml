@@ -16,7 +16,7 @@
     <string name="update_location">update location</string>
     <string name="search_for_city_state_or_zip_code">Search for city, state, or zip code</string>
     <string name="no_search_history">No search history</string>
-    <string name="no_events_found">No events found in your selected area</string>
+    <string name="no_events_found">No events found in your selected area.</string>
     <string name="try_different_search">Please try a different search or change locations.</string>
     <string name="loading">Loading&#8230;</string>
     <string name="getting_location">Getting location&#8230;</string>
@@ -50,4 +50,7 @@
     <string name="save_event">Save Event</string>
     <string name="address_not_provided">Address not provided</string>
     <string name="saved_events">Saved</string>
+    <string name="event_saved">Event saved</string>
+    <string name="event_unsaved">Event unsaved</string>
+    <string name="free">Free</string>
 </resources>

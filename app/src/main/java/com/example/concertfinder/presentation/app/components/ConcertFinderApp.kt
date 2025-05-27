@@ -1,16 +1,23 @@
 package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,10 +29,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -85,6 +95,11 @@ fun ConcertFinderApp(
         viewModel.updateShowBottomBar(false)
     }
 
+    // update show fab based on current destination
+    LaunchedEffect(navController.currentDestination?.route == AppDestinations.EVENT_DETAILS) {
+        viewModel.updateFabVisibility(navController.currentDestination?.route == AppDestinations.EVENT_DETAILS)
+    }
+
     Scaffold(
         // add top bar and bottom bar to scaffold
         topBar = {
@@ -115,6 +130,20 @@ fun ConcertFinderApp(
                             restoreState = true
                         }
                     }
+                )
+            }
+        },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = uiState.value.showFab,
+                enter = fadeIn(tween(durationMillis = 100)),
+                exit = fadeOut(tween(durationMillis = 0))
+            ) {
+                FloatingAppButton(
+                    onClick = {
+                        viewModel.toggleCurrentEventSaved()
+                    },
+                    filled = uiState.value.currentEvent.saved
                 )
             }
         }
@@ -175,7 +204,7 @@ fun ConcertFinderApp(
                 )
             ) {
                 EventListScreen(
-                    onClick = {
+                    onEventClicked = {
                         viewModel.updateCurrentEvent(it)
                         navController.navigate(AppDestinations.EVENT_DETAILS)
                     },
@@ -271,4 +300,48 @@ fun ConcertFinderTopBar(
             }
         }
     )
+}
+
+@Composable
+fun FloatingAppButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    filled: Boolean = false,
+) {
+
+    val context = LocalContext.current
+
+    Card(
+        onClick = {
+            onClick()
+            // show toast if event is saved or unsaved
+            // TODO: make these snackbars
+            if (filled == false) {
+                Toast.makeText(context, context.getString(R.string.event_saved), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, context.getString(R.string.event_unsaved), Toast.LENGTH_SHORT).show()
+            }
+        },
+        modifier = modifier
+            .size(dimensionResource(id = R.dimen.fab_size))
+            .clip(MaterialTheme.shapes.large)
+    ) {
+        if (!filled) {
+            Icon(
+                imageVector = Icons.Default.FavoriteBorder,
+                contentDescription = stringResource(id = R.string.save_event),
+                modifier = modifier
+                    .padding(dimensionResource(R.dimen.padding_medium))
+                    .fillMaxSize()
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Favorite,
+                contentDescription = stringResource(id = R.string.save_event),
+                modifier = modifier
+                    .padding(dimensionResource(R.dimen.padding_medium))
+                    .fillMaxSize()
+            )
+        }
+    }
 }

@@ -2,9 +2,11 @@ package com.example.concertfinder.presentation.common_ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,9 +25,19 @@ fun ClassificationFlowRow(
     classifications: List<Classification>,
     modifier: Modifier = Modifier,
     showSegment: Boolean = true,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    maxLines: Int = 3
 ) {
     if (classifications.isNotEmpty()) {
+
+        val genreList = classifications.mapNotNull { it.genre?.name }.toSet()
+        val subGenreList = classifications.mapNotNull { it.subGenre?.name }.toSet()
+
         FlowRow(
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_extra_small)),
+            horizontalArrangement = horizontalArrangement,
+            maxLines = maxLines,
+            overflow = FlowRowOverflow.Clip,
             modifier = modifier
         ) {
             if (showSegment) {
@@ -34,16 +46,16 @@ fun ClassificationFlowRow(
                 )
             }
 
-            classifications.forEach {
+            genreList.forEach {
                 FlowRowItem(
-                    text = it.genre?.name.toString(),
+                    text = it,
                 )
             }
 
-            classifications.forEach {
-                if (it.genre?.name != it.subGenre?.name) {
+            subGenreList.forEach {
+                if (!genreList.contains(it)) {
                     FlowRowItem(
-                        text = it.subGenre?.name.toString(),
+                        text = it,
                     )
                 }
             }

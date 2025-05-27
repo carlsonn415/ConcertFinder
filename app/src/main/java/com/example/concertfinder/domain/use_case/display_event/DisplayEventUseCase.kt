@@ -82,11 +82,11 @@ class DisplayEventUseCase @Inject constructor(
                 if (dates.start.localTime != null) {
                     // formats event start date and time
                     val formattedStartDateTime = formatEventDateTime(dates.start.localDate, dates.start.localTime)
-                    return "Start: $formattedStartDateTime"
+                    return formattedStartDateTime
                 } else {
                     // formats event start date
                     val formattedStartDate = formatEventDate(dates.start.localDate)
-                    return "Start: $formattedStartDate"
+                    return formattedStartDate
                 }
             }
             // returns null if event has no start date info
@@ -120,18 +120,18 @@ class DisplayEventUseCase @Inject constructor(
                             val formattedEndDateTime = formatEventDateTime(dates.end.localDate, dates.end.localTime)
 
                             // returns start and end date and time
-                            return "End: $formattedEndDateTime"
+                            return formattedEndDateTime
                         } else {
                             // formats event end date
                             val formattedEndDate = formatEventDate(dates.end.localDate)
-                            return "End: $formattedEndDate"
+                            return formattedEndDate
                         }
                     } else {
                         // Checks if event has an end time
                         if (dates.end.localTime != null) {
                             // formats event end time
                             val formattedEndTime = formatEventTime(dates.end.localTime)
-                            return "End: $formattedEndTime"
+                            return formattedEndTime
                             // returns null if event has no end time info
                         } else {
                             return null

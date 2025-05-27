@@ -106,7 +106,7 @@ fun AttractionItem(
             ClassificationFlowRow(
                 classifications = attraction.classifications,
                 showSegment = false,
-                modifier = modifier
+                modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
             )
 
             Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))

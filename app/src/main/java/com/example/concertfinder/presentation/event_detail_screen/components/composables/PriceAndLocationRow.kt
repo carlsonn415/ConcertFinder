@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
@@ -26,38 +27,39 @@ fun PriceAndLocationRow(
     distanceFromLocation: String,
     modifier: Modifier = Modifier
 ) {
-    // Event price and location row
+    //---------------------------------------------------------------------------------------------- Event price and location row
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .padding(horizontal = dimensionResource(id = R.dimen.padding_medium))
             .horizontalScroll(rememberScrollState())
     ) {
-        // Check if event has price ranges
+        //------------------------------------------------------------------------------------------ Check if event has price ranges
         if (
             event.priceRanges != null
-            && event.priceRanges.first().currency != null
             && event.priceRanges.first().min != null
             && event.priceRanges.first().max != null
         ) {
-            if (event.priceRanges.first().currency == "USD") {
+            val startPrice = event.priceRanges.first().min?.toInt() ?: 0
+            val endPrice = event.priceRanges.first().max?.toInt() ?: 0
+
+            if (event.priceRanges.first().currency == "USD" || event.priceRanges.first().currency == null) {
                 // USD
                 Text(
-                    text = "$" + event.priceRanges.first().min?.toInt()
-                        .toString() + " - $" + event.priceRanges.first().max?.toInt()
-                        .toString(),
+                    text = if (startPrice > 0) "$$startPrice - $$endPrice" else stringResource(R.string.free),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             } else {
                 // TODO: add support for other currencies
                 Text(
-                    text = event.priceRanges.first().min.toString() + " " +
+                    text = startPrice.toString() + " " +
                             event.priceRanges.first().currency.toString() + " - " +
-                            event.priceRanges.first().max.toString() + " " +
+                            endPrice.toString() + " " +
                             event.priceRanges.first().currency.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
+            // Divider
             Box(
                 modifier = modifier
                     .padding(horizontal = dimensionResource(R.dimen.padding_small))
@@ -65,6 +67,7 @@ fun PriceAndLocationRow(
                     .background(color = MaterialTheme.colorScheme.onBackground)
             )
         }
+        //------------------------------------------------------------------------------------------ Check if valid distance from location was provided
         if (distanceFromLocation.isNotEmpty()) {
             Text(
                 text = distanceFromLocation,
@@ -78,17 +81,27 @@ fun PriceAndLocationRow(
                     .background(color = MaterialTheme.colorScheme.onBackground)
             )
         }
-        // Check if event has location, if not use venue location
+        //------------------------------------------------------------------------------------------ Check if event has location, if not use venue location
         if (
             event.place != null
             && event.place.address != null
             && event.place.city != null
             && event.place.state != null
         ) {
-            Text(
-                text = event.place.address.line1 + ", " + event.place.city.name + ", " + event.place.state,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.LocationOn,
+                    contentDescription = null,
+                    modifier = modifier.size(14.dp)
+                )
+                Text(
+                    text = event.place.address.line1 + ", " + event.place.city.name + ", " + event.place.state,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
+                )
+            }
         } else if (
             event.embedded?.venues != null
             && event.embedded.venues.first().address != null
@@ -113,6 +126,7 @@ fun PriceAndLocationRow(
             Text(
                 text = "Location not provided",
                 style = MaterialTheme.typography.bodyMedium,
+                modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
             )
         }
     }

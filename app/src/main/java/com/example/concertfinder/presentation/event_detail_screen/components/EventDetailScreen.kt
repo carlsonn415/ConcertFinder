@@ -149,7 +149,7 @@ fun EventDetailScreen(
                 // -------------------------------------------------------------------------------------------------------------Event start date
                 if (eventStartDate != null) {
                     Text(
-                        text = eventStartDate,
+                        text = "Start: $eventStartDate",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = modifier
                             .padding(horizontal = dimensionResource(R.dimen.padding_medium))
@@ -160,7 +160,7 @@ fun EventDetailScreen(
                 // -------------------------------------------------------------------------------------------------------------Event end date
                 if (eventEndDate != null) {
                     Text(
-                        text = eventEndDate,
+                        text = "End: $eventEndDate",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = modifier
                             .padding(
@@ -427,15 +427,14 @@ private fun determineTextBlockTitle(infoQueue: MutableMap<String, String>): Stri
     return if (infoQueue.values.firstOrNull()?.isNotEmpty() ?: return "Event description") {
         infoQueue.keys.first()
 
-    } else if (infoQueue.values.elementAt(1).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(1)?.isNotEmpty() ?: return "Event description") {
         infoQueue.keys.elementAt(1)
 
-    } else if (infoQueue.values.elementAt(2).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(2)?.isNotEmpty() ?: return "Event description") {
         infoQueue.keys.elementAt(2)
 
-    } else if (infoQueue.values.elementAt(3).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(3)?.isNotEmpty() ?: return "Event description") {
         infoQueue.keys.elementAt(3)
-
     } else {
         "Event description"
     }
