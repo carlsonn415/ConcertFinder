@@ -36,6 +36,7 @@ import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.calendar_screen.components.CalendarScreen
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
 import com.example.concertfinder.presentation.event_list_screen.components.EventListScreen
+import com.example.concertfinder.presentation.filter_screen.components.FilterScreen
 import com.example.concertfinder.presentation.saved_events_screen.components.SavedEventsScreen
 import com.example.concertfinder.presentation.search_screen.components.SearchScreen
 import com.example.concertfinder.presentation.utils.AppContentType
@@ -178,6 +179,9 @@ private fun ConcertFinderNavHost(
         // search screen composable
         composable(route = AppDestinations.SEARCH) {
             SearchScreen(
+                onOpenFilterPreferences = {
+                    navController.navigate(AppDestinations.FILTER)
+                },
                 onSearch = {
                     viewModel.onNavigateToEventList(
                         navController = navController,
@@ -225,6 +229,14 @@ private fun ConcertFinderNavHost(
         composable(route = AppDestinations.EVENT_DETAILS) {
             EventDetailScreen(
                 event = uiState.value.currentEvent,
+                modifier = modifier,
+                innerPadding = innerPadding
+            )
+        }
+
+        // filter screen composable
+        composable(route = AppDestinations.FILTER) {
+            FilterScreen(
                 modifier = modifier,
                 innerPadding = innerPadding
             )

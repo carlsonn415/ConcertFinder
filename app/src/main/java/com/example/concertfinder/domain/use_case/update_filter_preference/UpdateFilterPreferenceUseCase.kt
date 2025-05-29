@@ -9,15 +9,16 @@ class UpdateFilterPreferenceUseCase @Inject constructor(
     val filterPreferencesRepository = preferencesRepository.getFilterPreferences()
 
     suspend fun updateFilterPreferences(
-        radius: String?,
-        startDateTime: String?,
-        sort: String?,
-        genre: String?,
-        subgenre: String?,
-        segment: String?,
-        removeGenre: Boolean,
-        removeSubgenre: Boolean,
-        removeSegment: Boolean,
+        radius: String? = null,
+        startDateTime: String? = null,
+        sortOption: String? = null,
+        sortType: String? = null,
+        genre: String? = null,
+        subgenre: String? = null,
+        segment: String? = null,
+        removeGenre: Boolean = false,
+        removeSubgenre: Boolean = false,
+        removeSegment: Boolean = false,
     ) {
         if (radius != null) {
             filterPreferencesRepository.saveRadius(radius)
@@ -25,8 +26,11 @@ class UpdateFilterPreferenceUseCase @Inject constructor(
         if (startDateTime != null) {
             filterPreferencesRepository.saveStartDateTime(startDateTime)
         }
-        if (sort != null) {
-            filterPreferencesRepository.saveSort(sort)
+        if (sortOption != null) {
+            filterPreferencesRepository.saveSortOption(sortOption)
+        }
+        if (sortType != null) {
+            filterPreferencesRepository.saveSortType(sortType)
         }
         if (genre != null && removeGenre == false) {
             filterPreferencesRepository.saveGenre(listOf(genre))

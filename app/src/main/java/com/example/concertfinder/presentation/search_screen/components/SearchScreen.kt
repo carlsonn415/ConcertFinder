@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
+    onOpenFilterPreferences: () -> Unit,
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchScreenViewModel = hiltViewModel(),
@@ -192,7 +194,7 @@ fun SearchScreen(
                 viewModel.updateDropDownExpanded(it)
             },
             onRadiusOptionSelected = {
-                viewModel.updateFilterPreferences(radius = it)
+                viewModel.updateRadiusFilterPreference(radius = it)
                 viewModel.updateDropDownExpanded(false)
             },
             onExpandLocationDropdown = {
@@ -206,5 +208,12 @@ fun SearchScreen(
                 viewModel.searchForLocation(it)
             }
         )
+        Button(
+            onClick = {
+                onOpenFilterPreferences()
+            }
+        ) {
+            Text(text = "Open Filter Preferences")
+        }
     }
 }

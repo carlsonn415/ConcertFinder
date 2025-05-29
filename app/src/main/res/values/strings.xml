@@ -53,4 +53,8 @@
     <string name="event_saved">Event saved</string>
     <string name="event_unsaved">Event unsaved</string>
     <string name="free">Free</string>
+    <string name="sort">Sort options</string>
+    <string name="select_a_radius_to_search">Select a radius to search</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_type">Sort type</string>
 </resources>

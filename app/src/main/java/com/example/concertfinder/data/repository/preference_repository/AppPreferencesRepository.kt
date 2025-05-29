@@ -1,10 +1,9 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.preference_repository
 
 import android.content.Context
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import kotlin.getValue
 
 class AppPreferencesRepository @Inject constructor(
     @ApplicationContext private val context: Context

@@ -1,14 +1,13 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.preference_repository
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.location.Address
 import android.location.Geocoder
 import android.util.Log
-import android.util.Log.e
 import android.widget.Toast
 import androidx.core.content.edit
-import com.example.concertfinder.domain.repository.PreferencesRepository.LocationPreferencesRepository
+import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -18,7 +17,7 @@ import java.util.Locale
 
 class AppLocationPreferencesRepository(
     @ApplicationContext private val context: Context
-) : LocationPreferencesRepository {
+) : PreferencesRepository.LocationPreferencesRepository {
 
     // SharedPreferences
     private val prefsName = "user_location_prefs"
@@ -51,7 +50,7 @@ class AppLocationPreferencesRepository(
             geocode(context, address)
 
         } else {
-            e("UserLocationPreferences", "Invalid location data")
+            Log.e("UserLocationPreferences", "Invalid location data")
         }
     }
 
@@ -133,13 +132,15 @@ class AppLocationPreferencesRepository(
                 saveLocation(latitude, longitude)
             } else {
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "No results found", Toast.LENGTH_SHORT).show() // TODO: Make this a snackbar
+                    Toast.makeText(context, "No results found", Toast.LENGTH_SHORT)
+                        .show() // TODO: Make this a snackbar
                 }
             }
         } catch (e: IOException) {
             e.printStackTrace()
             withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Service not available", Toast.LENGTH_SHORT).show() // TODO: Make this a snackbar
+                Toast.makeText(context, "Service not available", Toast.LENGTH_SHORT)
+                    .show() // TODO: Make this a snackbar
             }
         }
     }

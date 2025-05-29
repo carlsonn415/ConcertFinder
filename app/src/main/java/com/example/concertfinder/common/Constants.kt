@@ -25,4 +25,16 @@ object Constants {
         Radius("500", DistanceUnit.Miles),
         Radius("1000", DistanceUnit.Miles),
     )
+
+    val sortOptions = listOf(
+        "name",
+        "date",
+        "distance",
+        "relevance"
+    )
+
+    val sortTypes = listOf(
+        "asc",
+        "desc"
+    )
 }

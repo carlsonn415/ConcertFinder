@@ -111,28 +111,12 @@ class SearchScreenViewModel @Inject constructor(
         }
     }
 
-    fun updateFilterPreferences(
+    fun updateRadiusFilterPreference(
         radius: String? = null,
-        startDateTime: String? = null,
-        sort: String? = null,
-        genre: String? = null,
-        subgenre: String? = null,
-        segment: String? = null,
-        removeGenre: Boolean = false,
-        removeSubgenre: Boolean = false,
-        removeSegment: Boolean = false,
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             updateFilterPreferenceUseCase.updateFilterPreferences(
                 radius = radius,
-                startDateTime = startDateTime,
-                sort = sort,
-                genre = genre,
-                subgenre = subgenre,
-                segment = segment,
-                removeGenre = removeGenre,
-                removeSubgenre = removeSubgenre,
-                removeSegment = removeSegment
             )
 
             // update radius

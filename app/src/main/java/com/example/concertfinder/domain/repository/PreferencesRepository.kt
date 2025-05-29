@@ -26,7 +26,12 @@ interface PreferencesRepository {
         suspend fun saveStartDateTime(startDateTime: String? = null)
         fun getStartDateTime(): String
 
-        suspend fun saveSort(sort: String? = null)
+        suspend fun saveSortOption(sortOption: String? = null)
+        fun getSortOption(): String
+
+        suspend fun saveSortType(sortType: String? = null)
+        fun getSortType(): String
+
         fun getSort(): String
 
         suspend fun saveGenre(genre: List<String>? = null)

@@ -2,7 +2,7 @@ package com.example.concertfinder.domain.use_case.update_location
 
 import android.util.Log
 import com.example.concertfinder.data.remote.LocationManagerService
-import com.example.concertfinder.data.repository.AppPreferencesRepository
+import com.example.concertfinder.data.repository.preference_repository.AppPreferencesRepository
 import javax.inject.Inject
 
 class UpdateLocationUseCase @Inject constructor(

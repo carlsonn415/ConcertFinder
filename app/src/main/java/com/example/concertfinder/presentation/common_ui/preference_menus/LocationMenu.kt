@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
+import com.example.concertfinder.common.Constants
 import com.example.concertfinder.domain.model.LoadingStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,11 +100,14 @@ fun LocationMenu(
 
                 Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
 
-                RadiusDropdown(
-                    radius = radius,
-                    isRadiusPreferencesExpanded = isRadiusPreferencesExpanded,
-                    onExposeRadiusDropdownChange = onExposeRadiusDropdownChange,
-                    onRadiusOptionSelected = onRadiusOptionSelected,
+                PreferencesDropdown(
+                    currentPreference = radius,
+                    dropdownLabel = stringResource(R.string.select_a_radius_to_search),
+                    preferenceOptions = Constants.radiusOptions.map { it.radius },
+                    preferenceLabel = Constants.radiusOptions.first().unit.name,
+                    isPreferencesExpanded = isRadiusPreferencesExpanded,
+                    onPreferencesExpandedChange = onExposeRadiusDropdownChange,
+                    onPreferenceSelected = onRadiusOptionSelected,
                     modifier = modifier
                 )
             }

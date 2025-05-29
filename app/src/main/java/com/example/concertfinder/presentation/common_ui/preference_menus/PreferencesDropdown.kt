@@ -15,21 +15,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import com.example.concertfinder.R
-import com.example.concertfinder.common.Constants.radiusOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RadiusDropdown(
-    radius: String,
-    isRadiusPreferencesExpanded: Boolean,
-    onExposeRadiusDropdownChange: (Boolean) -> Unit,
-    onRadiusOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+fun PreferencesDropdown(
+    currentPreference: String,
+    dropdownLabel: String,
+    preferenceOptions: List<String>,
+    isPreferencesExpanded: Boolean,
+    onPreferencesExpandedChange: (Boolean) -> Unit,
+    onPreferenceSelected: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    preferenceLabel: String? = null,
 ) {
     ExposedDropdownMenuBox(
-        expanded = isRadiusPreferencesExpanded,
+        expanded = isPreferencesExpanded,
         onExpandedChange = {
-            onExposeRadiusDropdownChange(!isRadiusPreferencesExpanded)
+            onPreferencesExpandedChange(!isPreferencesExpanded)
         },
         modifier = modifier
             .fillMaxWidth()
@@ -42,12 +44,12 @@ fun RadiusDropdown(
         // Make it read-only to prevent manual text input
         // Use .menuAnchor() to connect it to the dropdown menu
         TextField(
-            value = "$radius Miles",
+            value = if (preferenceLabel != null) "$currentPreference $preferenceLabel" else currentPreference,
             onValueChange = {}, // No-op for read-only
             readOnly = true,
-            label = { Text("Select a radius to search") },
+            label = { Text(dropdownLabel) },
             trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isRadiusPreferencesExpanded)
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isPreferencesExpanded)
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
             modifier = Modifier
@@ -57,15 +59,15 @@ fun RadiusDropdown(
 
         // The actual dropdown menu
         ExposedDropdownMenu(
-            expanded = isRadiusPreferencesExpanded,
-            onDismissRequest = { onExposeRadiusDropdownChange(false) }
+            expanded = isPreferencesExpanded,
+            onDismissRequest = { onPreferencesExpandedChange(false) }
         ) {
-            radiusOptions.forEach { selectionOption ->
+            preferenceOptions.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(selectionOption.radius + " " + selectionOption.unit) },
+                    text = { if (preferenceLabel != null) Text("$selectionOption $preferenceLabel") else Text(selectionOption) },
                     onClick = {
-                        onRadiusOptionSelected(selectionOption.radius)
-                        onExposeRadiusDropdownChange(false) // Close the menu after selection
+                        onPreferenceSelected(selectionOption)
+                        onPreferencesExpandedChange(false) // Close the menu after selection
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )

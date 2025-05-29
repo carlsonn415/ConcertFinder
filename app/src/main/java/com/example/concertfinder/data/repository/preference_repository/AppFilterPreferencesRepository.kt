@@ -1,9 +1,9 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.preference_repository
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log.e
+import android.util.Log
 import androidx.core.content.edit
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,7 +21,8 @@ class AppFilterPreferencesRepository @Inject constructor(
     private val prefsName = "filter_prefs"
     private val keyRadius = "radius"
     private val keyStartDateTime = "start_date_time"
-    private val keySort = "sort"
+    private val keySortOption = "sort_option"
+    private val keySortType = "sort_type"
     private val keyGenre = "genre"
     private val keySubgenre = "subgenre"
     private val keySegment = "segment"
@@ -30,7 +31,8 @@ class AppFilterPreferencesRepository @Inject constructor(
     // Default values
     private val defaultRadius = "50"
     private val defaultStartDateTime = getFormattedDate(Calendar.getInstance())
-    private val defaultSort = "relevance,desc"
+    private val defaultSortOption = "relevance"
+    private val defaultSortType = "desc"
     private val defaultGenre = null
     private val defaultSubgenre = null
     private val defaultSegment = null
@@ -42,7 +44,7 @@ class AppFilterPreferencesRepository @Inject constructor(
                 putString(keyRadius, radius)
             }
         } else {
-            e("UserLocationPreferences", "Invalid radius data")
+            Log.e("UserLocationPreferences", "Invalid radius data")
         }
     }
 
@@ -56,7 +58,7 @@ class AppFilterPreferencesRepository @Inject constructor(
                 putString(keyStartDateTime, startDateTime)
             }
         } else {
-            e("UserLocationPreferences", "Invalid start date time data")
+            Log.e("UserLocationPreferences", "Invalid start date time data")
         }
     }
 
@@ -64,18 +66,36 @@ class AppFilterPreferencesRepository @Inject constructor(
         return getPrefs(context).getString(keyStartDateTime, defaultStartDateTime) ?: defaultStartDateTime
     }
 
-    override suspend fun saveSort(sort: String?) {
-        if (sort != null) {
+    override suspend fun saveSortOption(sortOption: String?) {
+        if (sortOption != null) {
             getPrefs(context).edit {
-                putString(keySort, sort)
+                putString(keySortOption, sortOption)
             }
         } else {
-            e("UserLocationPreferences", "Invalid sort data")
+            Log.e("UserLocationPreferences", "Invalid sort data")
         }
     }
 
+    override fun getSortOption(): String {
+        return getPrefs(context).getString(keySortOption, defaultSortOption) ?: defaultSortOption
+    }
+
+    override suspend fun saveSortType(sortType: String?) {
+        if (sortType != null) {
+            getPrefs(context).edit {
+                putString(keySortType, sortType)
+            }
+        } else {
+            Log.e("UserLocationPreferences", "Invalid sort type data")
+        }
+    }
+
+    override fun getSortType(): String {
+        return getPrefs(context).getString(keySortType, defaultSortType) ?: defaultSortType
+    }
+
     override fun getSort(): String {
-        return getPrefs(context).getString(keySort, defaultSort) ?: defaultSort
+        return "${getSortOption()},${getSortType()}"
     }
 
     override suspend fun saveGenre(genre: List<String>?) {
@@ -84,7 +104,7 @@ class AppFilterPreferencesRepository @Inject constructor(
                 putStringSet(keyGenre, genre.toSet())
             }
         } else {
-            e("UserLocationPreferences", "Invalid genre data")
+            Log.e("UserLocationPreferences", "Invalid genre data")
         }
     }
 
@@ -106,7 +126,7 @@ class AppFilterPreferencesRepository @Inject constructor(
                 putStringSet(keySubgenre, subgenre.toSet())
             }
         } else {
-            e("UserLocationPreferences", "Invalid subgenre data")
+            Log.e("UserLocationPreferences", "Invalid subgenre data")
         }
     }
 
@@ -128,7 +148,7 @@ class AppFilterPreferencesRepository @Inject constructor(
                 putString(keySegment, segment)
             }
         } else {
-            e("UserLocationPreferences", "Invalid segment data")
+            Log.e("UserLocationPreferences", "Invalid segment data")
         }
     }
 
