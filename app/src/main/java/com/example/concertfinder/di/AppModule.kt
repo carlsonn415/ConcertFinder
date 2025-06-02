@@ -1,7 +1,10 @@
 package com.example.concertfinder.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.concertfinder.common.Constants.BASE_URL
+import com.example.concertfinder.data.local.AppDatabase
+import com.example.concertfinder.data.local.ClassificationDao
 import com.example.concertfinder.data.remote.AppApiService
 import com.example.concertfinder.data.repository.preference_repository.AppPreferencesRepository
 import com.example.concertfinder.data.repository.AppEventsRepository
@@ -9,8 +12,9 @@ import com.example.concertfinder.domain.repository.EventsRepository
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import com.example.concertfinder.data.remote.AppLocationManagerService
 import com.example.concertfinder.data.remote.LocationManagerService
+import com.example.concertfinder.data.repository.AppLocalClassificationRepository
 import com.example.concertfinder.data.repository.AppRemoteClassificationRepository
-import com.example.concertfinder.data.repository.preference_repository.AppLocationPreferencesRepository
+import com.example.concertfinder.domain.repository.LocalClassificationRepository
 import com.example.concertfinder.domain.repository.RemoteClassificationRepository
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -39,6 +43,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+        return AppDatabase.getInstance(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideClassificationDao(appDatabase: AppDatabase): ClassificationDao {
+        return appDatabase.classificationDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideEventsRepository(apiService: AppApiService): EventsRepository {
         return AppEventsRepository(apiService)
     }
@@ -62,5 +78,15 @@ object AppModule {
     @Singleton
     fun provideRemoteClassificationRepository(apiService: AppApiService): RemoteClassificationRepository {
         return AppRemoteClassificationRepository(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocalClassificationRepository(
+        apiService: AppApiService,
+        classificationDao: ClassificationDao,
+        preferencesRepository: AppPreferencesRepository
+    ): LocalClassificationRepository {
+        return AppLocalClassificationRepository(classificationDao, apiService, preferencesRepository)
     }
 }

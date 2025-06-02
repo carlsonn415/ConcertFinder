@@ -1,16 +1,18 @@
 package com.example.concertfinder.data.repository.preference_repository
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.core.content.edit
+import com.example.concertfinder.common.Constants.DEFAULT_GENRE
+import com.example.concertfinder.common.Constants.DEFAULT_RADIUS
+import com.example.concertfinder.common.Constants.DEFAULT_SEGMENT
+import com.example.concertfinder.common.Constants.DEFAULT_SORT_OPTION
+import com.example.concertfinder.common.Constants.DEFAULT_SORT_TYPE
+import com.example.concertfinder.common.Constants.DEFAULT_START_DATE_TIME
+import com.example.concertfinder.common.Constants.DEFAULT_SUBGENRE
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Calendar
 import javax.inject.Inject
 
 class AppFilterPreferencesRepository @Inject constructor(
@@ -27,17 +29,6 @@ class AppFilterPreferencesRepository @Inject constructor(
     private val keySubgenre = "subgenre"
     private val keySegment = "segment"
 
-
-    // Default values
-    private val defaultRadius = "50"
-    private val defaultStartDateTime = getFormattedDate(Calendar.getInstance())
-    private val defaultSortOption = "relevance"
-    private val defaultSortType = "desc"
-    private val defaultGenre = null
-    private val defaultSubgenre = null
-    private val defaultSegment = null
-
-
     override suspend fun saveRadius(radius: String?) {
         if (radius != null) {
             getPrefs(context).edit {
@@ -49,7 +40,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getRadius(): String {
-        return getPrefs(context).getString(keyRadius, defaultRadius) ?: defaultRadius
+        return getPrefs(context).getString(keyRadius, DEFAULT_RADIUS) ?: DEFAULT_RADIUS
     }
 
     override suspend fun saveStartDateTime(startDateTime: String?) {
@@ -63,7 +54,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getStartDateTime(): String {
-        return getPrefs(context).getString(keyStartDateTime, defaultStartDateTime) ?: defaultStartDateTime
+        return getPrefs(context).getString(keyStartDateTime, DEFAULT_START_DATE_TIME) ?: DEFAULT_START_DATE_TIME
     }
 
     override suspend fun saveSortOption(sortOption: String?) {
@@ -77,7 +68,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getSortOption(): String {
-        return getPrefs(context).getString(keySortOption, defaultSortOption) ?: defaultSortOption
+        return getPrefs(context).getString(keySortOption, DEFAULT_SORT_OPTION) ?: DEFAULT_SORT_OPTION
     }
 
     override suspend fun saveSortType(sortType: String?) {
@@ -91,7 +82,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getSortType(): String {
-        return getPrefs(context).getString(keySortType, defaultSortType) ?: defaultSortType
+        return getPrefs(context).getString(keySortType, DEFAULT_SORT_TYPE) ?: DEFAULT_SORT_TYPE
     }
 
     override fun getSort(): String {
@@ -100,8 +91,9 @@ class AppFilterPreferencesRepository @Inject constructor(
 
     override suspend fun saveGenre(genre: List<String>?) {
         if (genre != null) {
+            val newGenreList = (getGenres()?.toMutableList()?.plus(genre)) ?: mutableListOf()
             getPrefs(context).edit {
-                putStringSet(keyGenre, genre.toSet())
+                putStringSet(keyGenre, newGenreList.toSet())
             }
         } else {
             Log.e("UserLocationPreferences", "Invalid genre data")
@@ -109,7 +101,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getGenres(): List<String>? {
-        return getPrefs(context).getStringSet(keyGenre, defaultGenre)?.toList()
+        return getPrefs(context).getStringSet(keyGenre, DEFAULT_GENRE)?.toList()
     }
 
     override suspend fun removeGenre(genre: String) {
@@ -120,10 +112,18 @@ class AppFilterPreferencesRepository @Inject constructor(
         }
     }
 
+    override suspend fun removeAllGenres() {
+        getPrefs(context).edit {
+            remove(keyGenre)
+            remove(keySubgenre)
+        }
+    }
+
     override suspend fun saveSubgenre(subgenre: List<String>?) {
         if (subgenre != null) {
+            val newSubgenreList = (getSubgenres()?.toMutableList()?.plus(subgenre)) ?: mutableListOf()
             getPrefs(context).edit {
-                putStringSet(keySubgenre, subgenre.toSet())
+                putStringSet(keySubgenre, newSubgenreList.toSet())
             }
         } else {
             Log.e("UserLocationPreferences", "Invalid subgenre data")
@@ -131,7 +131,7 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getSubgenres(): List<String>? {
-        return getPrefs(context).getStringSet(keySubgenre, defaultSubgenre)?.toList()
+        return getPrefs(context).getStringSet(keySubgenre, DEFAULT_SUBGENRE)?.toList()
     }
 
     override suspend fun removeSubgenre(subgenre: String) {
@@ -139,6 +139,12 @@ class AppFilterPreferencesRepository @Inject constructor(
             val subgenres = getSubgenres()?.toMutableList() ?: return
             subgenres.remove(subgenre)
             putStringSet(keySubgenre, subgenres.toSet())
+        }
+    }
+
+    override suspend fun removeAllSubgenres() {
+        getPrefs(context).edit {
+            remove(keySubgenre)
         }
     }
 
@@ -153,7 +159,9 @@ class AppFilterPreferencesRepository @Inject constructor(
     }
 
     override fun getSegment(): String? {
-        return getPrefs(context).getString(keySegment, defaultSegment) ?: defaultSegment
+        val currentSegment = getPrefs(context).getString(keySegment, DEFAULT_SEGMENT)
+        Log.d("AppFilterPreferencesRepository", "currentSegment: $currentSegment")
+        return currentSegment
     }
 
     override suspend fun removeSegment() {
@@ -166,17 +174,5 @@ class AppFilterPreferencesRepository @Inject constructor(
 
     private fun getPrefs(context: Context): SharedPreferences {
         return context.getSharedPreferences(prefsName, Context.MODE_PRIVATE)
-    }
-
-    // get formatted date from calendar
-    @SuppressLint("NewApi")
-    private fun getFormattedDate(calendar: Calendar): String {
-        // convert calendar to instant
-        val instant: Instant = calendar.toInstant()
-
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-            .withZone(ZoneId.of("UTC"))
-
-        return formatter.format(instant)
     }
 }

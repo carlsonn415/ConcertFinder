@@ -37,10 +37,12 @@ interface PreferencesRepository {
         suspend fun saveGenre(genre: List<String>? = null)
         fun getGenres(): List<String>?
         suspend fun removeGenre(genre: String)
+        suspend fun removeAllGenres()
 
         suspend fun saveSubgenre(subgenre: List<String>? = null)
         fun getSubgenres(): List<String>?
         suspend fun removeSubgenre(subgenre: String)
+        suspend fun removeAllSubgenres()
 
         suspend fun saveSegment(segment: String? = null)
         fun getSegment(): String?

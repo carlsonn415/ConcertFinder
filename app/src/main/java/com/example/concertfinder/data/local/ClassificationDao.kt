@@ -71,4 +71,11 @@ interface ClassificationDao {
     @Transaction
     @Query("SELECT * FROM segments")
     suspend fun getAllSegmentEntities(): List<SegmentEntity>
+
+    @Query("SELECT * FROM genres WHERE parentSegmentId = :segmentId")
+    suspend fun getGenreEntitiesForSegment(segmentId: String): List<GenreEntity>
+
+    @Query("SELECT * FROM subgenres WHERE parentGenreId = :genreId")
+    suspend fun getSubgenreEntitiesForGenre(genreId: String): List<SubgenreEntity>
+
 }

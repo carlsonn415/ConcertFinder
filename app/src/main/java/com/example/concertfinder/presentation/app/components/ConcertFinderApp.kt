@@ -87,15 +87,17 @@ fun ConcertFinderApp(
         // allows top bar to scroll
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            ConcertFinderTopBar(
-                onBackPressed = {
-                    // navigate back
-                    navController.navigateUp()
-                },
-                showBackButton = !uiState.value.showBottomBar,
-                scrollBehavior = scrollBehavior,
-                modifier = modifier
-            )
+            if (!uiState.value.showBottomBar) {
+                ConcertFinderTopBar(
+                    onBackPressed = {
+                        // navigate back
+                        navController.navigateUp()
+                    },
+                    showBackButton = !uiState.value.showBottomBar,
+                    scrollBehavior = scrollBehavior,
+                    modifier = modifier
+                )
+            }
         },
         bottomBar = {
             if (uiState.value.showBottomBar) {

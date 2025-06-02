@@ -15,6 +15,7 @@ class AppViewModel() : ViewModel() {
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState = _uiState.asStateFlow()
 
+
     fun onNavigateToEventList(
         navController: NavController,
         searchQuery: String,
