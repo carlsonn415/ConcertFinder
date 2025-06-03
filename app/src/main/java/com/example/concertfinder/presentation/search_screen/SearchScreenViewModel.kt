@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.concertfinder.domain.model.LoadingStatus
 import com.example.concertfinder.domain.repository.PreferencesRepository
+import com.example.concertfinder.domain.repository.SearchHistoryRepository
 import com.example.concertfinder.domain.use_case.update_filter_preference.UpdateFilterPreferenceUseCase
 import com.example.concertfinder.domain.use_case.update_location.UpdateLocationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchScreenViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
+    private val searchHistoryRepository: SearchHistoryRepository,
     private val updateLocationUseCase: UpdateLocationUseCase,
     private val updateFilterPreferenceUseCase: UpdateFilterPreferenceUseCase
 ) : ViewModel() {
@@ -28,6 +30,7 @@ class SearchScreenViewModel @Inject constructor(
         SearchScreenUiState(
             address = preferencesRepository.getLocationPreferences().getAddress(),
             radius = preferencesRepository.getFilterPreferences().getRadius(),
+            searchHistory = searchHistoryRepository.getSearchHistory(),
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -123,6 +126,28 @@ class SearchScreenViewModel @Inject constructor(
             _uiState.update { currentState ->
                 currentState.copy(
                     radius = preferencesRepository.getFilterPreferences().getRadius()
+                )
+            }
+        }
+    }
+
+    fun saveSearchQuery(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchHistoryRepository.saveSearchQuery(query)
+            _uiState.update { currentState ->
+                currentState.copy(
+                    searchHistory = searchHistoryRepository.getSearchHistory()
+                )
+            }
+        }
+    }
+
+    fun deletePreviousSearch(query: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            searchHistoryRepository.removeSearchQuery(query)
+            _uiState.update { currentState ->
+                currentState.copy(
+                    searchHistory = searchHistoryRepository.getSearchHistory()
                 )
             }
         }

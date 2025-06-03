@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -91,6 +91,7 @@ fun SearchScreen(
                             viewModel.updateSearchText(it)
                         },
                         onSearch = {
+                            viewModel.saveSearchQuery(uiState.value.searchQuery)
                             onSearch(uiState.value.searchQuery)
                         },
                         expanded = uiState.value.isSearchBarExpanded,
@@ -103,6 +104,7 @@ fun SearchScreen(
                         trailingIcon = {
                             IconButton(
                                 onClick = {
+                                    viewModel.saveSearchQuery(uiState.value.searchQuery)
                                     onSearch(uiState.value.searchQuery)
                                 }
                             ) {
@@ -129,16 +131,7 @@ fun SearchScreen(
             ) {
                 // TODO: add search history here
 
-                // Content for when the SearchBar is expanded (e.g., search history)
-                // Apply heightIn modifier here to constrain the expanded content area
-                val searchHistory = listOf(
-                    "Rock concerts",
-                    "Jazz festivals",
-                    "Nearby events",
-                    "Classical music",
-                ) // Example history
-
-                if (searchHistory.isNotEmpty()) {
+                if (uiState.value.searchHistory.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.background)
@@ -150,17 +143,23 @@ fun SearchScreen(
                                 .fillMaxWidth()
                                 .heightIn(max = 500.dp)
                         ) {
-                            items(searchHistory) { historyItem ->
+                            items(uiState.value.searchHistory) { historyItem ->
                                 ListItem(
                                     headlineContent = { Text(historyItem) },
                                     trailingContent = {
-                                        Icon(
-                                            // TODO: add icon for search history
-                                            Icons.AutoMirrored.Filled.ArrowForward,
-                                            contentDescription = null
-                                        )
+                                        IconButton(
+                                            onClick = {
+                                                viewModel.deletePreviousSearch(query = historyItem)
+                                            }
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Clear,
+                                                contentDescription = null
+                                            )
+                                        }
                                     },
                                     modifier = Modifier.clickable {
+                                        viewModel.saveSearchQuery(historyItem)
                                         onSearch(historyItem)
                                     }
                                 )

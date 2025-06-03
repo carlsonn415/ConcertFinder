@@ -12,4 +12,5 @@ data class SearchScreenUiState(
     val isLocationPreferencesMenuExpanded: Boolean = false,
     val isRadiusPreferencesExpanded: Boolean = false,
     val locationSearchQuery: String = "",
+    val searchHistory: List<String> = emptyList(),
 )

@@ -1,7 +1,6 @@
 package com.example.concertfinder.di
 
 import android.content.Context
-import androidx.room.Room
 import com.example.concertfinder.common.Constants.BASE_URL
 import com.example.concertfinder.data.local.AppDatabase
 import com.example.concertfinder.data.local.ClassificationDao
@@ -14,8 +13,10 @@ import com.example.concertfinder.data.remote.AppLocationManagerService
 import com.example.concertfinder.data.remote.LocationManagerService
 import com.example.concertfinder.data.repository.AppLocalClassificationRepository
 import com.example.concertfinder.data.repository.AppRemoteClassificationRepository
+import com.example.concertfinder.data.repository.AppSearchHistoryRepository
 import com.example.concertfinder.domain.repository.LocalClassificationRepository
 import com.example.concertfinder.domain.repository.RemoteClassificationRepository
+import com.example.concertfinder.domain.repository.SearchHistoryRepository
 import com.google.android.gms.location.LocationServices
 import dagger.Module
 import dagger.Provides
@@ -88,5 +89,11 @@ object AppModule {
         preferencesRepository: AppPreferencesRepository
     ): LocalClassificationRepository {
         return AppLocalClassificationRepository(classificationDao, apiService, preferencesRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppSearchHistoryRepository(@ApplicationContext context: Context): SearchHistoryRepository {
+        return AppSearchHistoryRepository(context)
     }
 }
