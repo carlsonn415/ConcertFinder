@@ -104,7 +104,7 @@ class AppFilterPreferencesRepository @Inject constructor(
         return getPrefs(context).getStringSet(keyGenre, DEFAULT_GENRE)?.toList()
     }
 
-    override suspend fun removeGenre(genre: String) {
+    override suspend fun removeSingleGenre(genre: String) {
         getPrefs(context).edit {
             val genres = getGenres()?.toMutableList() ?: return
             genres.remove(genre)
@@ -134,7 +134,7 @@ class AppFilterPreferencesRepository @Inject constructor(
         return getPrefs(context).getStringSet(keySubgenre, DEFAULT_SUBGENRE)?.toList()
     }
 
-    override suspend fun removeSubgenre(subgenre: String) {
+    override suspend fun removeSingleSubgenre(subgenre: String) {
         getPrefs(context).edit {
             val subgenres = getSubgenres()?.toMutableList() ?: return
             subgenres.remove(subgenre)

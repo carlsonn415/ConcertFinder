@@ -27,11 +27,15 @@ fun PreferencesDropdown(
     onPreferenceSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     preferenceLabel: String? = null,
+    showValue: Boolean = true,
+    enabled: Boolean = true
 ) {
     ExposedDropdownMenuBox(
         expanded = isPreferencesExpanded,
         onExpandedChange = {
-            onPreferencesExpandedChange(!isPreferencesExpanded)
+            if (enabled) {
+                onPreferencesExpandedChange(!isPreferencesExpanded)
+            }
         },
         modifier = modifier
             .fillMaxWidth()
@@ -43,23 +47,40 @@ fun PreferencesDropdown(
         // TextField that displays the selected option
         // Make it read-only to prevent manual text input
         // Use .menuAnchor() to connect it to the dropdown menu
-        TextField(
-            value = if (preferenceLabel != null) "$currentPreference $preferenceLabel" else currentPreference,
-            onValueChange = {}, // No-op for read-only
-            readOnly = true,
-            label = { Text(dropdownLabel) },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = isPreferencesExpanded)
-            },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable) // Important: Links TextField to the DropdownMenu
-        )
+        if (showValue) {
+            TextField(
+                value = if (preferenceLabel != null) "$currentPreference $preferenceLabel" else currentPreference,
+                onValueChange = {}, // No-op for read-only
+                readOnly = true,
+                label = {Text(dropdownLabel)},
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isPreferencesExpanded)
+                },
+                enabled = enabled,
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable) // Important: Links TextField to the DropdownMenu
+            )
+        } else {
+            TextField(
+                value = dropdownLabel,
+                onValueChange = {}, // No-op for read-only
+                readOnly = true,
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isPreferencesExpanded)
+                },
+                enabled = enabled,
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable) // Important: Links TextField to the DropdownMenu
+            )
+        }
 
         // The actual dropdown menu
         ExposedDropdownMenu(
-            expanded = isPreferencesExpanded,
+            expanded = if (enabled) isPreferencesExpanded else false,
             onDismissRequest = { onPreferencesExpandedChange(false) }
         ) {
             preferenceOptions.forEach { selectionOption ->

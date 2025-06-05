@@ -57,4 +57,12 @@
     <string name="select_a_radius_to_search">Select a radius to search</string>
     <string name="sort_by">Sort by</string>
     <string name="sort_type">Sort type</string>
+    <string name="delete">Delete</string>
+    <string name="genre">Genre</string>
+    <string name="subgenre">Subgenre</string>
+    <string name="reset_all">Reset all</string>
+    <string name="category">Category</string>
+    <string name="filter_button_label">Filter</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="filter">Filter</string>
 </resources>

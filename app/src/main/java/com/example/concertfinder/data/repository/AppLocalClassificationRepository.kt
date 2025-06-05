@@ -95,4 +95,9 @@ class AppLocalClassificationRepository @Inject constructor(
             throw e
         }
     }
+
+    override suspend fun shouldFetchNewClassifications(): Boolean {
+        // Check if the database is empty
+        return classificationDao.getAllSegmentEntities().isEmpty()
+    }
 }

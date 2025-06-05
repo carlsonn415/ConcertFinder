@@ -2,6 +2,8 @@ package com.example.concertfinder.presentation.search_screen.components
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,7 +20,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -48,7 +50,6 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    onOpenFilterPreferences: () -> Unit,
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SearchScreenViewModel = hiltViewModel(),
@@ -56,6 +57,12 @@ fun SearchScreen(
 ) {
 
     val uiState = viewModel.uiState.collectAsState()
+
+    // Animate the horizontal padding
+    val searchBarPadding by animateDpAsState(
+        targetValue = if (uiState.value.isSearchBarExpanded) 0.dp else dimensionResource(id = R.dimen.padding_medium),
+        animationSpec = tween(durationMillis = 300), // Optional: customize animation duration/easing
+    )
 
     // dispose of search bar when composable is disposed
     DisposableEffect(Unit) {
@@ -124,13 +131,11 @@ fun SearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        horizontal = dimensionResource(id = R.dimen.padding_medium),
-                        vertical = dimensionResource(id = R.dimen.padding_small)
+                        horizontal = searchBarPadding,
+                        vertical = searchBarPadding
                     )
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                // TODO: add search history here
-
                 if (uiState.value.searchHistory.isNotEmpty()) {
                     Column(
                         modifier = Modifier
@@ -207,12 +212,5 @@ fun SearchScreen(
                 viewModel.searchForLocation(it)
             }
         )
-        Button(
-            onClick = {
-                onOpenFilterPreferences()
-            }
-        ) {
-            Text(text = "Open Filter Preferences")
-        }
     }
 }

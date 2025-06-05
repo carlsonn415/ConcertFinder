@@ -2,6 +2,8 @@ package com.example.concertfinder.presentation.app.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,19 +23,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.common_ui.FilterSortButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConcertFinderTopBar(
     onBackPressed: () -> Unit,
     showBackButton: Boolean,
+    showFilterButton: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
+    onFilterSortClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     TopAppBar(
         title = {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = modifier.fillMaxWidth()
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.app_icon),
@@ -45,6 +51,11 @@ fun ConcertFinderTopBar(
                 Text(
                     text = stringResource(id = R.string.app_name),
                     style = MaterialTheme.typography.titleLarge
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                FilterSortButton(
+                    onFilterSortClicked = { onFilterSortClicked() },
+                    visible = showFilterButton
                 )
             }
         },

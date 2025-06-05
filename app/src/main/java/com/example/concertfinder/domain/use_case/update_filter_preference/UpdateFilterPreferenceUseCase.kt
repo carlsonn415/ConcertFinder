@@ -50,10 +50,10 @@ class UpdateFilterPreferenceUseCase @Inject constructor(
         removeSegment: Boolean = false,
     ) {
         if (genreIdToRemove != null) {
-            filterPreferencesRepository.removeGenre(genreIdToRemove)
+            filterPreferencesRepository.removeSingleGenre(genreIdToRemove)
         }
         if (subgenreIdToRemove != null) {
-            filterPreferencesRepository.removeSubgenre(subgenreIdToRemove)
+            filterPreferencesRepository.removeSingleSubgenre(subgenreIdToRemove)
         }
         if (removeSegment) {
             filterPreferencesRepository.removeSegment()

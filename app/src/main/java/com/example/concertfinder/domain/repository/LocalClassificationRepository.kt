@@ -11,4 +11,6 @@ interface LocalClassificationRepository {
     suspend fun getSubgenres(genreIdList: List<String>): Resource<List<Subgenre>>
 
     suspend fun saveNewClassifications()
+
+    suspend fun shouldFetchNewClassifications(): Boolean
 }

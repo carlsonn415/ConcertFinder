@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.AnimatedVisibility
@@ -83,6 +84,7 @@ fun ConcertFinderApp(
         viewModel.updateFabVisibility(navController.currentDestination?.route == AppDestinations.EVENT_DETAILS)
     }
 
+    Log.d("ConcertFinderApp", "current destination: ${backStackEntry?.destination?.route}")
     Scaffold(
         // allows top bar to scroll
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -93,8 +95,12 @@ fun ConcertFinderApp(
                         // navigate back
                         navController.navigateUp()
                     },
+                    showFilterButton = backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true,
                     showBackButton = !uiState.value.showBottomBar,
                     scrollBehavior = scrollBehavior,
+                    onFilterSortClicked = {
+                        navController.navigate(AppDestinations.FILTER)
+                    },
                     modifier = modifier
                 )
             }
@@ -181,9 +187,6 @@ private fun ConcertFinderNavHost(
         // search screen composable
         composable(route = AppDestinations.SEARCH) {
             SearchScreen(
-                onOpenFilterPreferences = {
-                    navController.navigate(AppDestinations.FILTER)
-                },
                 onSearch = {
                     viewModel.onNavigateToEventList(
                         navController = navController,

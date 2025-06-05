@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
@@ -71,25 +72,25 @@ fun EventListScreen(
 
     Box(
         contentAlignment = Alignment.TopCenter,
-        modifier = modifier
-            .fillMaxSize()
+        modifier = Modifier
             .padding(innerPadding)
+            .fillMaxWidth()
     ) {
         if (uiState.value.eventsResource is Resource.Success) {
-
             PaginatedEventList(
                 events = uiState.value.eventsResource.data ?: emptyList(),
                 onEventClicked = onEventClicked,
                 viewModel = viewModel,
                 isLoadingMore = uiState.value.isLoadingMore,
                 lazyListState = lazyListState,
-                modifier = modifier
+                modifier = Modifier.fillMaxSize()
             )
-
         } else if (uiState.value.eventsResource is Resource.Loading) {
-            LoadingScreen(modifier = modifier)
+            LoadingScreen(modifier = Modifier.fillMaxSize())
         } else if (uiState.value.eventsResource is Resource.Error) {
-            ErrorScreen(message = uiState.value.eventsResource.message ?: "Unknown error")
+            ErrorScreen(
+                message = uiState.value.eventsResource.message ?: stringResource(R.string.unknown_error),
+            )
         }
     }
 }

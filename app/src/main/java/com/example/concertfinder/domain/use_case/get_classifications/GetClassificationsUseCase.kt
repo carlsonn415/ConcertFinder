@@ -49,4 +49,8 @@ class GetClassificationsUseCase @Inject constructor(
         localClassificationRepository.saveNewClassifications()
     }
 
+    suspend fun shouldFetchNewClassifications(): Boolean {
+        return localClassificationRepository.shouldFetchNewClassifications()
+    }
+
 }
