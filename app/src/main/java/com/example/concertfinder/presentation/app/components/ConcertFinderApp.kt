@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -59,7 +60,7 @@ fun ConcertFinderApp(
     val backStackEntry by navController.currentBackStackEntryAsState()
 
     // create scroll behavior for top app bar
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
@@ -87,17 +88,31 @@ fun ConcertFinderApp(
     Log.d("ConcertFinderApp", "current destination: ${backStackEntry?.destination?.route}")
     Scaffold(
         // allows top bar to scroll
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        //modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (!uiState.value.showBottomBar) {
                 ConcertFinderTopBar(
                     onBackPressed = {
-                        // navigate back
+                        val currentDestinationRoute = navController.currentDestination?.route
+                        val previousDestinationRoute = navController.previousBackStackEntry?.destination?.route
+
+                        // check if coming from filter to event list
+                        if (currentDestinationRoute == AppDestinations.FILTER
+                            && previousDestinationRoute?.startsWith(AppDestinations.EVENT_LIST) == true
+                            && uiState.value.areFiltersApplied
+                        ) {
+                            val navBackStackEntry = navController.previousBackStackEntry
+                            navBackStackEntry?.savedStateHandle["filters_updated"] = true
+                            viewModel.updateAreFiltersApplied(false)
+                            Log.d("TopAppBarBack", "Coming from Filter to EventList, setting filters_updated flag.")
+                        }
+                        // navigate up
                         navController.navigateUp()
                     },
                     showFilterButton = backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true,
                     showBackButton = !uiState.value.showBottomBar,
-                    scrollBehavior = scrollBehavior,
+                    //scrollBehavior = scrollBehavior,
+                    scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
                     onFilterSortClicked = {
                         navController.navigate(AppDestinations.FILTER)
                     },
@@ -219,12 +234,16 @@ private fun ConcertFinderNavHost(
                     type = NavType.StringType
                 }
             )
-        ) {
+        ) { backStackEntry ->
+            val filtersUpdated = backStackEntry.savedStateHandle.getStateFlow("filters_updated", false)
+
             EventListScreen(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
                 },
+                filtersUpdated = filtersUpdated.value,
+                navBackStackEntry = backStackEntry,
                 modifier = modifier,
                 innerPadding = innerPadding
             )
@@ -242,6 +261,10 @@ private fun ConcertFinderNavHost(
         // filter screen composable
         composable(route = AppDestinations.FILTER) {
             FilterScreen(
+                navController = navController,
+                onFilterApplied = {
+                    viewModel.updateAreFiltersApplied(true)
+                },
                 modifier = modifier,
                 innerPadding = innerPadding
             )

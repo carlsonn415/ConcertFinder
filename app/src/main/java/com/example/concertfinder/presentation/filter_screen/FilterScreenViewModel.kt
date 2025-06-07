@@ -125,7 +125,8 @@ class FilterScreenViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         locationLoadingStatus = LoadingStatus.Success,
-                        address = preferencesRepository.getLocationPreferences().getAddress()
+                        address = preferencesRepository.getLocationPreferences().getAddress(),
+                        preferencesUpdated = true
                     )
                 }
             } catch (e: Exception) {
@@ -157,7 +158,8 @@ class FilterScreenViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         locationLoadingStatus = LoadingStatus.Success,
-                        address = preferencesRepository.getLocationPreferences().getAddress()
+                        address = preferencesRepository.getLocationPreferences().getAddress(),
+                        preferencesUpdated = true
                     )
                 }
 
@@ -193,7 +195,8 @@ class FilterScreenViewModel @Inject constructor(
             // update radius
             _uiState.update { currentState ->
                 currentState.copy(
-                    radius = preferencesRepository.getFilterPreferences().getRadius()
+                    radius = preferencesRepository.getFilterPreferences().getRadius(),
+                    preferencesUpdated = true
                 )
             }
         }
@@ -289,7 +292,8 @@ class FilterScreenViewModel @Inject constructor(
 
         _uiState.update { currentState ->
             currentState.copy(
-                currentSortOption = sortOption
+                currentSortOption = sortOption,
+                preferencesUpdated = true
             )
         }
     }
@@ -338,7 +342,8 @@ class FilterScreenViewModel @Inject constructor(
                 currentSegment = segmentName,
                 subgenreOptions = emptyList(),
                 currentSubgenres = emptyList(),
-                currentGenres = emptyList()
+                currentGenres = emptyList(),
+                preferencesUpdated = true
             )
         }
     }
@@ -368,7 +373,8 @@ class FilterScreenViewModel @Inject constructor(
                     currentState.currentGenres
                 } else {
                     currentState.currentGenres + genreName
-                }
+                },
+                preferencesUpdated = true
             )
         }
     }
@@ -389,7 +395,8 @@ class FilterScreenViewModel @Inject constructor(
                     currentState.currentSubgenres
                 } else {
                     currentState.currentSubgenres + subgenreName
-                }
+                },
+                preferencesUpdated = true
             )
         }
     }
@@ -406,7 +413,8 @@ class FilterScreenViewModel @Inject constructor(
                 currentGenres = emptyList(),
                 currentSubgenres = emptyList(),
                 genreOptions = emptyList(),
-                subgenreOptions = emptyList()
+                subgenreOptions = emptyList(),
+                preferencesUpdated = true
             )
         }
     }
@@ -419,7 +427,8 @@ class FilterScreenViewModel @Inject constructor(
         // clear ui state
         _uiState.update { currentState ->
             currentState.copy(
-                currentSubgenres = emptyList()
+                currentSubgenres = emptyList(),
+                preferencesUpdated = true
             )
         }
     }
@@ -434,7 +443,8 @@ class FilterScreenViewModel @Inject constructor(
         // delete genre from ui state
         _uiState.update { currentState ->
             currentState.copy(
-                currentGenres = currentState.currentGenres.filter { it != genreName }
+                currentGenres = currentState.currentGenres.filter { it != genreName },
+                preferencesUpdated = true
             )
         }
         if (uiState.value.currentGenres.isEmpty()) {
@@ -466,7 +476,8 @@ class FilterScreenViewModel @Inject constructor(
         // delete subgenre from ui state
         _uiState.update { currentState ->
             currentState.copy(
-                currentSubgenres = currentState.currentSubgenres.filter { it != subgenreName }
+                currentSubgenres = currentState.currentSubgenres.filter { it != subgenreName },
+                preferencesUpdated = true
             )
         }
     }

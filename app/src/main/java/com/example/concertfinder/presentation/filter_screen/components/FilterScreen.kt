@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.filter_screen.components
 
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.example.concertfinder.R
 import com.example.concertfinder.presentation.common_ui.preference_menus.LocationMenu
 import com.example.concertfinder.presentation.common_ui.preference_menus.PreferencesDropdown
@@ -39,6 +42,8 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun FilterScreen(
+    navController: NavController,
+    onFilterApplied: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: FilterScreenViewModel = hiltViewModel(),
     innerPadding: PaddingValues = PaddingValues(0.dp)
@@ -54,6 +59,20 @@ fun FilterScreen(
         },
         requestLocationPermissionEvent = viewModel.requestLocationPermissionEvent
     )
+
+    BackHandler {
+        // Checks if preferences have been updated and if so, sends signal to event list screen to reload
+        if (uiState.value.preferencesUpdated) {
+            navController.previousBackStackEntry?.savedStateHandle?.set("filters_updated", true)
+        }
+        navController.popBackStack()
+    }
+
+    LaunchedEffect(uiState.value.preferencesUpdated) {
+        if (uiState.value.preferencesUpdated) {
+            onFilterApplied()
+        }
+    }
 
     Column(
         modifier = modifier
@@ -202,11 +221,4 @@ fun FilterScreen(
             }
         )
     }
-}
-
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-@Preview
-@Composable
-private fun FilterScreenPreview() {
-    FilterScreen()
 }

@@ -54,6 +54,12 @@ class EventListViewModel @Inject constructor(
         page: String = uiState.value.page.toString(),                                               // ui state holds current page number
     ) {
 
+        _uiState.update { currentState ->
+            currentState.copy(
+                eventsResource = Resource.Loading(),
+            )
+        }
+
         // launch coroutine to get events from repository
         viewModelScope.launch(Dispatchers.IO) {
 

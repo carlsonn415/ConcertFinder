@@ -27,6 +27,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
@@ -41,6 +43,8 @@ import com.example.concertfinder.presentation.event_list_screen.EventListViewMod
 @Composable
 fun EventListScreen(
     onEventClicked: (Event) -> Unit,
+    filtersUpdated: Boolean,
+    navBackStackEntry: NavBackStackEntry,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: EventListViewModel = hiltViewModel()
@@ -64,7 +68,11 @@ fun EventListScreen(
 
     // get events from view model when screen is loaded
     LaunchedEffect(shouldLoadMore) {
-        if (shouldLoadMore) {
+        if (filtersUpdated) {
+            Log.d("EventListScreen", "Filters updated")
+            viewModel.getEvents()
+            navBackStackEntry.savedStateHandle["filters_updated"] = false
+        } else if (shouldLoadMore) {
             Log.d("EventListScreen", "Loading more events")
             viewModel.loadMoreEvents()
         }

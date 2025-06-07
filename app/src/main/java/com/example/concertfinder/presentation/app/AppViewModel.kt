@@ -68,4 +68,12 @@ class AppViewModel() : ViewModel() {
             )
         }
     }
+
+    fun updateAreFiltersApplied(areFiltersApplied: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                areFiltersApplied = areFiltersApplied
+            )
+        }
+    }
 }

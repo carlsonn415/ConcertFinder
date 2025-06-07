@@ -23,5 +23,6 @@ data class FilterScreenUiState(
     val currentSubgenres: List<String> = emptyList(),
     val isSegmentPreferencesExpanded: Boolean = false,
     val isGenrePreferencesExpanded: Boolean = false,
-    val isSubgenrePreferencesExpanded: Boolean = false
+    val isSubgenrePreferencesExpanded: Boolean = false,
+    val preferencesUpdated: Boolean = false
 )
