@@ -4,17 +4,20 @@ import android.content.Context
 import com.example.concertfinder.common.Constants.BASE_URL
 import com.example.concertfinder.data.local.AppDatabase
 import com.example.concertfinder.data.local.ClassificationDao
+import com.example.concertfinder.data.local.EventDao
 import com.example.concertfinder.data.remote.AppApiService
 import com.example.concertfinder.data.repository.preference_repository.AppPreferencesRepository
-import com.example.concertfinder.data.repository.AppEventsRepository
-import com.example.concertfinder.domain.repository.EventsRepository
+import com.example.concertfinder.data.repository.events_repository.AppRemoteRemoteEventsRepository
+import com.example.concertfinder.domain.repository.RemoteEventsRepository
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import com.example.concertfinder.data.remote.AppLocationManagerService
 import com.example.concertfinder.data.remote.LocationManagerService
-import com.example.concertfinder.data.repository.AppLocalClassificationRepository
-import com.example.concertfinder.data.repository.AppRemoteClassificationRepository
+import com.example.concertfinder.data.repository.classification_repository.AppLocalClassificationRepository
+import com.example.concertfinder.data.repository.classification_repository.AppRemoteClassificationRepository
 import com.example.concertfinder.data.repository.AppSearchHistoryRepository
+import com.example.concertfinder.data.repository.events_repository.AppLocalEventsRepository
 import com.example.concertfinder.domain.repository.LocalClassificationRepository
+import com.example.concertfinder.domain.repository.LocalEventsRepository
 import com.example.concertfinder.domain.repository.RemoteClassificationRepository
 import com.example.concertfinder.domain.repository.SearchHistoryRepository
 import com.google.android.gms.location.LocationServices
@@ -56,8 +59,20 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideEventsRepository(apiService: AppApiService): EventsRepository {
-        return AppEventsRepository(apiService)
+    fun provideEventDao(appDatabase: AppDatabase): EventDao {
+        return appDatabase.eventDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideRemoteEventsRepository(apiService: AppApiService): RemoteEventsRepository {
+        return AppRemoteRemoteEventsRepository(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocalEventsRepository(eventDao: EventDao): LocalEventsRepository {
+        return AppLocalEventsRepository(eventDao)
     }
 
     @Provides

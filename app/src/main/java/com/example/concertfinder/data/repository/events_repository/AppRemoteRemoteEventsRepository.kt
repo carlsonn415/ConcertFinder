@@ -1,18 +1,17 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.events_repository
 
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.AppApiService
 import com.example.concertfinder.data.remote.event_dto.toEvent
-import com.example.concertfinder.domain.repository.EventsRepository
+import com.example.concertfinder.domain.repository.RemoteEventsRepository
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-
-class AppEventsRepository @Inject constructor(
+class AppRemoteRemoteEventsRepository @Inject constructor(
     private val apiService: AppApiService
-) : EventsRepository {
+) : RemoteEventsRepository {
 
     override suspend fun getEvents(
         radius: String,

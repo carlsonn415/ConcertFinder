@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class Embedded(
     @SerializedName("classifications")
-    val classifications: List<Classification>?
+    val classificationDtos: List<ClassificationDto>?
 )

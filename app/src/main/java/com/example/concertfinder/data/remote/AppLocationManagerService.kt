@@ -21,78 +21,100 @@ interface LocationManagerService {
     suspend fun getLocation(): Location?
 }
 
+// Implementation of LocationManagerService.
 class AppLocationManagerService(
     @ApplicationContext private val context: Context,
     private val fusedLocationProviderClient: FusedLocationProviderClient
-) : LocationManagerService {
+) : LocationManagerService { // Implements the LocationManagerService interface.
 
+    // Opt-in for experimental coroutines API, specifically for suspendCancellableCoroutine.
     @OptIn(ExperimentalCoroutinesApi::class)
+    // Overrides the getLocation function from the interface.
     override suspend fun getLocation(): Location? {
 
+        // Checks if ACCESS_FINE_LOCATION permission is granted.
         val hasGrantedFineLocationPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
+        // Checks if ACCESS_COARSE_LOCATION permission is granted.
         val hasGrantedCoarseLocationPermission = ContextCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
+        // Gets the system's LocationManager service.
         val locationManager = context.getSystemService(
             Context.LOCATION_SERVICE
         ) as LocationManager
 
+        // Checks if GPS or Network location providers are enabled on the device.
         val isGpsEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
                 locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
 
+        // If location services are not enabled AND neither coarse nor fine location permission is granted,
+        // log a message and return null (no location can be fetched).
         if (!isGpsEnabled && !(hasGrantedCoarseLocationPermission || hasGrantedFineLocationPermission)) {
-            Log.d("Location", "No location permission granted")
+            Log.d("Location", "No location permission granted or GPS not enabled") // Corrected Log message
             return null
         }
 
+        // Creates a CancellationTokenSource to allow cancelling the location request.
         val cancellationTokenSource = CancellationTokenSource()
 
+        // Builds a request for the current location.
         val currentLocationRequest = CurrentLocationRequest.Builder()
-            .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY)
-            .setDurationMillis(5000) // Max time to wait for location
-            .setMaxUpdateAgeMillis(10000) // How old a cached location can be
-            .build()
+            .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY) // Sets the desired accuracy and power consumption.
+            .setDurationMillis(5000) // Sets a timeout for the location request (max time to wait).
+            .setMaxUpdateAgeMillis(10000) // Sets how old a cached location can be before requesting a new one.
+            .build() // Creates the CurrentLocationRequest object.
 
-        return suspendCancellableCoroutine { cont ->
+        // Uses suspendCancellableCoroutine to bridge the callback-based Google Play Services API with Kotlin coroutines.
+        // This allows awaiting the location result in a suspending way and handles cancellation.
+        return suspendCancellableCoroutine { cont -> // 'cont' is the Continuation object.
 
+            // Requests the current location using the FusedLocationProviderClient.
             fusedLocationProviderClient.getCurrentLocation(currentLocationRequest, cancellationTokenSource.token)
-                .addOnSuccessListener { location: Location? ->
-                    if (location != null) {
+                .addOnSuccessListener { location: Location? -> // Callback for successful location retrieval.
+                    if (location != null) { // If location is successfully obtained.
+                        // Resumes the coroutine with the obtained location.
+                        // The block passed to resume is an invokeOnCancellation handler specifically for this resume call.
                         cont.resume(location) {
-                            cancellationTokenSource.cancel()
+                            cancellationTokenSource.cancel() // Cancel the token if the coroutine is cancelled after resume.
                         }
 
-                        // TODO: Make this toast a snackbar
+                        // TODO: Make this toast a snackbar (A reminder to improve UI feedback).
+                        // Shows a short toast message indicating location update.
                         Toast.makeText(context, "Location updated", Toast.LENGTH_SHORT).show()
 
+                        // Logs the obtained latitude and longitude.
                         Log.d("Location", "Location is ${location.latitude}, ${location.longitude}")
-                    } else {
-                        // Location is null, which can happen if the provider can't get a fix quickly enough
-                        // or if location services are disabled.
+                    } else { // If location is null (e.g., provider can't get a fix, services disabled).
+                        // Resumes the coroutine with null, indicating location is not available.
                         cont.resume(null) {
-                            cancellationTokenSource.cancel()
+                            cancellationTokenSource.cancel() // Cancel the token if coroutine cancelled.
                         }
                         // TODO: Make this toast a snackbar
-                        Toast.makeText(context, "Error getting location", Toast.LENGTH_SHORT).show()
+                        // Shows a toast message indicating an error in getting location.
+                        Toast.makeText(context, "Error getting location (location is null)", Toast.LENGTH_SHORT).show() // Clarified message
 
+                        // Logs that the location is null.
                         Log.d("Location", "Location is null")
                     }
                 }
-                .addOnFailureListener { e ->
-                    cont.resumeWithException(e)
-                    Log.d("Location", "Error getting location: $e")
+                .addOnFailureListener { e -> // Callback for failure in location retrieval.
+                    cont.resumeWithException(e) // Resumes the coroutine with the encountered exception.
+                    Log.d("Location", "Error getting location: $e") // Logs the error.
+                    // Shows a toast message with the error.
                     Toast.makeText(context, "Error getting location: $e", Toast.LENGTH_SHORT).show()
                 }
 
+            // Sets up a callback for when the coroutine is cancelled.
             cont.invokeOnCancellation {
-                cancellationTokenSource.cancel()
-                Toast.makeText(context, "Cancelled", Toast.LENGTH_SHORT).show()
+                cancellationTokenSource.cancel() // Cancels the CancellationTokenSource, stopping the location request.
+                // Shows a toast message indicating the location request was cancelled.
+                Toast.makeText(context, "Location request cancelled", Toast.LENGTH_SHORT).show() // Clarified message
             }
         }
     }

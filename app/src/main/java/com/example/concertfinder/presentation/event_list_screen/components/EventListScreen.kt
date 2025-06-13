@@ -28,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event

@@ -5,9 +5,9 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
-import com.example.concertfinder.data.local.entities.GenreEntity
-import com.example.concertfinder.data.local.entities.SegmentEntity
-import com.example.concertfinder.data.local.entities.SubgenreEntity
+import com.example.concertfinder.data.local.entities.classification_entities.GenreEntity
+import com.example.concertfinder.data.local.entities.classification_entities.SegmentEntity
+import com.example.concertfinder.data.local.entities.classification_entities.SubgenreEntity
 import com.example.concertfinder.data.remote.classification_dto.SegmentDto
 
 

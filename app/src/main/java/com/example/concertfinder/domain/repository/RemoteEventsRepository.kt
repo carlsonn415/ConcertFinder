@@ -3,7 +3,7 @@ package com.example.concertfinder.domain.repository
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 
-interface EventsRepository {
+interface RemoteEventsRepository {
     suspend fun getEvents(
         radius: String,
         geoPoint: String,

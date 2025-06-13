@@ -1,4 +1,4 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.classification_repository
 
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Classification
@@ -15,8 +15,8 @@ class AppRemoteClassificationRepository @Inject constructor(
     override suspend fun getClassifications(): Resource<List<Classification>> {
 
         return try {
-            val classificationDto = apiService.getClassificationsApiResponse()
-            val classificationList = classificationDto.toClassificationList()
+            val classificationsApiResponse = apiService.getClassificationsApiResponse()
+            val classificationList = classificationsApiResponse.toClassificationList()
 
             if (classificationList.isNotEmpty()) {
                 Resource.Success(classificationList)

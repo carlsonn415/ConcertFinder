@@ -18,7 +18,7 @@ data class StartData(
     @SerializedName("localDate") val localDate: String? = null, // start date
     @SerializedName("localTime") val localTime: String? = null, // start time
     @SerializedName("dateTBD") val dateTBD: Boolean? = null, // start date is to be decided
-    @SerializedName("dateTBA") val dateTBA: Boolean? = null, // start date is to be announced
+    @SerializedName("startDateTBA") val dateTBA: Boolean? = null, // start date is to be announced
     @SerializedName("timeTBA") val timeTBA: Boolean? = null, // start time is to be announced
     @SerializedName("noSpecificTime") val noSpecificTime: Boolean? = null // start date is not specific
 )
@@ -39,13 +39,5 @@ data class AccessData(
 
 @Serializable
 data class StatusData(
-    @SerializedName("code") val code: Status? = null, // status code
+    @SerializedName("code") val code: String? = null, // status code
 )
-
-enum class Status(val value: String) {
-    Onsale("onsale"),
-    Offsale("offsale"),
-    Canceled("canceled"),
-    Postponed("postponed"),
-    Rescheduled("rescheduled")
-}

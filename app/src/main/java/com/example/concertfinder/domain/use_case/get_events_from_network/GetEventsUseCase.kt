@@ -2,13 +2,14 @@ package com.example.concertfinder.domain.use_case.get_events_from_network
 
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
-import com.example.concertfinder.domain.repository.EventsRepository
+import com.example.concertfinder.domain.model.IncludeSpellcheck
+import com.example.concertfinder.domain.repository.RemoteEventsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class GetEventsUseCase @Inject constructor(
-    private val repository: EventsRepository
+    private val repository: RemoteEventsRepository
 ) {
     operator fun invoke(
         radius: String,
@@ -41,9 +42,4 @@ class GetEventsUseCase @Inject constructor(
             )
         )
     }
-}
-
-enum class IncludeSpellcheck(val value: String) {
-    Yes("yes"),
-    No("no")
 }

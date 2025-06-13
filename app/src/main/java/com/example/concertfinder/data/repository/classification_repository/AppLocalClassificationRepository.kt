@@ -1,4 +1,4 @@
-package com.example.concertfinder.data.repository
+package com.example.concertfinder.data.repository.classification_repository
 
 import android.util.Log
 import com.example.concertfinder.common.Resource
@@ -77,7 +77,7 @@ class AppLocalClassificationRepository @Inject constructor(
             val segments: MutableList<SegmentDto> = mutableListOf()
             // Fetch classifications from the API
             try {
-                val response = apiService.getClassificationsApiResponse().embedded?.classifications ?: emptyList()
+                val response = apiService.getClassificationsApiResponse().embedded?.classificationDtos ?: emptyList()
                 // Add each classification to the list
                 for (classification in response) {
                     if (classification.segmentDto != null) {

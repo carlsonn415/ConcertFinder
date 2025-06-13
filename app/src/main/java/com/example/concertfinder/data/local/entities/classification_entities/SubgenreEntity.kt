@@ -1,4 +1,4 @@
-package com.example.concertfinder.data.local.entities
+package com.example.concertfinder.data.local.entities.classification_entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
