@@ -21,16 +21,16 @@ import com.example.concertfinder.data.remote.event_dto.SubGenre
 )
 data class EventClassificationEntity(
     @PrimaryKey(autoGenerate = true) val classificationId: Int = 0,
-    val eventId: String? = null,
+    val eventId: String,
     val segmentName: String?,
     val genreName: String?,
     val subGenreName: String?
 ) {
     fun toClassification(): Classification {
         return Classification(
-            segment = Segment(segmentName),
-            genre = Genre(genreName),
-            subGenre = SubGenre(subGenreName)
+            segment = Segment(name = segmentName),
+            genre = Genre(name = genreName),
+            subGenre = SubGenre(name = subGenreName)
         )
     }
 }
@@ -48,16 +48,16 @@ data class EventClassificationEntity(
 )
 data class AttractionClassificationEntity(
     @PrimaryKey(autoGenerate = true) val classificationId: Int = 0,
-    val attractionId: String? = null,
+    val attractionId: String,
     val segmentName: String?,
     val genreName: String?,
     val subGenreName: String?
 ) {
     fun toClassification(): Classification {
         return Classification(
-            segment = Segment(segmentName),
-            genre = Genre(genreName),
-            subGenre = SubGenre(subGenreName)
+            segment = Segment(name = segmentName),
+            genre = Genre(name = genreName),
+            subGenre = SubGenre(name = subGenreName)
         )
     }
 }

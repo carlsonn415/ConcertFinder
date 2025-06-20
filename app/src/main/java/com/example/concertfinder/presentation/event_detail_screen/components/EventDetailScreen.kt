@@ -130,13 +130,20 @@ fun EventDetailScreen(
 
                 Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
 
-                // Gets distance from location
-                val distanceFromLocation = viewModel.getDistanceFromLocation(
-                    event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
-                    event.location?.longitude
-                        ?: event.embedded?.venues?.get(0)?.location?.longitude,
-                    DistanceUnit.Miles // TODO: Allow user to select distance unit
-                )
+                val firstVenue = event.embedded?.venues?.firstOrNull()
+                val latitude = event.location?.latitude ?: firstVenue?.location?.latitude
+                val longitude = event.location?.longitude ?: firstVenue?.location?.longitude
+
+                val distanceFromLocation = if (latitude != null && longitude != null) {
+                    viewModel.getDistanceFromLocation(
+                        latitude,
+                        longitude,
+                        DistanceUnit.Miles
+                    )
+                } else {
+                    // Handle case where location is completely unavailable
+                    "Unknown distance"
+                }
 
                 // -------------------------------------------------------------------------------------------------------------Event price, location, and distance from location
                 PriceAndLocationRow(event, distanceFromLocation, modifier)

@@ -13,6 +13,8 @@ import com.example.concertfinder.data.local.entities.event_entities.AttractionIm
 import com.example.concertfinder.data.local.entities.event_entities.EventClassificationEntity
 import com.example.concertfinder.data.local.entities.event_entities.EventEntity
 import com.example.concertfinder.data.local.entities.event_entities.EventImageEntity
+import com.example.concertfinder.data.local.entities.event_entities.EventVenueCrossRef
+import com.example.concertfinder.data.local.entities.event_entities.EventAttractionCrossRef
 import com.example.concertfinder.data.local.entities.event_entities.VenueEntity
 import com.example.concertfinder.data.local.entities.event_entities.VenueImageEntity
 
@@ -30,8 +32,10 @@ import com.example.concertfinder.data.local.entities.event_entities.VenueImageEn
         VenueEntity::class,
         AttractionClassificationEntity::class,
         EventClassificationEntity::class,
+        EventVenueCrossRef::class,
+        EventAttractionCrossRef::class,
     ],
-    version = 1 // Increment this version when you make changes to the database
+    version = 4 // Increment this version when you make changes to the database
 )
 abstract class AppDatabase : RoomDatabase() {
 
@@ -49,7 +53,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context = context.applicationContext,
                     klass = AppDatabase::class.java,
                     name = "app_database"
-                ).build()
+                )
+                .fallbackToDestructiveMigration(true) // TODO: Remove this in production
+                .build()
                 INSTANCE = instance
                 instance
             }

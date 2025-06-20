@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class GetEventsUseCase @Inject constructor(
-    private val repository: RemoteEventsRepository
+    private val remoteRepository: RemoteEventsRepository
 ) {
     operator fun invoke(
         radius: String,
@@ -28,7 +28,7 @@ class GetEventsUseCase @Inject constructor(
 
         // Fetch events from repository and map to domain model
         emit(
-            repository.getEvents(
+            remoteRepository.getEvents(
                 radius = radius,
                 geoPoint = geoPoint,
                 startDateTime = startDateTime,

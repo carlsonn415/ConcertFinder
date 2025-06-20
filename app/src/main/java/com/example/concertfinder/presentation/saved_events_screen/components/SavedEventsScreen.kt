@@ -1,5 +1,6 @@
 package com.example.concertfinder.presentation.saved_events_screen.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,42 +31,75 @@ import com.example.concertfinder.presentation.saved_events_screen.SavedEventsVie
 @Composable
 fun SavedEventsScreen(
     onEventClicked: (Event) -> Unit,
+    onClickSave: (Event) -> Unit,
+    onSavedEventsLoaded: () -> Unit,
+    updateSavedEvents: Boolean,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: SavedEventsViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
+    val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        if (updateSavedEvents) {
+            viewModel.getSavedEvents()
+            onSavedEventsLoaded()
+        }
+    }
+
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = Modifier
             .padding(innerPadding)
+            .padding(top = dimensionResource(R.dimen.padding_medium))
             .fillMaxWidth()
     ) {
-        if (uiState.value.events is Resource.Success) {
-            val events = uiState.value.events.data ?: emptyList()
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
-            ) {
-                items(events) { event ->
+        val events = uiState.value.events
+        if (events is Resource.Success && events.data != null) {
+            if (events.data != emptyList<Event>()) {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+                    state = lazyListState,
+                ) {
+                    Log.d("SavedEventsScreen", "events size: ${events.data.size}")
+                    items(events.data) { event ->
 
-                    // Gets distance from location
-                    val distanceFromLocation = viewModel.getDistanceFromLocation(
-                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
-                        event.location?.longitude
-                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
-                        DistanceUnit.Miles // TODO: Allow user to select distance unit
-                    )
+                        val firstVenue = event.embedded?.venues?.firstOrNull()
+                        val latitude = event.location?.latitude ?: firstVenue?.location?.latitude
+                        val longitude = event.location?.longitude ?: firstVenue?.location?.longitude
 
-                    EventListItem(
-                        event = event,
-                        onClick = onEventClicked,
-                        distanceToEvent = distanceFromLocation,
-                        startDateTime = viewModel.getFormattedEventStartDates(event.dates) ?: "No start date found",
-                        imageUrl = viewModel.getImageUrl(event.images) ?: "",
-                        modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    )
+                        val distanceFromLocation = if (latitude != null && longitude != null) {
+                            viewModel.getDistanceFromLocation(
+                                latitude,
+                                longitude,
+                                DistanceUnit.Miles
+                            )
+                        } else {
+                            // Handle case where location is completely unavailable
+                            "Unknown distance"
+                        }
+
+                        EventListItem(
+                            event = event,
+                            onClick = onEventClicked,
+                            onClickSave = { event ->
+                                onClickSave(event)
+                                viewModel.removeEvent(event.id.toString())
+                            },
+                            distanceToEvent = distanceFromLocation,
+                            startDateTime = viewModel.getFormattedEventStartDates(event.dates) ?: "No start date found",
+                            imageUrl = viewModel.getImageUrl(event.images) ?: "",
+                            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                        )
+                    }
                 }
+            }
+            else {
+                ErrorScreen(
+                    message = "No saved events found",
+                )
             }
         } else if (uiState.value.events is Resource.Loading) {
             LoadingScreen(modifier = Modifier.fillMaxSize())

@@ -7,10 +7,10 @@ import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.data.remote.event_dto.Venue
 
 fun EventImage.toAttractionImageEntity(
-    string: String?
-): VenueImageEntity {
-    return VenueImageEntity(
-        venueId = string ?: "",
+    string: String
+): AttractionImageEntity {
+    return AttractionImageEntity(
+        attractionId = string,
         url = url,
         ratio = ratio,
         height = height,
@@ -20,7 +20,7 @@ fun EventImage.toAttractionImageEntity(
 }
 
 fun Classification.toAttractionClassificationEntity(
-    string: String?
+    string: String
 ): AttractionClassificationEntity {
     return AttractionClassificationEntity(
         attractionId = string,
@@ -30,10 +30,9 @@ fun Classification.toAttractionClassificationEntity(
     )
 }
 
-fun Attraction.toAttractionEntity(string: String?): AttractionEntity {
+fun Attraction.toAttractionEntity(): AttractionEntity {
     return AttractionEntity(
         attractionId = id ?: "",
-        eventId = string ?: "",
         name = name,
         url = url,
         description = description,
@@ -44,7 +43,7 @@ fun Attraction.toAttractionEntity(string: String?): AttractionEntity {
 fun Venue.toVenueImageEntities(): List<VenueImageEntity> {
     return images?.map {
         VenueImageEntity(
-            venueId = id ?: "",
+            venueId = id,
             url = it.url,
             ratio = it.ratio,
             height = it.height,
@@ -54,10 +53,9 @@ fun Venue.toVenueImageEntities(): List<VenueImageEntity> {
     } ?: emptyList()
 }
 
-fun Venue.toVenueEntity(string: String?): VenueEntity {
+fun Venue.toVenueEntity(): VenueEntity {
     return VenueEntity(
         venueId = id ?: "",
-        eventId = string ?: "",
         name = name,
         url = url,
         description = description,
@@ -76,17 +74,17 @@ fun Venue.toVenueEntity(string: String?): VenueEntity {
 }
 
 fun Classification.toEventClassificationEntity(
-    string: String?
+    string: String
 ): EventClassificationEntity {
     return EventClassificationEntity(
         eventId = string,
-        segmentName = segment?.name,
-        genreName = genre?.name,
-        subGenreName = subGenre?.name,
+        segmentName = segment?.name ?: "segmentName",
+        genreName = genre?.name ?: "genreName",
+        subGenreName = subGenre?.name ?: "subGenreName",
     )
 }
 
-fun EventImage.toEventImageEntity(string: String?): EventImageEntity {
+fun EventImage.toEventImageEntity(string: String): EventImageEntity {
     return EventImageEntity(
         eventId = string,
         url = url,

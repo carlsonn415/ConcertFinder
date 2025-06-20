@@ -32,15 +32,10 @@ object Constants {
     )
 
     val sortOptions = listOf(
-        "name",
-        "date",
-        "distance",
-        "relevance"
-    )
-
-    val sortTypes = listOf(
-        "asc",
-        "desc"
+        "Name",
+        "Date",
+        "Distance",
+        "Relevance"
     )
 
     // Default values

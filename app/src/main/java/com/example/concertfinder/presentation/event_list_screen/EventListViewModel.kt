@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.common.Resource
+import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.event_dto.DateData
 import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.domain.model.DistanceUnit
@@ -17,6 +18,8 @@ import com.example.concertfinder.domain.use_case.display_event.DisplayEventUseCa
 import com.example.concertfinder.domain.use_case.get_events_from_network.GetEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -32,17 +35,19 @@ class EventListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
+    private var paginationJob: Job? = null
 
     private val _uiState = MutableStateFlow(EventListUiState())
     val uiState = _uiState.asStateFlow()
 
     init {                                                                                          // initialize events
-        getEvents()
+        getEvents(hasLoadedOnce = false)
     }
 
 
     // load events from repository
     fun getEvents(
+        hasLoadedOnce: Boolean,                                                             // hasLoadedOnce is used to determine if this is a new search or not
         keyWord: String? = savedStateHandle.get<String>(PARAM_KEYWORD),                             // keyword to gets passed from search bar screen
         geoPoint: String = preferencesRepository.getLocationPreferences().getLocation(),            // \
         radius: String = preferencesRepository.getFilterPreferences().getRadius(),                  // |
@@ -54,25 +59,19 @@ class EventListViewModel @Inject constructor(
         page: String = uiState.value.page.toString(),                                               // ui state holds current page number
     ) {
 
+        if (!hasLoadedOnce) {
+            paginationJob?.cancel()
+        }
+
         _uiState.update { currentState ->
             currentState.copy(
-                eventsResource = Resource.Loading(),
+                isLoadingMore = true
             )
         }
 
         // launch coroutine to get events from repository
-        viewModelScope.launch(Dispatchers.IO) {
-
-            Log.d("EventListViewModel", "Getting events")                                           // log for debugging
-            Log.d("EventListViewModel", "Radius: $radius")
-            Log.d("EventListViewModel", "GeoPoint: $geoPoint")
-            Log.d("EventListViewModel", "StartDateTime: $startDateTime")
-            Log.d("EventListViewModel", "Sort: $sort")
-            Log.d("EventListViewModel", "KeyWord: $keyWord")
-            Log.d("EventListViewModel", "Genres: $genres")
-            Log.d("EventListViewModel", "Subgenres: $subgenres")
-            Log.d("EventListViewModel", "Segment: $segment")
-            Log.d("EventListViewModel", "Page: $page")
+        paginationJob = viewModelScope.launch(Dispatchers.IO) {
+            Log.d("EventListViewModel", "Getting events - Page: $page, hasLoadedOnce: $hasLoadedOnce, isLoadingMore: ${uiState.value.isLoadingMore}")
 
             // get events from repository
             getEventsUseCase(
@@ -86,23 +85,24 @@ class EventListViewModel @Inject constructor(
                 keyWord = keyWord,
                 page = page,
             ).collect { result ->
+                ensureActive() // ensure that the coroutine is active
                 when (result) {
                     is Resource.Success -> {                                                        // if success, update ui state
+                        val newEvents = result.data ?: emptyList()
+                        val currentEvents = _uiState.value.eventsResource.data ?: emptyList()
                         _uiState.update { currentState ->
-                            currentState.copy(
+                            val updatedEvents = if (hasLoadedOnce) {
+                                currentEvents + newEvents
+                            } else {
+                                newEvents
+                            }
 
-                                eventsResource = if (currentState.hasLoadedOnce) {                          // If this is not a new search, add the new events to the existing list
-                                    val currentEvents = currentState.eventsResource.data ?: emptyList()
-                                    Resource.Success(currentEvents + (result.data ?: emptyList()))
-                                } else result,                                                      // If this is a new search, set the events to the new list
-                                // Checks if there are more events to load
-                                canLoadMore = (result.totalPages?.toInt() ?: 0) > page.toInt() + 1, // If there are more events to load, set canLoadMore to true
-                                isLoadingMore = false,                                              // Set isLoadingMore to false since load is complete
-                                hasLoadedOnce = true                                                // Set hasLoadedOnce to true since a search has been performed
+                            currentState.copy(
+                                eventsResource = Resource.Success(updatedEvents),
+                                canLoadMore = (result.totalPages?.toInt() ?: 0) > page.toInt() + 1,
+                                isLoadingMore = false
                             )
                         }
-
-                        Log.d("EventListViewModel", "Success, total pages: ${result.totalPages}")
                     }
 
                     is Resource.Error -> {                                                          // if error, update ui state
@@ -110,6 +110,7 @@ class EventListViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     eventsResource = result,
+                                    isLoadingMore = false
                                 )
                             }
                             Log.d("EventListViewModel", "Error: ${result.message}")
@@ -121,7 +122,6 @@ class EventListViewModel @Inject constructor(
                             _uiState.update { currentState ->
                                 currentState.copy(
                                     eventsResource = result,
-                                    isLoadingMore = true
                                 )
                             }
                             Log.d("EventListViewModel", "Loading")
@@ -163,18 +163,34 @@ class EventListViewModel @Inject constructor(
         // Ensure that there is more events to load and that we are not already loading more events
         if (_uiState.value.canLoadMore && !_uiState.value.isLoadingMore) {
             // Update page number
-            if (uiState.value.hasLoadedOnce) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        // Increase page number by 1
-                        page = (currentState.page.toInt() + 1).toString(),
-                        isLoadingMore = true
-                    )
-                }
+            _uiState.update { currentState ->
+                currentState.copy(
+                    // Increase page number by 1
+                    page = (currentState.page.toInt() + 1).toString(),
+                    isLoadingMore = true
+                )
             }
 
             // Get the events
-            getEvents()
+            getEvents(hasLoadedOnce = true)
+        } else {
+            return
+        }
+    }
+
+    fun changeEventSaved(id: String, save: Boolean) {
+        val newEventsResource: Resource<List<Event>> = Resource.Success<List<Event>>(data = _uiState.value.eventsResource.data?.map { event ->
+            if (event.id == id) {
+                event.copy(saved = save)
+            } else {
+                event
+            }
+        } ?: emptyList())
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                eventsResource = newEventsResource
+            )
         }
     }
 }

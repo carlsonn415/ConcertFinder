@@ -53,6 +53,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    // Paging 3
+    implementation(libs.androidx.paging.runtime.ktx) // Check for the latest version
+    implementation(libs.androidx.paging.compose) // Use the same version as paging-runtime
+
     // ViewModel
     implementation(libs.androidx.lifecycle.runtime.ktx.v287)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

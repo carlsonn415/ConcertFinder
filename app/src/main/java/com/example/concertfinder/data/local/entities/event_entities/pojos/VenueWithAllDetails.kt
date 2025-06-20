@@ -1,7 +1,9 @@
-package com.example.concertfinder.data.local.entities.event_entities
+package com.example.concertfinder.data.local.entities.event_entities.pojos
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.example.concertfinder.data.local.entities.event_entities.VenueEntity
+import com.example.concertfinder.data.local.entities.event_entities.VenueImageEntity
 import com.example.concertfinder.data.remote.event_dto.Address
 import com.example.concertfinder.data.remote.event_dto.City
 import com.example.concertfinder.data.remote.event_dto.GeneralInfo

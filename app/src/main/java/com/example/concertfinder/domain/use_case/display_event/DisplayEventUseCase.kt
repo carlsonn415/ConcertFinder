@@ -51,7 +51,7 @@ class DisplayEventUseCase @Inject constructor(
         aspectRatio: String,
         minImageWidth: Int
     ): String? {
-        if (images != null) {
+        if (images != null && images.isNotEmpty()) {
             val currentImage = images[0]
 
             for (image in images) {

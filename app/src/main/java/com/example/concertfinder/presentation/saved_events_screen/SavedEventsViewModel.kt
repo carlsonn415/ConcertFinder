@@ -3,13 +3,13 @@ package com.example.concertfinder.presentation.saved_events_screen
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.concertfinder.common.Resource
+import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.event_dto.DateData
 import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.domain.use_case.display_event.DisplayEventUseCase
 import com.example.concertfinder.domain.use_case.get_saved_events.GetSavedEventsUseCase
-import com.example.concertfinder.domain.use_case.save_event.SaveEventUseCase
-import com.example.concertfinder.domain.use_case.unsave_event.UnsaveEventUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,8 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SavedEventsViewModel @Inject constructor(
     private val getSavedEventsUseCase: GetSavedEventsUseCase,
-    private val unsaveEventUseCase: UnsaveEventUseCase,
-    private val saveEventsUseCase: SaveEventUseCase,
     private val displayEventUseCase: DisplayEventUseCase
 ) : ViewModel() {
 
@@ -71,5 +69,18 @@ class SavedEventsViewModel @Inject constructor(
         minImageWidth: Int = 1080
     ): String? {
         return displayEventUseCase.getImageUrl(images, aspectRatio, minImageWidth)
+    }
+
+    fun removeEvent(eventId: String) {
+        val newEvents: Resource<List<Event>> = Resource<List<Event>>.Success(data = _uiState.value.events.data?.filter {
+            it.id != eventId
+        } ?: emptyList()
+        )
+
+        _uiState.update { state ->
+            state.copy(
+                events = newEvents
+            )
+        }
     }
 }

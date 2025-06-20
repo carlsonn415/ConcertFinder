@@ -4,13 +4,15 @@ import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.AppApiService
 import com.example.concertfinder.data.remote.event_dto.toEvent
+import com.example.concertfinder.domain.repository.LocalEventsRepository
 import com.example.concertfinder.domain.repository.RemoteEventsRepository
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
 class AppRemoteRemoteEventsRepository @Inject constructor(
-    private val apiService: AppApiService
+    private val apiService: AppApiService,
+    private val localEventsRepository: LocalEventsRepository
 ) : RemoteEventsRepository {
 
     override suspend fun getEvents(
@@ -40,6 +42,12 @@ class AppRemoteRemoteEventsRepository @Inject constructor(
             )
 
             val eventsList = eventApiResponse.embedded?.events?.map { it.toEvent() }
+            eventsList?.forEach { event ->
+                if (localEventsRepository.getEventSavedById(event.id.toString())) {
+                    event.saved = true
+                }
+            }
+
             val totalPages = eventApiResponse.pageData?.totalPages.toString()
 
             return if (eventsList != null) {

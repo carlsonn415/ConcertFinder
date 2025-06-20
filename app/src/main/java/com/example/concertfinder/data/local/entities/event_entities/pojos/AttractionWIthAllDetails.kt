@@ -1,7 +1,10 @@
-package com.example.concertfinder.data.local.entities.event_entities
+package com.example.concertfinder.data.local.entities.event_entities.pojos
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import com.example.concertfinder.data.local.entities.event_entities.AttractionClassificationEntity
+import com.example.concertfinder.data.local.entities.event_entities.AttractionEntity
+import com.example.concertfinder.data.local.entities.event_entities.AttractionImageEntity
 import com.example.concertfinder.data.remote.event_dto.Attraction
 
 data class AttractionWIthAllDetails(

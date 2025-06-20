@@ -8,5 +8,4 @@ data class EventListUiState(
     val page: String = "0",
     val isLoadingMore: Boolean = false,
     val canLoadMore: Boolean = true,
-    val hasLoadedOnce: Boolean = false,
 )

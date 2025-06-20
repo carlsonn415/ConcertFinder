@@ -1,6 +1,8 @@
 package com.example.concertfinder.presentation.app.components
 
+import android.content.Context
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.fadeIn
@@ -16,6 +18,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.presentation.app.AppUiState
 import com.example.concertfinder.presentation.app.AppViewModel
@@ -34,6 +37,7 @@ import com.example.concertfinder.presentation.utils.topLevelRoutes
 fun AppNavHost(
     navController: NavHostController,
     viewModel: AppViewModel,
+    context: Context,
     uiState: State<AppUiState>,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
@@ -56,6 +60,21 @@ fun AppNavHost(
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
                 },
+                onClickSave = { event ->
+                    viewModel.toggleEventSaved(event = event)
+                    viewModel.updateSavedEventsUpdated(true)
+                    // show toast if event is saved or unsaved
+                    // TODO: make these snackbars
+                    if (event.saved == false) {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                    }
+                },
+                onSavedEventsLoaded = {
+                    viewModel.updateSavedEventsUpdated(false)
+                },
+                updateSavedEvents = uiState.value.savedEventsUpdated,
                 modifier = modifier,
                 innerPadding = innerPadding
             )
@@ -103,6 +122,17 @@ fun AppNavHost(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
+                },
+                onClickSave = { event ->
+                    viewModel.toggleEventSaved(event = event)
+                    viewModel.updateSavedEventsUpdated(true)
+                    // show toast if event is saved or unsaved
+                    // TODO: make these snackbars
+                    if (event.saved == false) {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                    }
                 },
                 filtersUpdated = filtersUpdated.collectAsState().value,
                 navBackStackEntry = backStackEntry,

@@ -55,7 +55,7 @@
     <string name="free">Free</string>
     <string name="sort">Sort options</string>
     <string name="select_a_radius_to_search">Select a radius to search</string>
-    <string name="sort_by">Sort by</string>
+    <string name="sort_by">Sort By</string>
     <string name="sort_type">Sort type</string>
     <string name="delete">Delete</string>
     <string name="genre">Genre</string>
@@ -65,4 +65,9 @@
     <string name="filter_button_label">Filter</string>
     <string name="unknown_error">Unknown error</string>
     <string name="filter">Filter</string>
+    <string name="no_saved_events">You have no saved events.</string>
+    <string name="find_saved_events">Find some by going to the discover or search page.</string>
+    <string name="unsaved">unsaved from saved events</string>
+    <string name="saved">added to saved events</string>
+    <string name="error">Error</string>
 </resources>

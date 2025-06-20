@@ -78,9 +78,9 @@ fun SortMenu(
                         }
                 ) {
                     RadioButton(
-                        selected = sortOption == currentSortOption,
+                        selected = sortOption.lowercase() == currentSortOption.lowercase(),
                         onClick = {
-                            onSortOptionSelected(sortOption)
+                            onSortOptionSelected(sortOption.lowercase())
                         }
                     )
                     Text(

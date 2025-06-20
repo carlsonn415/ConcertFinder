@@ -65,8 +65,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRemoteEventsRepository(apiService: AppApiService): RemoteEventsRepository {
-        return AppRemoteRemoteEventsRepository(apiService)
+    fun provideRemoteEventsRepository(apiService: AppApiService, localEventsRepository: LocalEventsRepository): RemoteEventsRepository {
+        return AppRemoteRemoteEventsRepository(apiService, localEventsRepository)
     }
 
     @Provides

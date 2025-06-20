@@ -84,9 +84,9 @@ fun PriceAndLocationRow(
         //------------------------------------------------------------------------------------------ Check if event has location, if not use venue location
         if (
             event.place != null
-            && event.place.address != null
-            && event.place.city != null
-            && event.place.state != null
+            && event.place.address?.line1.toString() != "null"
+            && event.place.city?.name.toString() != "null"
+            && event.place.state?.name.toString() != "null"
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -97,16 +97,16 @@ fun PriceAndLocationRow(
                     modifier = modifier.size(14.dp)
                 )
                 Text(
-                    text = event.place.address.line1 + ", " + event.place.city.name + ", " + event.place.state,
+                    text = event.place.address?.line1 + ", " + event.place.city?.name + ", " + event.place.state,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
                 )
             }
         } else if (
             event.embedded?.venues != null
-            && event.embedded.venues.first().address != null
-            && event.embedded.venues.first().city != null
-            && event.embedded.venues.first().state != null
+            && event.embedded.venues.first().address.toString() != "null"
+            && event.embedded.venues.first().city.toString() != "null"
+            && event.embedded.venues.first().state.toString() != "null"
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

@@ -2,14 +2,25 @@ package com.example.concertfinder.presentation.app
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.domain.use_case.save_event.SaveEventUseCase
+import com.example.concertfinder.domain.use_case.unsave_event.UnsaveEventUseCase
 import com.example.concertfinder.presentation.utils.AppDestinations
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AppViewModel() : ViewModel() {
+@HiltViewModel
+class AppViewModel @Inject constructor(
+    private val saveEventUseCase: SaveEventUseCase,
+    private val unsaveEventUseCase: UnsaveEventUseCase
+) : ViewModel() {
 
     // Top level ui state
     private val _uiState = MutableStateFlow(AppUiState())
@@ -31,6 +42,7 @@ class AppViewModel() : ViewModel() {
         navController.navigate(route)
     }
 
+
     // UI STATE UPDATES BELOW THIS LINE
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -51,13 +63,22 @@ class AppViewModel() : ViewModel() {
         }
     }
 
-    fun toggleCurrentEventSaved() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                currentEvent = currentState.currentEvent.copy(
-                    saved = !currentState.currentEvent.saved
+    fun toggleEventSaved(event: Event) {
+        if (event.id == _uiState.value.currentEvent.id) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    currentEvent = currentState.currentEvent.copy(
+                        saved = !currentState.currentEvent.saved
+                    )
                 )
-            )
+            }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            if (!event.saved) {
+                saveEventUseCase(event)
+            } else {
+                unsaveEventUseCase(event.id ?: throw Exception("Event ID cannot be null"))
+            }
         }
     }
 
@@ -73,6 +94,14 @@ class AppViewModel() : ViewModel() {
         _uiState.update { currentState ->
             currentState.copy(
                 areFiltersApplied = areFiltersApplied
+            )
+        }
+    }
+
+    fun updateSavedEventsUpdated(savedEventsUpdated: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                savedEventsUpdated = savedEventsUpdated
             )
         }
     }

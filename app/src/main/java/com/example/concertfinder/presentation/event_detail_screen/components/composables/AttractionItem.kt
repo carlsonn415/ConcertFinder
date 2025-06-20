@@ -99,12 +99,12 @@ fun AttractionItem(
                 }
             }
         }
-        if (attraction.classifications?.get(0)?.segment?.name == "Music") {
+        if (attraction.classifications?.getOrNull(0)?.segment?.name.toString() == "Music") {
 
             Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
 
             ClassificationFlowRow(
-                classifications = attraction.classifications,
+                classifications = attraction.classifications ?: emptyList(),
                 showSegment = false,
                 modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
             )

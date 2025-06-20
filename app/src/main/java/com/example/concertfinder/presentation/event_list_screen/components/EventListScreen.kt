@@ -42,6 +42,7 @@ import com.example.concertfinder.presentation.event_list_screen.EventListViewMod
 @Composable
 fun EventListScreen(
     onEventClicked: (Event) -> Unit,
+    onClickSave: (Event) -> Unit,
     filtersUpdated: Boolean,
     navBackStackEntry: NavBackStackEntry,
     modifier: Modifier = Modifier,
@@ -54,26 +55,45 @@ fun EventListScreen(
     val lazyListState = rememberLazyListState()
 
     // Pagination loads more when user gets near the end
-    val shouldLoadMore by remember {
+    val shouldRequestNextPage by remember {
         derivedStateOf {
+            val isLoading = uiState.value.isLoadingMore
+            val canLoad = uiState.value.canLoadMore
             val layoutInfo = lazyListState.layoutInfo
-            val totalItemsCount = layoutInfo.totalItemsCount
-            val lastVisibleItemIndex = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisible = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
+            val threshold = totalItems - 5
 
-            // Trigger load if there are 5 items left to scroll
-            totalItemsCount > 0 && lastVisibleItemIndex >= (totalItemsCount - 5) && !uiState.value.isLoadingMore && uiState.value.canLoadMore
+            Log.d("PaginateDebug", "isLoading: $isLoading, canLoad: $canLoad, total: $totalItems, lastVisible: $lastVisible, threshold: $threshold")
+
+            if (isLoading || !canLoad) {
+                false
+            } else {
+                if (totalItems == 0) {
+                    false
+                } else {
+                    lastVisible >= threshold
+                }
+            }
         }
     }
 
-    // get events from view model when screen is loaded
-    LaunchedEffect(shouldLoadMore) {
-        if (filtersUpdated) {
-            Log.d("EventListScreen", "Filters updated")
-            viewModel.getEvents()
-            navBackStackEntry.savedStateHandle["filters_updated"] = false
-        } else if (shouldLoadMore) {
-            Log.d("EventListScreen", "Loading more events")
+    // This LaunchedEffect will only run if shouldRequestNextPage becomes true
+    // AND a load is not already in progress.
+    LaunchedEffect(shouldRequestNextPage) {
+        Log.d("EventListScreen", "shouldRequestNextPage: $shouldRequestNextPage")
+        if (shouldRequestNextPage && !uiState.value.isLoadingMore) { // Double check isLoadingMore here
+            Log.d("EventListScreen", "Requesting more events")
             viewModel.loadMoreEvents()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (filtersUpdated) {
+            Log.d("EventListScreen", "Filters updated, fetching initial events")
+            viewModel.getEvents(hasLoadedOnce = false) // This should reset any pagination state in the ViewModel
+            navBackStackEntry.savedStateHandle["filters_updated"] = false
+            lazyListState.scrollToItem(0)
         }
     }
 
@@ -83,21 +103,42 @@ fun EventListScreen(
             .padding(innerPadding)
             .fillMaxWidth()
     ) {
-        if (uiState.value.eventsResource is Resource.Success) {
-            PaginatedEventList(
-                events = uiState.value.eventsResource.data ?: emptyList(),
-                onEventClicked = onEventClicked,
-                viewModel = viewModel,
-                isLoadingMore = uiState.value.isLoadingMore,
-                lazyListState = lazyListState,
-                modifier = Modifier.fillMaxSize()
-            )
-        } else if (uiState.value.eventsResource is Resource.Loading) {
-            LoadingScreen(modifier = Modifier.fillMaxSize())
-        } else if (uiState.value.eventsResource is Resource.Error) {
-            ErrorScreen(
-                message = uiState.value.eventsResource.message ?: stringResource(R.string.unknown_error),
-            )
+        when (val eventsResource = uiState.value.eventsResource) {
+            is Resource.Success -> {
+                PaginatedEventList(
+                    events = eventsResource.data ?: emptyList(),
+                    onEventClicked = onEventClicked,
+                    onClickSaved = onClickSave,
+                    viewModel = viewModel,
+                    isLoadingMore = uiState.value.isLoadingMore, // Pass this for the progress indicator
+                    lazyListState = lazyListState,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Log.d("EventListScreen", "EVENTS LIST SIZE: ${eventsResource.data?.size}")
+            }
+            is Resource.Loading -> {
+                // Show loading only if there's no data yet.
+                // If there's data, the list will show and a small spinner for pagination.
+                if (eventsResource.data.isNullOrEmpty()) {
+                    LoadingScreen(modifier = Modifier.fillMaxSize())
+                } else {
+                    // Data exists, show it, pagination spinner will be at the bottom if isLoadingMore is true
+                    PaginatedEventList(
+                        events = eventsResource.data, // Show existing data
+                        onEventClicked = onEventClicked,
+                        onClickSaved = onClickSave,
+                        viewModel = viewModel,
+                        isLoadingMore = uiState.value.isLoadingMore,
+                        lazyListState = lazyListState,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+            }
+            is Resource.Error -> {
+                ErrorScreen(
+                    message = eventsResource.message ?: stringResource(R.string.unknown_error),
+                )
+            }
         }
     }
 }
@@ -107,6 +148,7 @@ fun EventListScreen(
 fun PaginatedEventList(
     events: List<Event>,
     onEventClicked: (Event) -> Unit,
+    onClickSaved: (Event) -> Unit,
     viewModel: EventListViewModel,
     isLoadingMore: Boolean,
     lazyListState: LazyListState,
@@ -114,9 +156,13 @@ fun PaginatedEventList(
 ) {
     LazyColumn(
         state = lazyListState,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium))
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        modifier = modifier
     ) {
-        items(events) { event ->
+        items(
+            events,
+            key = { event -> event.id.toString() }
+        ) { event ->
 
             // Gets distance from location
             val distanceFromLocation = viewModel.getDistanceFromLocation(
@@ -129,6 +175,10 @@ fun PaginatedEventList(
             EventListItem(
                 event = event,
                 onClick = onEventClicked,
+                onClickSave = { clickedEvent ->
+                    onClickSaved(clickedEvent)
+                    viewModel.changeEventSaved(clickedEvent.id.toString(), !clickedEvent.saved)
+                },
                 distanceToEvent = distanceFromLocation,
                 startDateTime = viewModel.getFormattedEventStartDates(event.dates) ?: "No start date found",
                 imageUrl = viewModel.getImageUrl(event.images) ?: "",
@@ -140,9 +190,9 @@ fun PaginatedEventList(
             item {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(dimensionResource(R.dimen.padding_medium))
+                        .padding(dimensionResource(R.dimen.padding_large))
                 ) {
                     CircularProgressIndicator()
                 }

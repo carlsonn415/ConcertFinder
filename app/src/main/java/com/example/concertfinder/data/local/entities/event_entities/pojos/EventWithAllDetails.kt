@@ -1,7 +1,15 @@
-package com.example.concertfinder.data.local.entities.event_entities
+package com.example.concertfinder.data.local.entities.event_entities.pojos
 
 import androidx.room.Embedded
+import androidx.room.Junction
 import androidx.room.Relation
+import com.example.concertfinder.data.local.entities.event_entities.AttractionEntity
+import com.example.concertfinder.data.local.entities.event_entities.EventAttractionCrossRef
+import com.example.concertfinder.data.local.entities.event_entities.EventClassificationEntity
+import com.example.concertfinder.data.local.entities.event_entities.EventEntity
+import com.example.concertfinder.data.local.entities.event_entities.EventImageEntity
+import com.example.concertfinder.data.local.entities.event_entities.EventVenueCrossRef
+import com.example.concertfinder.data.local.entities.event_entities.VenueEntity
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.event_dto.AccessData
 import com.example.concertfinder.data.remote.event_dto.Address
@@ -27,13 +35,17 @@ data class EventWithAllDetails(
 
     @Relation(
         parentColumn = "eventId",
-        entityColumn = "eventId"
+        entity = VenueEntity::class,
+        entityColumn = "venueId",
+        associateBy = Junction(EventVenueCrossRef::class)
     )
     val venues: List<VenueEntity>,
 
     @Relation(
         parentColumn = "eventId",
-        entityColumn = "eventId"
+        entity = AttractionEntity::class,
+        entityColumn = "attractionId",
+        associateBy = Junction(EventAttractionCrossRef::class)
     )
     val attractions: List<AttractionEntity>,
 

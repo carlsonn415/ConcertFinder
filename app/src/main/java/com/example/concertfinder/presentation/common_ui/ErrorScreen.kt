@@ -43,8 +43,40 @@ fun ErrorScreen(
                     textAlign = TextAlign.Center
                 )
             }
+        } else if (message == "No saved events found") {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text(
+                    text = stringResource(R.string.no_saved_events),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                Text(
+                    text = stringResource(R.string.find_saved_events),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
         } else {
-            Text(text = "Error: $message")
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium))
+            ) {
+                Text(
+                    text = stringResource(R.string.error),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

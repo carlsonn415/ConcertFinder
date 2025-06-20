@@ -2,6 +2,7 @@ package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.AnimatedVisibility
@@ -17,11 +18,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.concertfinder.R
 import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.utils.AppContentType
 import com.example.concertfinder.presentation.utils.AppDestinations
@@ -40,6 +43,8 @@ fun ConcertFinderApp(
 ) {
     // get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
+
+    val context = LocalContext.current
 
     // create scroll behavior for top app bar
     //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -130,11 +135,20 @@ fun ConcertFinderApp(
                 enter = fadeIn(tween(durationMillis = 100)),
                 exit = fadeOut(tween(durationMillis = 0))
             ) {
+                val filled = uiState.value.currentEvent.saved
                 FloatingAppButton(
                     onClick = {
-                        viewModel.toggleCurrentEventSaved()
+                        viewModel.toggleEventSaved(event = uiState.value.currentEvent)
+                        viewModel.updateSavedEventsUpdated(true)
+                        // show toast if event is saved or unsaved
+                        // TODO: make these snackbars
+                        if (filled == false) {
+                            Toast.makeText(context, uiState.value.currentEvent.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, uiState.value.currentEvent.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                        }
                     },
-                    filled = uiState.value.currentEvent.saved
+                    filled = filled
                 )
             }
         }
@@ -143,6 +157,7 @@ fun ConcertFinderApp(
         AppNavHost(
             navController = navController,
             viewModel = viewModel,
+            context = context,
             uiState = uiState,
             modifier = modifier,
             innerPadding = innerPadding

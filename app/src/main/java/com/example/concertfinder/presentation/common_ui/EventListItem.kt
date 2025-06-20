@@ -48,6 +48,7 @@ import com.example.concertfinder.data.remote.event_dto.SubGenre
 fun EventListItem(
     event: Event,
     onClick: (Event) -> Unit,
+    onClickSave: (Event) -> Unit,
     distanceToEvent: String,
     startDateTime: String,
     imageUrl: String?,
@@ -101,7 +102,9 @@ fun EventListItem(
             )
 
             IconButton(
-                onClick = { /*TODO: Allow user to save event*/ },
+                onClick = {
+                    onClickSave(event)
+                },
             ) {
                 Icon(
                     imageVector = if (event.saved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -170,6 +173,7 @@ private fun EventListItemPreview() {
             classifications = listOf(Classification(segment = Segment(name = "Music"), genre = Genre("Rock"), subGenre = SubGenre("Pop"))),
             place = Place(Address("123 Main St"), City("City"), State("State")),
         ),
+        onClickSave = { _ -> },
         onClick = {},
         imageUrl = "",
         distanceToEvent = "10.0 mi",

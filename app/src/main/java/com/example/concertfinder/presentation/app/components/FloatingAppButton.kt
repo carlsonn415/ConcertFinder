@@ -1,6 +1,5 @@
 package com.example.concertfinder.presentation.app.components
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,19 +23,9 @@ fun FloatingAppButton(
     modifier: Modifier = Modifier,
     filled: Boolean = false,
 ) {
-
-    val context = LocalContext.current
-
     Card(
         onClick = {
             onClick()
-            // show toast if event is saved or unsaved
-            // TODO: make these snackbars
-            if (filled == false) {
-                Toast.makeText(context, context.getString(R.string.event_saved), Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, context.getString(R.string.event_unsaved), Toast.LENGTH_SHORT).show()
-            }
         },
         modifier = modifier
             .size(dimensionResource(id = R.dimen.fab_size))

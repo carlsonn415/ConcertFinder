@@ -7,5 +7,6 @@ data class AppUiState(
     val showBottomBar: Boolean = true,
     val currentEvent: Event = Event(),
     val showFab: Boolean = false,
-    val areFiltersApplied: Boolean = false
+    val areFiltersApplied: Boolean = false,
+    val savedEventsUpdated: Boolean = false
 )
