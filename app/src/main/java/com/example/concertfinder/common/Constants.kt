@@ -29,6 +29,7 @@ object Constants {
         Radius("250", DistanceUnit.Miles),
         Radius("500", DistanceUnit.Miles),
         Radius("1000", DistanceUnit.Miles),
+        Radius("", DistanceUnit.Miles)
     )
 
     val sortOptions = listOf(
@@ -39,7 +40,7 @@ object Constants {
     )
 
     // Default values
-    const val DEFAULT_RADIUS = "50"
+    const val DEFAULT_RADIUS = ""
     val DEFAULT_START_DATE_TIME = getFormattedDate(Calendar.getInstance())
     const val DEFAULT_SORT_OPTION = "relevance"
     const val DEFAULT_SORT_TYPE = "desc"

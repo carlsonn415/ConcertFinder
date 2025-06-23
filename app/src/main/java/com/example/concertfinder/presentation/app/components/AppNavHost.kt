@@ -22,7 +22,7 @@ import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.presentation.app.AppUiState
 import com.example.concertfinder.presentation.app.AppViewModel
-import com.example.concertfinder.presentation.calendar_screen.components.CalendarScreen
+import com.example.concertfinder.presentation.calendar_screen.components.DiscoverScreen
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
 import com.example.concertfinder.presentation.event_list_screen.components.EventListScreen
 import com.example.concertfinder.presentation.filter_screen.components.FilterScreen
@@ -95,8 +95,8 @@ fun AppNavHost(
         }
 
         // calendar screen composable
-        composable(route = AppDestinations.CALENDAR) {
-            CalendarScreen(
+        composable(route = AppDestinations.DISCOVER) {
+            DiscoverScreen(
                 onClick = {
                     viewModel.onNavigateToEventList(
                         navController = navController,

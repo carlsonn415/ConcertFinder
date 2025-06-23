@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun CalendarScreen(
+fun DiscoverScreen(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -31,7 +31,7 @@ fun CalendarScreen(
 @Preview(showBackground = true)
 @Composable
 private fun CalendarScreenPreview() {
-    CalendarScreen(
+    DiscoverScreen(
         onClick = {},
         modifier = Modifier
     )

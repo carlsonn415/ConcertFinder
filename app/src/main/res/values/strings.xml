@@ -4,7 +4,7 @@
     <string name="loading_succeeded">loading Api succeeded</string>
     <string name="search">Search</string>
     <string name="events">My Events</string>
-    <string name="calendar">Calendar</string>
+    <string name="discover">Discover</string>
     <string name="back_button">Back Button</string>
     <string name="results">Results</string>
     <string name="details">Details</string>
@@ -20,7 +20,7 @@
     <string name="try_different_search">Please try a different search or change locations.</string>
     <string name="loading">Loading&#8230;</string>
     <string name="getting_location">Getting location&#8230;</string>
-    <string name="searching_in">"Searching in "</string>
+    <string name="searching_near">"Searching near "</string>
     <string name="back">Back</string>
     <string name="close">Close</string>
     <string name="description_not_provided">Description not provided.</string>

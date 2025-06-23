@@ -66,7 +66,7 @@ fun LocationMenu(
                     text = if (locationLoadingStatus == LoadingStatus.Loading) {
                         stringResource(R.string.getting_location)
                     } else {
-                        stringResource(R.string.searching_in) + address
+                        stringResource(R.string.searching_near) + address
                     },
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,

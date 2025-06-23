@@ -49,7 +49,15 @@ fun PreferencesDropdown(
         // Use .menuAnchor() to connect it to the dropdown menu
         if (showValue) {
             TextField(
-                value = if (preferenceLabel != null) "$currentPreference $preferenceLabel" else currentPreference,
+                value = if (preferenceLabel != null) {
+                    if (currentPreference == "") {
+                        "Unlimited"
+                    } else {
+                        "$currentPreference $preferenceLabel"
+                    }
+                } else {
+                    currentPreference
+                },
                 onValueChange = {}, // No-op for read-only
                 readOnly = true,
                 label = {Text(dropdownLabel)},
@@ -85,7 +93,17 @@ fun PreferencesDropdown(
         ) {
             preferenceOptions.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { if (preferenceLabel != null) Text("$selectionOption $preferenceLabel") else Text(selectionOption) },
+                    text = {
+                        if (preferenceLabel != null) {
+                            if (selectionOption == "") {
+                                Text("Unlimited")
+                            } else {
+                                Text("$selectionOption $preferenceLabel")
+                            }
+                        } else {
+                            Text(selectionOption)
+                        }
+                    },
                     onClick = {
                         onPreferenceSelected(selectionOption)
                         onPreferencesExpandedChange(false) // Close the menu after selection
