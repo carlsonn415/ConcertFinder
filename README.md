@@ -46,13 +46,21 @@ To get Concert Finder up and running on your local machine, follow these steps:
       * Launch Android Studio.
       * Select `File > Open` and navigate to the cloned `ConcertFinder` directory.
       * Click `Open`.
-3.  **Add API Keys:**
+3.  **Add API Keys and configure gradle:**
       * You'll need a **Ticketmaster Discovery API Key**.
-      * Create a `gradle.properties` file  and add your key like this (example):
+      * Create a `gradle.properties` file in the root directory and add your key like this (example):
         ```properties
-        API_KEY="YOUR_TICKETMASTER_API_KEY"
+        API_KEY=YOUR_TICKETMASTER_API_KEY
         ```
-      * *Note: Ensure these keys are not committed to your public repository for security reasons.*
+      * As well as these lines:
+        ```
+        # Project-wide Gradle settings.
+        org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+        android.useAndroidX=true
+        kotlin.code.style=official
+        android.nonTransitiveRClass=true
+        ```
+      * *Note: Ensure your key is not committed to your public repository for security reasons.*
 4.  **Sync Gradle:**
       * Android Studio should automatically sync the Gradle project. If not, click `File > Sync Project with Gradle Files`.
 5.  **Run on Device/Emulator:**
