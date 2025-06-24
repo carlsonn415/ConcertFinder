@@ -38,4 +38,8 @@ class UpdateLocationUseCase @Inject constructor(
             Log.d("Location", e.message.toString())
         }
     }
+
+    fun isLocationPermissionGranted(): Boolean {
+        return locationManagerService.isLocationPermissionGranted()
+    }
 }

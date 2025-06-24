@@ -1,11 +1,8 @@
 package com.example.concertfinder.common
 
-import android.annotation.SuppressLint
+import com.example.concertfinder.BuildConfig
 import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.domain.model.Radius
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 object Constants {
@@ -16,8 +13,8 @@ object Constants {
     // API SEARCH PARAMETERS
     const val PARAM_KEYWORD = "searchQuery"
 
-    // IMPORTANT: STORE API KEY ON SERVER AND NOT IN CODE BEFORE DISTRIBUTION
-    const val PARAM_API_KEY = "0FhVbrCAPJdEh7PBbHl8Gk8T6OLpKJI2"
+    // API KEY
+    const val API_KEY = BuildConfig.API_KEY
 
     // List of radius options user can select
     val radiusOptions = listOf(
@@ -47,16 +44,4 @@ object Constants {
     val DEFAULT_GENRE = emptySet<String>()
     val DEFAULT_SUBGENRE = emptySet<String>()
     val DEFAULT_SEGMENT = null
-}
-
-// get formatted date from calendar
-@SuppressLint("NewApi")
-private fun getFormattedDate(calendar: Calendar): String {
-    // convert calendar to instant
-    val instant: Instant = calendar.toInstant()
-
-    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-        .withZone(ZoneId.of("UTC"))
-
-    return formatter.format(instant)
 }

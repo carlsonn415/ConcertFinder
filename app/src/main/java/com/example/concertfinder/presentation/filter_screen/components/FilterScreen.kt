@@ -28,14 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.preference_menus.LocationMenu
-import com.example.concertfinder.presentation.common_ui.preference_menus.PreferencesDropdown
-import com.example.concertfinder.presentation.common_ui.preference_menus.SortMenu
+import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
+import com.example.concertfinder.presentation.common_ui.SortMenu
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.filter_screen.FilterScreenViewModel
 import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
@@ -45,31 +45,34 @@ fun FilterScreen(
     navController: NavController,
     onFilterApplied: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: FilterScreenViewModel = hiltViewModel(),
+    filterScreenViewModel: FilterScreenViewModel = hiltViewModel(),
+    locationViewModel: LocationViewModel = hiltViewModel(),
     innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
 
-    val uiState = viewModel.uiState.collectAsState()
+    val filterScreenUiState = filterScreenViewModel.uiState.collectAsState()
+    val locationUiState = locationViewModel.uiState.collectAsState()
 
     // launch location permission launcher when view model requests it
     LaunchLocationPermission(
         context = LocalContext.current,
         updateLocation = {
-            viewModel.updateLocation()
+            locationViewModel.updateLocation()
+            filterScreenViewModel.setPreferencesUpdated(true)
         },
-        requestLocationPermissionEvent = viewModel.requestLocationPermissionEvent
+        requestLocationPermissionEvent = locationViewModel.requestLocationPermissionEvent
     )
 
     BackHandler {
         // Checks if preferences have been updated and if so, sends signal to event list screen to reload
-        if (uiState.value.preferencesUpdated) {
+        if (filterScreenUiState.value.preferencesUpdated) {
             navController.previousBackStackEntry?.savedStateHandle?.set("filters_updated", true)
         }
         navController.popBackStack()
     }
 
-    LaunchedEffect(uiState.value.preferencesUpdated) {
-        if (uiState.value.preferencesUpdated) {
+    LaunchedEffect(filterScreenUiState.value.preferencesUpdated) {
+        if (filterScreenUiState.value.preferencesUpdated) {
             onFilterApplied()
         }
     }
@@ -81,13 +84,13 @@ fun FilterScreen(
             .verticalScroll(rememberScrollState())
     ) {
         SortMenu(
-            currentSortOption = uiState.value.currentSortOption,
+            currentSortOption = filterScreenUiState.value.currentSortOption,
             onSortOptionSelected = {
-                viewModel.onSortOptionSelected(it)
+                filterScreenViewModel.onSortOptionSelected(it)
             },
-            isSortMenuExpanded = uiState.value.isSortMenuExpanded,
+            isSortMenuExpanded = filterScreenUiState.value.isSortMenuExpanded,
             onExpandSortMenuDropdown = {
-                viewModel.toggleSortMenuExpanded()
+                filterScreenViewModel.toggleSortMenuExpanded()
             }
         )
 
@@ -99,7 +102,7 @@ fun FilterScreen(
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
                 .clickable {
-                    viewModel.toggleFilterMenuExpanded()
+                    filterScreenViewModel.toggleFilterMenuExpanded()
                 }
                 .padding(
                     horizontal = dimensionResource(R.dimen.padding_medium),
@@ -111,7 +114,7 @@ fun FilterScreen(
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = modifier.weight(1f)
             )
-            if (uiState.value.isFilterMenuExpanded) {
+            if (filterScreenUiState.value.isFilterMenuExpanded) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowUp,
                     contentDescription = stringResource(id = R.string.drop_down_arrow),
@@ -128,60 +131,60 @@ fun FilterScreen(
 
         Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
 
-        if (uiState.value.isFilterMenuExpanded) {
+        if (filterScreenUiState.value.isFilterMenuExpanded) {
             PreferencesDropdown(
-                currentPreference = uiState.value.currentSegment,
+                currentPreference = filterScreenUiState.value.currentSegment,
                 dropdownLabel = stringResource(R.string.category),
-                preferenceOptions = uiState.value.segmentOptions.map { it.name },
-                isPreferencesExpanded = uiState.value.isSegmentPreferencesExpanded,
-                onPreferencesExpandedChange = { viewModel.toggleSegmentPreferencesExpanded() },
-                onPreferenceSelected = { viewModel.onSegmentSelected(it) },
+                preferenceOptions = filterScreenUiState.value.segmentOptions.map { it.name },
+                isPreferencesExpanded = filterScreenUiState.value.isSegmentPreferencesExpanded,
+                onPreferencesExpandedChange = { filterScreenViewModel.toggleSegmentPreferencesExpanded() },
+                onPreferenceSelected = { filterScreenViewModel.onSegmentSelected(it) },
                 showValue = false
             )
 
             Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
 
             PreferencesDropdown(
-                currentPreference = uiState.value.currentGenres.firstOrNull() ?: "",
+                currentPreference = filterScreenUiState.value.currentGenres.firstOrNull() ?: "",
                 dropdownLabel = stringResource(R.string.genre),
-                preferenceOptions = uiState.value.genreOptions.map { it.name },
-                isPreferencesExpanded = uiState.value.isGenrePreferencesExpanded,
-                onPreferencesExpandedChange = { viewModel.toggleGenrePreferencesExpanded() },
-                onPreferenceSelected = { viewModel.onGenreSelected(it) },
+                preferenceOptions = filterScreenUiState.value.genreOptions.map { it.name },
+                isPreferencesExpanded = filterScreenUiState.value.isGenrePreferencesExpanded,
+                onPreferencesExpandedChange = { filterScreenViewModel.toggleGenrePreferencesExpanded() },
+                onPreferenceSelected = { filterScreenViewModel.onGenreSelected(it) },
                 showValue = false,
-                enabled = uiState.value.currentSegment != ""
+                enabled = filterScreenUiState.value.currentSegment != ""
             )
 
             Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
 
             PreferencesDropdown(
-                currentPreference = uiState.value.currentSubgenres.firstOrNull() ?: "",
+                currentPreference = filterScreenUiState.value.currentSubgenres.firstOrNull() ?: "",
                 dropdownLabel = stringResource(R.string.subgenre),
-                preferenceOptions = uiState.value.subgenreOptions.map { it.name },
-                isPreferencesExpanded = uiState.value.isSubgenrePreferencesExpanded,
-                onPreferencesExpandedChange = { viewModel.toggleSubgenrePreferencesExpanded() },
-                onPreferenceSelected = { viewModel.onSubgenreSelected(it) },
+                preferenceOptions = filterScreenUiState.value.subgenreOptions.map { it.name },
+                isPreferencesExpanded = filterScreenUiState.value.isSubgenrePreferencesExpanded,
+                onPreferencesExpandedChange = { filterScreenViewModel.toggleSubgenrePreferencesExpanded() },
+                onPreferenceSelected = { filterScreenViewModel.onSubgenreSelected(it) },
                 showValue = false,
-                enabled = uiState.value.currentGenres.isNotEmpty()
+                enabled = filterScreenUiState.value.currentGenres.isNotEmpty()
             )
 
             Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
 
-            if (uiState.value.currentSegment != "") {
+            if (filterScreenUiState.value.currentSegment != "") {
                 ClassificationFlowRowClickable(
-                    segmentName = uiState.value.currentSegment,
-                    genreNames = uiState.value.currentGenres,
-                    subgenreNames = uiState.value.currentSubgenres,
-                    onSegmentDeleted = { viewModel.clearSegmentPreferences() },
-                    onGenreDeleted = { viewModel.deleteGenre(it) },
-                    onSubgenreDeleted = { viewModel.deleteSubgenre(it) },
+                    segmentName = filterScreenUiState.value.currentSegment,
+                    genreNames = filterScreenUiState.value.currentGenres,
+                    subgenreNames = filterScreenUiState.value.currentSubgenres,
+                    onSegmentDeleted = { filterScreenViewModel.clearSegmentPreferences() },
+                    onGenreDeleted = { filterScreenViewModel.deleteGenre(it) },
+                    onSubgenreDeleted = { filterScreenViewModel.deleteSubgenre(it) },
                     modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
                 )
                 Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_small)))
             }
 
             Button(
-                onClick = { viewModel.clearSegmentPreferences() },
+                onClick = { filterScreenViewModel.clearSegmentPreferences() },
                 shape = MaterialTheme.shapes.small,
                 modifier = Modifier
                     .padding(horizontal = dimensionResource(R.dimen.padding_medium))
@@ -196,29 +199,35 @@ fun FilterScreen(
         Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small)))
 
         LocationMenu(
-            address = uiState.value.address,
-            radius = uiState.value.radius,
-            isLocationPreferencesMenuExpanded = uiState.value.isLocationPreferencesMenuExpanded,
-            locationSearchQuery = uiState.value.locationSearchQuery,
-            isRadiusPreferencesExpanded = uiState.value.isRadiusPreferencesExpanded,
-            locationLoadingStatus = uiState.value.locationLoadingStatus,
+            address = locationUiState.value.address,
+            radius = locationUiState.value.radius,
+            isLocationPreferencesMenuExpanded = filterScreenUiState.value.isLocationPreferencesMenuExpanded,
+            locationSearchQuery = filterScreenUiState.value.locationSearchQuery,
+            isRadiusPreferencesExpanded = filterScreenUiState.value.isRadiusPreferencesExpanded,
+            locationLoadingStatus = locationUiState.value.locationLoadingStatus,
             onExposeRadiusDropdownChange = {
-                viewModel.updateDropDownExpanded(it)
+                filterScreenViewModel.updateDropDownExpanded(it)
             },
             onRadiusOptionSelected = {
-                viewModel.updateRadiusFilterPreference(radius = it)
-                viewModel.updateDropDownExpanded(false)
+                locationViewModel.updateRadiusFilterPreference(radius = it)
+                filterScreenViewModel.setPreferencesUpdated(true)
+                filterScreenViewModel.updateDropDownExpanded(false)
             },
             onExpandLocationDropdown = {
-                viewModel.updateLocationMenuExpanded(it)
+                filterScreenViewModel.updateLocationMenuExpanded(it)
             },
-            onGetLocation = { viewModel.initiateLocationUpdate() },
+            onGetLocation = {
+                locationViewModel.initiateLocationUpdate()
+                filterScreenViewModel.setPreferencesUpdated(true)
+            },
             onLocationQueryUpdate = {
-                viewModel.updateLocationSearchQuery(it)
+                filterScreenViewModel.updateLocationSearchQuery(it)
             },
             onLocationSearch = {
-                viewModel.searchForLocation(it)
+                locationViewModel.searchForLocation(it)
             }
         )
+
+        Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)))
     }
 }

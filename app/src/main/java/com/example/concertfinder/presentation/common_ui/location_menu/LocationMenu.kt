@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.common_ui.preference_menus
+package com.example.concertfinder.presentation.common_ui.location_menu
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants
 import com.example.concertfinder.domain.model.LoadingStatus
+import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

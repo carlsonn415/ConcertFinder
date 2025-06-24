@@ -3,13 +3,9 @@ package com.example.concertfinder.presentation.filter_screen
 import com.example.concertfinder.data.model.Genre
 import com.example.concertfinder.data.model.Segment
 import com.example.concertfinder.data.model.Subgenre
-import com.example.concertfinder.domain.model.LoadingStatus
 
 data class FilterScreenUiState(
-    val locationLoadingStatus: LoadingStatus = LoadingStatus.Idle,
-    val address: String = "",
     val isRadiusPreferencesExpanded: Boolean = false,
-    val radius: String = "",
     val isLocationPreferencesMenuExpanded: Boolean = true,
     val locationSearchQuery: String = "",
     val isSortMenuExpanded: Boolean = true,

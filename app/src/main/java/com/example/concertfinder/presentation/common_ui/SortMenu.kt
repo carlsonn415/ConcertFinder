@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.common_ui.preference_menus
+package com.example.concertfinder.presentation.common_ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

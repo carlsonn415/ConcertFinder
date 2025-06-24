@@ -41,7 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.preference_menus.LocationMenu
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.search_screen.SearchScreenViewModel
 import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
@@ -52,22 +53,24 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 fun SearchScreen(
     onSearch: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SearchScreenViewModel = hiltViewModel(),
+    searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
+    locationViewModel: LocationViewModel = hiltViewModel(),
     innerPadding: PaddingValues
 ) {
 
-    val uiState = viewModel.uiState.collectAsState()
+    val searchScreenUiState = searchScreenViewModel.uiState.collectAsState()
+    val locationUiState = locationViewModel.uiState.collectAsState()
 
     // Animate the horizontal padding
     val searchBarPadding by animateDpAsState(
-        targetValue = if (uiState.value.isSearchBarExpanded) 0.dp else dimensionResource(id = R.dimen.padding_medium),
+        targetValue = if (searchScreenUiState.value.isSearchBarExpanded) 0.dp else dimensionResource(id = R.dimen.padding_medium),
         animationSpec = tween(durationMillis = 300), // Optional: customize animation duration/easing
     )
 
     // dispose of search bar when composable is disposed
     DisposableEffect(Unit) {
         onDispose {
-            viewModel.resetSearchBarScreen()
+            searchScreenViewModel.resetSearchBarScreen()
         }
     }
 
@@ -75,9 +78,9 @@ fun SearchScreen(
     LaunchLocationPermission(
         context = LocalContext.current,
         updateLocation = {
-            viewModel.updateLocation()
+            locationViewModel.updateLocation()
         },
-        requestLocationPermissionEvent = viewModel.requestLocationPermissionEvent
+        requestLocationPermissionEvent = locationViewModel.requestLocationPermissionEvent
     )
 
     Column(
@@ -93,17 +96,17 @@ fun SearchScreen(
             SearchBar(
                 inputField = {
                     SearchBarDefaults.InputField(
-                        query = uiState.value.searchQuery,
+                        query = searchScreenUiState.value.searchQuery,
                         onQueryChange = {
-                            viewModel.updateSearchText(it)
+                            searchScreenViewModel.updateSearchText(it)
                         },
                         onSearch = {
-                            viewModel.saveSearchQuery(uiState.value.searchQuery)
-                            onSearch(uiState.value.searchQuery)
+                            searchScreenViewModel.saveSearchQuery(searchScreenUiState.value.searchQuery)
+                            onSearch(searchScreenUiState.value.searchQuery)
                         },
-                        expanded = uiState.value.isSearchBarExpanded,
+                        expanded = searchScreenUiState.value.isSearchBarExpanded,
                         onExpandedChange = {
-                            viewModel.updateSearchExpanded(it)
+                            searchScreenViewModel.updateSearchExpanded(it)
                         },
                         placeholder = {
                             Text(text = stringResource(id = R.string.search_placeholder))
@@ -111,8 +114,8 @@ fun SearchScreen(
                         trailingIcon = {
                             IconButton(
                                 onClick = {
-                                    viewModel.saveSearchQuery(uiState.value.searchQuery)
-                                    onSearch(uiState.value.searchQuery)
+                                    searchScreenViewModel.saveSearchQuery(searchScreenUiState.value.searchQuery)
+                                    onSearch(searchScreenUiState.value.searchQuery)
                                 }
                             ) {
                                 Icon(
@@ -123,9 +126,9 @@ fun SearchScreen(
                         },
                     )
                 },
-                expanded = uiState.value.isSearchBarExpanded,
+                expanded = searchScreenUiState.value.isSearchBarExpanded,
                 onExpandedChange = {
-                    viewModel.updateSearchExpanded(it)
+                    searchScreenViewModel.updateSearchExpanded(it)
                 },
                 windowInsets = WindowInsets(0.dp),
                 modifier = Modifier
@@ -136,7 +139,7 @@ fun SearchScreen(
                     )
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                if (uiState.value.searchHistory.isNotEmpty()) {
+                if (searchScreenUiState.value.searchHistory.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.background)
@@ -148,13 +151,13 @@ fun SearchScreen(
                                 .fillMaxWidth()
                                 .heightIn(max = 500.dp)
                         ) {
-                            items(uiState.value.searchHistory) { historyItem ->
+                            items(searchScreenUiState.value.searchHistory) { historyItem ->
                                 ListItem(
                                     headlineContent = { Text(historyItem) },
                                     trailingContent = {
                                         IconButton(
                                             onClick = {
-                                                viewModel.deletePreviousSearch(query = historyItem)
+                                                searchScreenViewModel.deletePreviousSearch(query = historyItem)
                                             }
                                         ) {
                                             Icon(
@@ -164,7 +167,7 @@ fun SearchScreen(
                                         }
                                     },
                                     modifier = Modifier.clickable {
-                                        viewModel.saveSearchQuery(historyItem)
+                                        searchScreenViewModel.saveSearchQuery(historyItem)
                                         onSearch(historyItem)
                                     }
                                 )
@@ -188,28 +191,28 @@ fun SearchScreen(
         }
 
         LocationMenu(
-            address = uiState.value.address,
-            radius = uiState.value.radius,
-            isLocationPreferencesMenuExpanded = uiState.value.isLocationPreferencesMenuExpanded,
-            locationSearchQuery = uiState.value.locationSearchQuery,
-            isRadiusPreferencesExpanded = uiState.value.isRadiusPreferencesExpanded,
-            locationLoadingStatus = uiState.value.locationLoadingStatus,
+            address = locationUiState.value.address,
+            radius = locationUiState.value.radius,
+            isLocationPreferencesMenuExpanded = searchScreenUiState.value.isLocationPreferencesMenuExpanded,
+            locationSearchQuery = searchScreenUiState.value.locationSearchQuery,
+            isRadiusPreferencesExpanded = searchScreenUiState.value.isRadiusPreferencesExpanded,
+            locationLoadingStatus = locationUiState.value.locationLoadingStatus,
             onExposeRadiusDropdownChange = {
-                viewModel.updateDropDownExpanded(it)
+                searchScreenViewModel.updateDropDownExpanded(it)
             },
             onRadiusOptionSelected = {
-                viewModel.updateRadiusFilterPreference(radius = it)
-                viewModel.updateDropDownExpanded(false)
+                locationViewModel.updateRadiusFilterPreference(radius = it)
+                searchScreenViewModel.updateDropDownExpanded(false)
             },
             onExpandLocationDropdown = {
-                viewModel.updateLocationMenuExpanded(it)
+                searchScreenViewModel.updateLocationMenuExpanded(it)
             },
-            onGetLocation = { viewModel.initiateLocationUpdate() },
+            onGetLocation = { locationViewModel.initiateLocationUpdate() },
             onLocationQueryUpdate = {
-                viewModel.updateLocationSearchQuery(it)
+                searchScreenViewModel.updateLocationSearchQuery(it)
             },
             onLocationSearch = {
-                viewModel.searchForLocation(it)
+                locationViewModel.searchForLocation(it)
             }
         )
     }

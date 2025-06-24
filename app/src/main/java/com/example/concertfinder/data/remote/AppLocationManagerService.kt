@@ -19,6 +19,7 @@ import kotlin.coroutines.resumeWithException
 
 interface LocationManagerService {
     suspend fun getLocation(): Location?
+    fun isLocationPermissionGranted(): Boolean
 }
 
 // Implementation of LocationManagerService.
@@ -84,10 +85,6 @@ class AppLocationManagerService(
                             cancellationTokenSource.cancel() // Cancel the token if the coroutine is cancelled after resume.
                         }
 
-                        // TODO: Make this toast a snackbar (A reminder to improve UI feedback).
-                        // Shows a short toast message indicating location update.
-                        Toast.makeText(context, "Location updated", Toast.LENGTH_SHORT).show()
-
                         // Logs the obtained latitude and longitude.
                         Log.d("Location", "Location is ${location.latitude}, ${location.longitude}")
                     } else { // If location is null (e.g., provider can't get a fix, services disabled).
@@ -117,5 +114,16 @@ class AppLocationManagerService(
                 Toast.makeText(context, "Location request cancelled", Toast.LENGTH_SHORT).show() // Clarified message
             }
         }
+    }
+
+    override fun isLocationPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
     }
 }

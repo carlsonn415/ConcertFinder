@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.common_ui.preference_menus
+package com.example.concertfinder.presentation.common_ui.location_menu
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight

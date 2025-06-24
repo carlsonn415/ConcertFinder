@@ -13,6 +13,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -23,6 +24,7 @@ import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.presentation.app.AppUiState
 import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.calendar_screen.components.DiscoverScreen
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
 import com.example.concertfinder.presentation.event_list_screen.components.EventListScreen
 import com.example.concertfinder.presentation.filter_screen.components.FilterScreen
@@ -42,6 +44,8 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
 ) {
+    val locationViewModel: LocationViewModel = hiltViewModel()
+
     NavHost(
         navController = navController,
         startDestination = topLevelRoutes[0].route,
@@ -90,7 +94,8 @@ fun AppNavHost(
                     )
                 },
                 innerPadding = innerPadding,
-                modifier = modifier
+                modifier = modifier,
+                locationViewModel = locationViewModel
             )
         }
 
@@ -103,7 +108,8 @@ fun AppNavHost(
                         searchQuery = ""
                     )
                 },
-                modifier = modifier
+                modifier = modifier,
+                innerPadding = innerPadding
             )
         }
 
@@ -158,7 +164,8 @@ fun AppNavHost(
                     viewModel.updateAreFiltersApplied(true)
                 },
                 modifier = modifier,
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                locationViewModel = locationViewModel
             )
         }
     }
