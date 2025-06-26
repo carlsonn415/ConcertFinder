@@ -12,4 +12,5 @@
     <dimen name="location_textfield_height">72.dp</dimen>
     <dimen name="event_list_item_height">200.dp</dimen>
     <dimen name="fab_size">60.dp</dimen>
+    <dimen name="compact_event_list_item_width">200.dp</dimen>
 </resources>

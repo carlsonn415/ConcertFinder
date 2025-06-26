@@ -44,4 +44,9 @@ object Constants {
     val DEFAULT_GENRE = emptySet<String>()
     val DEFAULT_SUBGENRE = emptySet<String>()
     val DEFAULT_SEGMENT = null
+    const val EVENTS_NEAR_YOU_RADIUS = "25"
+
+    // Page sizes
+    const val DISCOVER_PAGE_SIZE = "3"
+    const val EVENT_LIST_PAGE_SIZE = "20"
 }

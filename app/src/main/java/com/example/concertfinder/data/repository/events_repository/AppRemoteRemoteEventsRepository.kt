@@ -24,8 +24,10 @@ class AppRemoteRemoteEventsRepository @Inject constructor(
         genres: List<String>?,
         subgenres: List<String>?,
         segment: List<String>?,
+        segmentName: String?,
         keyWord: String?,
-        page: String?
+        page: String?,
+        pageSize: String?
     ): Resource<List<Event>> {
         return try {
             val eventApiResponse = apiService.getEventsApiResponse(
@@ -37,8 +39,10 @@ class AppRemoteRemoteEventsRepository @Inject constructor(
                 genres = genres,
                 subgenres = subgenres,
                 segment = segment,
+                segmentName = segmentName,
                 keyWord = keyWord,
-                page = page
+                page = page,
+                pageSize = pageSize
             )
 
             val eventsList = eventApiResponse.embedded?.events?.map { it.toEvent() }

@@ -7,6 +7,7 @@ import androidx.annotation.RequiresExtension
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.concertfinder.common.Constants
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
@@ -84,6 +85,7 @@ class EventListViewModel @Inject constructor(
                 segment = segment,
                 keyWord = keyWord,
                 page = page,
+                pageSize = Constants.EVENT_LIST_PAGE_SIZE
             ).collect { result ->
                 ensureActive() // ensure that the coroutine is active
                 when (result) {

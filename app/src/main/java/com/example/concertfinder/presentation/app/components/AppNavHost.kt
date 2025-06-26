@@ -23,8 +23,8 @@ import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.PARAM_KEYWORD
 import com.example.concertfinder.presentation.app.AppUiState
 import com.example.concertfinder.presentation.app.AppViewModel
-import com.example.concertfinder.presentation.calendar_screen.components.DiscoverScreen
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
+import com.example.concertfinder.presentation.discover_screen.components.DiscoverScreen
 import com.example.concertfinder.presentation.event_detail_screen.components.EventDetailScreen
 import com.example.concertfinder.presentation.event_list_screen.components.EventListScreen
 import com.example.concertfinder.presentation.filter_screen.components.FilterScreen
@@ -93,6 +93,9 @@ fun AppNavHost(
                         searchQuery = it
                     )
                 },
+                onFilterSortClicked = {
+                    navController.navigate(AppDestinations.FILTER)
+                },
                 innerPadding = innerPadding,
                 modifier = modifier,
                 locationViewModel = locationViewModel
@@ -102,14 +105,26 @@ fun AppNavHost(
         // calendar screen composable
         composable(route = AppDestinations.DISCOVER) {
             DiscoverScreen(
-                onClick = {
-                    viewModel.onNavigateToEventList(
-                        navController = navController,
-                        searchQuery = ""
-                    )
-                },
                 modifier = modifier,
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                onSeeMoreClick = {
+                    // TODO: navigate to event list screen
+                },
+                onEventClick = {
+                    viewModel.updateCurrentEvent(it)
+                    navController.navigate(AppDestinations.EVENT_DETAILS)
+                },
+                onEventSaveClick = { event ->
+                    viewModel.toggleEventSaved(event = event)
+                    viewModel.updateSavedEventsUpdated(true)
+                    // show toast if event is saved or unsaved
+                    // TODO: make these snackbars
+                    if (event.saved == false) {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                    }
+                }
             )
         }
 

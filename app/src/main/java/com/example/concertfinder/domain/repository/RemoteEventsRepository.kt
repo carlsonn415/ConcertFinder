@@ -13,7 +13,9 @@ interface RemoteEventsRepository {
         genres: List<String>?,
         subgenres: List<String>?,
         segment: List<String>?,
+        segmentName: String?,
         keyWord: String?,
         page: String?,
+        pageSize: String?,
     ): Resource<List<Event>>
 }

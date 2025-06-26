@@ -18,8 +18,10 @@ interface AppApiService {
         @Query("genreId") genres: List<String>?,
         @Query("subGenreId") subgenres: List<String>?,
         @Query("segmentId") segment: List<String>?,
+        @Query("segmentName") segmentName: String?,
         @Query("keyword") keyWord: String?,
         @Query("page") page: String?,
+        @Query("size") pageSize: String?,
         @Query("apikey") apiKey: String = API_KEY,
     ): EventsApiResponse
 

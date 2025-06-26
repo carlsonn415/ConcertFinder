@@ -12,15 +12,17 @@ class GetEventsUseCase @Inject constructor(
     private val remoteRepository: RemoteEventsRepository
 ) {
     operator fun invoke(
-        radius: String,
-        geoPoint: String,
-        startDateTime: String,
-        sort: String,
-        genres: List<String>?,
-        subgenres: List<String>?,
-        segment: String?,
-        keyWord: String?,
-        page: String?,
+        radius: String = "",
+        geoPoint: String = "",
+        startDateTime: String = "",
+        sort: String = "",
+        genres: List<String>? = null,
+        subgenres: List<String>? = null,
+        segment: String? = null,
+        segmentName: String? = null,
+        keyWord: String? = null,
+        page: String? = null,
+        pageSize: String? = null,
     ): Flow<Resource<List<Event>>> = flow {
 
         // Emit loading state
@@ -37,8 +39,10 @@ class GetEventsUseCase @Inject constructor(
                 genres = genres,
                 subgenres = subgenres,
                 segment = if (segment == null) null else listOf(segment), // Convert to list for api request if not null
+                segmentName = segmentName,
                 keyWord = keyWord,
                 page = page,
+                pageSize = pageSize,
             )
         )
     }

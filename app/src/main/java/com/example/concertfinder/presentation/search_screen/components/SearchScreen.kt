@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.common_ui.FilterSortButton
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.search_screen.SearchScreenViewModel
@@ -52,6 +53,7 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 @Composable
 fun SearchScreen(
     onSearch: (String) -> Unit,
+    onFilterSortClicked: () -> Unit,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
     locationViewModel: LocationViewModel = hiltViewModel(),
@@ -112,18 +114,20 @@ fun SearchScreen(
                             Text(text = stringResource(id = R.string.search_placeholder))
                         },
                         trailingIcon = {
-                            IconButton(
-                                onClick = {
-                                    searchScreenViewModel.saveSearchQuery(searchScreenUiState.value.searchQuery)
-                                    onSearch(searchScreenUiState.value.searchQuery)
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Filled.Search,
-                                    contentDescription = stringResource(id = R.string.search)
-                                )
-                            }
+                            FilterSortButton(
+                                onFilterSortClicked = {
+                                    onFilterSortClicked()
+                                },
+                                visible = true,
+                                showText = false
+                            )
                         },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                contentDescription = stringResource(id = R.string.search)
+                            )
+                        }
                     )
                 },
                 expanded = searchScreenUiState.value.isSearchBarExpanded,
@@ -177,14 +181,17 @@ fun SearchScreen(
                         HorizontalDivider()
                     }
                 } else {
-                    Box( // Show a message if history is empty
+                    Column( // Show a message if history is empty
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.background)
                             .heightIn(min = 56.dp, max = 500.dp)
                             .fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
+                        Spacer(modifier = Modifier.weight(1f))
                         Text(stringResource(R.string.no_search_history))
+                        Spacer(modifier = Modifier.weight(1f))
+                        HorizontalDivider()
                     }
                 }
             }
