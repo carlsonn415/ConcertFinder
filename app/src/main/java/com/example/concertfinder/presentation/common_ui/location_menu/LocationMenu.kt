@@ -71,7 +71,7 @@ fun LocationMenu(
                     },
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
+                    maxLines = 2,
                     modifier = modifier.weight(1f)
                 )
                 if (isLocationPreferencesMenuExpanded) {

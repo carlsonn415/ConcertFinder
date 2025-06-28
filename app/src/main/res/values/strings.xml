@@ -71,4 +71,9 @@
     <string name="saved">added to saved events</string>
     <string name="error">Error</string>
     <string name="see_more">See more</string>
+    <string name="this_weekend">\uD83D\uDCC5 This Weekend</string>
+    <string name="near_you">\uD83D\uDCCD Near You</string>
+    <string name="music_events">\uD83C\uDFB5 Music Events</string>
+    <string name="sports_events">\uD83C\uDFC8 Sports Events</string>
+    <string name="arts_and_theater">\uD83C\uDFAD Arts &amp; Theater</string>
 </resources>

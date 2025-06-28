@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
@@ -60,6 +62,7 @@ fun CompactEventListItem(
                 onEventClick(event)
             }
             .width(dimensionResource(R.dimen.compact_event_list_item_width))
+            //.height(dimensionResource(R.dimen.compact_event_list_item_height))
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
@@ -87,7 +90,7 @@ fun CompactEventListItem(
                 modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
             )
 
-            Column() {
+            Column {
                 IconButton(
                     onClick = {
                         onEventSaveClick(event)
@@ -95,7 +98,10 @@ fun CompactEventListItem(
                 ) {
                     Icon(
                         imageVector = if (event.saved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = stringResource(R.string.save_event)
+                        contentDescription = stringResource(R.string.save_event),
+                        modifier = Modifier
+                            .size(dimensionResource(R.dimen.icon_size_large))
+                            //.padding(dimensionResource(R.dimen.padding_small)),
                     )
                 }
 
@@ -106,17 +112,19 @@ fun CompactEventListItem(
 
         Spacer(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_small)))
 
-        Row() {
+        Row {
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
             Column {
                 //------------------------------------------------------------------------------------------ event name
                 Text(
                     text = event.name ?: stringResource(R.string.no_event_name),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    lineHeight = 18.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.height(40.dp)
                 )
 
                 Spacer(modifier = Modifier.padding(vertical = dimensionResource(R.dimen.padding_extra_small)))
@@ -138,6 +146,7 @@ fun CompactEventListItem(
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = dimensionResource(R.dimen.padding_small))
                 ) {
                     if (price != null) {
                         Text(

@@ -13,4 +13,7 @@
     <dimen name="event_list_item_height">200.dp</dimen>
     <dimen name="fab_size">60.dp</dimen>
     <dimen name="compact_event_list_item_width">200.dp</dimen>
+    <dimen name="compact_event_list_item_height">330.dp</dimen>
+    <dimen name="icon_size_medium">30.dp</dimen>
+    <dimen name="icon_size_large">36.dp</dimen>
 </resources>

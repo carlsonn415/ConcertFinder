@@ -144,7 +144,7 @@ class EventListViewModel @Inject constructor(
         } else if (latitude != null && longitude != null && unit == DistanceUnit.Kilometers) {
             "${displayEventUseCase.getDistanceToEvent(latitude, longitude, unit)} km"
         } else {
-            ""
+            "No Location Provided"
         }
     }
 

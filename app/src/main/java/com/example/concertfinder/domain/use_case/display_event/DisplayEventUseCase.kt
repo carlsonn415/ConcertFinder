@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class DisplayEventUseCase @Inject constructor(
@@ -52,11 +53,16 @@ class DisplayEventUseCase @Inject constructor(
         minImageWidth: Int
     ): String? {
         if (images != null && images.isNotEmpty()) {
-            val currentImage = images[0]
+            var currentImage = images[0]
+            var closestWidth = images[0].width ?: Int.MAX_VALUE
 
             for (image in images) {
-                if (image.ratio == aspectRatio && (image.width ?: 0) >= minImageWidth) {
-                    return image.url
+                if (image.ratio == aspectRatio
+                    && image.width != null
+                    && abs(minImageWidth - image.width) < abs(minImageWidth - closestWidth)
+                    ) {
+                    currentImage = image
+                    closestWidth = image.width
                 }
             }
             return currentImage.url

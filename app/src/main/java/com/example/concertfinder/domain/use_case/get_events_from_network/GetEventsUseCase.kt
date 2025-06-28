@@ -15,6 +15,7 @@ class GetEventsUseCase @Inject constructor(
         radius: String = "",
         geoPoint: String = "",
         startDateTime: String = "",
+        endDateTime: String = "",
         sort: String = "",
         genres: List<String>? = null,
         subgenres: List<String>? = null,
@@ -34,6 +35,7 @@ class GetEventsUseCase @Inject constructor(
                 radius = radius,
                 geoPoint = geoPoint,
                 startDateTime = startDateTime,
+                endDateTime = endDateTime,
                 sort = sort,
                 includeSpellcheck = IncludeSpellcheck.Yes.value, // Always include spellcheck, user doesn't need this parameter
                 genres = genres,

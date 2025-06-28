@@ -1,18 +1,37 @@
 package com.example.concertfinder.presentation.discover_screen.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.presentation.discover_screen.DiscoverScreenViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DiscoverScreen(
     onSeeMoreClick: () -> Unit,
@@ -26,7 +45,8 @@ fun DiscoverScreen(
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small)),
-        contentPadding = innerPadding
+        contentPadding = innerPadding,
+        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
         // events this weekend
         item() {
@@ -34,8 +54,37 @@ fun DiscoverScreen(
                 events = uiState.value.eventsThisWeekend,
                 onSeeMoreClick = onSeeMoreClick,
                 onEventClick = onEventClick,
-                onEventSaveClick = onEventSaveClick,
-                title = "Happening This Weekend"
+                onEventSaveClick = {
+                    onEventSaveClick(it)
+                    viewModel.changeEventSaved(
+                        id = it.id.toString(),
+                        save = !it.saved,
+                        eventList = uiState.value.eventsThisWeekend.data ?: emptyList(),
+                        category = 0
+                    )
+                },
+                getImageUrl = { images ->
+                    viewModel.getImageUrl(
+                        images = images,
+                        aspectRatio = "4_3",
+                        minImageWidth = 400
+                    )
+                },
+                getDistanceToEvent = { event ->
+                    // Gets distance from location
+                    val distanceFromLocation = viewModel.getDistanceFromLocation(
+                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                        event.location?.longitude
+                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                        DistanceUnit.Miles
+                    )
+
+                    distanceFromLocation
+                },
+                getStartDateTime = { dateData ->
+                    viewModel.getFormattedEventStartDates(dateData)
+                },
+                title = stringResource(R.string.this_weekend)
             )
         }
 
@@ -45,8 +94,37 @@ fun DiscoverScreen(
                 events = uiState.value.eventsNearYou,
                 onSeeMoreClick = onSeeMoreClick,
                 onEventClick = onEventClick,
-                onEventSaveClick = onEventSaveClick,
-                title = "Near You"
+                onEventSaveClick = { it ->
+                    onEventSaveClick(it)
+                    viewModel.changeEventSaved(
+                        id = it.id.toString(),
+                        save = !it.saved,
+                        eventList = uiState.value.eventsNearYou.data ?: emptyList(),
+                        category = 1
+                    )
+                },
+                getImageUrl = { images ->
+                    viewModel.getImageUrl(
+                        images = images,
+                        aspectRatio = "4_3",
+                        minImageWidth = 400
+                    )
+                },
+                getDistanceToEvent = { event ->
+                    // Gets distance from location
+                    val distanceFromLocation = viewModel.getDistanceFromLocation(
+                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                        event.location?.longitude
+                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                        DistanceUnit.Miles
+                    )
+
+                    distanceFromLocation
+                },
+                getStartDateTime = { dateData ->
+                    viewModel.getFormattedEventStartDates(dateData)
+                },
+                title = stringResource(R.string.near_you)
             )
         }
 
@@ -56,8 +134,37 @@ fun DiscoverScreen(
                 events = uiState.value.musicEvents,
                 onSeeMoreClick = onSeeMoreClick,
                 onEventClick = onEventClick,
-                onEventSaveClick = onEventSaveClick,
-                title = "Music",
+                onEventSaveClick = {
+                    onEventSaveClick(it)
+                    viewModel.changeEventSaved(
+                        id = it.id.toString(),
+                        save = !it.saved,
+                        eventList = uiState.value.musicEvents.data ?: emptyList(),
+                        category = 2
+                    )
+                },
+                getImageUrl = { images ->
+                    viewModel.getImageUrl(
+                        images = images,
+                        aspectRatio = "4_3",
+                        minImageWidth = 400
+                    )
+                },
+                getDistanceToEvent = { event ->
+                    // Gets distance from location
+                    val distanceFromLocation = viewModel.getDistanceFromLocation(
+                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                        event.location?.longitude
+                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                        DistanceUnit.Miles
+                    )
+
+                    distanceFromLocation
+                },
+                getStartDateTime = { dateData ->
+                    viewModel.getFormattedEventStartDates(dateData)
+                },
+                title = stringResource(R.string.music_events),
             )
         }
 
@@ -67,8 +174,37 @@ fun DiscoverScreen(
                 events = uiState.value.sportsEvents,
                 onSeeMoreClick = onSeeMoreClick,
                 onEventClick = onEventClick,
-                onEventSaveClick = onEventSaveClick,
-                title = "Sports"
+                onEventSaveClick = {
+                    onEventSaveClick(it)
+                    viewModel.changeEventSaved(
+                        id = it.id.toString(),
+                        save = !it.saved,
+                        eventList = uiState.value.sportsEvents.data ?: emptyList(),
+                        category = 3
+                    )
+                },
+                getImageUrl = { images ->
+                    viewModel.getImageUrl(
+                        images = images,
+                        aspectRatio = "4_3",
+                        minImageWidth = 400
+                    )
+                },
+                getDistanceToEvent = { event ->
+                    // Gets distance from location
+                    val distanceFromLocation = viewModel.getDistanceFromLocation(
+                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                        event.location?.longitude
+                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                        DistanceUnit.Miles
+                    )
+
+                    distanceFromLocation
+                },
+                getStartDateTime = { dateData ->
+                    viewModel.getFormattedEventStartDates(dateData)
+                },
+                title = stringResource(R.string.sports_events)
             )
         }
 
@@ -78,9 +214,70 @@ fun DiscoverScreen(
                 events = uiState.value.artsEvents,
                 onSeeMoreClick = onSeeMoreClick,
                 onEventClick = onEventClick,
-                onEventSaveClick = onEventSaveClick,
-                title = "Arts & Theater"
+                onEventSaveClick = {
+                    onEventSaveClick(it)
+                    viewModel.changeEventSaved(
+                        id = it.id.toString(),
+                        save = !it.saved,
+                        eventList = uiState.value.artsEvents.data ?: emptyList(),
+                        category = 4
+                    )
+                },
+                getImageUrl = { images ->
+                    viewModel.getImageUrl(
+                        images = images,
+                        aspectRatio = "4_3",
+                        minImageWidth = 400
+                    )
+                },
+                getDistanceToEvent = { event ->
+                    // Gets distance from location
+                    val distanceFromLocation = viewModel.getDistanceFromLocation(
+                        event.location?.latitude ?: event.embedded?.venues?.get(0)?.location?.latitude,
+                        event.location?.longitude
+                            ?: event.embedded?.venues?.get(0)?.location?.longitude,
+                        DistanceUnit.Miles
+                    )
+
+                    distanceFromLocation
+                },
+                getStartDateTime = { dateData ->
+                    viewModel.getFormattedEventStartDates(dateData)
+                },
+                title = stringResource(R.string.arts_and_theater)
             )
+        }
+
+        // looking for something else?
+        item() {
+            Column {
+                Spacer(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .border(
+                            3.dp,
+                            MaterialTheme.colorScheme.surfaceVariant,
+                            MaterialTheme.shapes.medium
+                        )
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+                        Text(
+                            text = "Looking for something else? Go to the search tab and explore more events!",
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                    }
+                }
+            }
         }
     }
 }

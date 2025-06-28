@@ -8,6 +8,7 @@ interface RemoteEventsRepository {
         radius: String,
         geoPoint: String,
         startDateTime: String,
+        endDateTime: String,
         sort: String,
         includeSpellcheck: String,
         genres: List<String>?,

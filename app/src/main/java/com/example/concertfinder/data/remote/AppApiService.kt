@@ -13,6 +13,7 @@ interface AppApiService {
         @Query("radius") radius: String,
         @Query("geoPoint") geoPoint: String,
         @Query("startDateTime") startDateTime: String,
+        @Query("endDateTime") endDateTime: String,
         @Query("sort") sort: String,
         @Query("includeSpellcheck") includeSpellcheck: String,
         @Query("genreId") genres: List<String>?,
