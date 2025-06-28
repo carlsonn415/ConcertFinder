@@ -3,9 +3,13 @@ package com.example.concertfinder.data.local.entities.event_entities
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.Embedded
+import androidx.room.Index
 
 
-@Entity(tableName = "venues",)
+@Entity(
+    tableName = "venues",
+    indices = [Index("venueId")]
+)
 data class VenueEntity(
     @PrimaryKey val venueId: String,
     val name: String?,

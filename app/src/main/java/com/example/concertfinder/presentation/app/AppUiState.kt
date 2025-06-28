@@ -8,5 +8,6 @@ data class AppUiState(
     val currentEvent: Event = Event(),
     val showFab: Boolean = false,
     val areFiltersApplied: Boolean = false,
-    val savedEventsUpdated: Boolean = false
+    val savedEventsUpdated: Boolean = false,
+    val savedEventsIds: Set<String> = emptySet()
 )

@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun LocationSearchField(
@@ -60,7 +61,7 @@ fun LocationSearchField(
                         .clip(MaterialTheme.shapes.small)
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.LocationOn, // TODO: Replace with location icon
+                        imageVector = MyIcons.findLocation,
                         contentDescription = stringResource(id = R.string.update_location),
                         modifier = Modifier
                             .size(dimensionResource(R.dimen.icon_button_size))

@@ -25,6 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -99,7 +100,7 @@ fun ClassificationItemClickable(
                 onClick = { onClassificationDeleted(classificationName) },
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = MyIcons.close,
                     contentDescription = stringResource(R.string.delete) + classificationName,
                     tint = MaterialTheme.colorScheme.secondary
                 )

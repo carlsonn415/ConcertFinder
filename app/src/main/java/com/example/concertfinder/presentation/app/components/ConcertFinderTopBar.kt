@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,14 +22,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
 import com.example.concertfinder.presentation.common_ui.FilterSortButton
+import com.example.concertfinder.presentation.ui.theme.MyIcons
+import com.example.concertfinder.presentation.utils.AppDestinations
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConcertFinderTopBar(
     onBackPressed: () -> Unit,
+    route: String,
     showBackButton: Boolean,
     showFilterButton: Boolean,
     scrollBehavior: TopAppBarScrollBehavior,
@@ -49,8 +54,19 @@ fun ConcertFinderTopBar(
                         .padding(end = 8.dp)
                 )
                 Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.titleLarge
+                    text = if (route.startsWith(AppDestinations.EVENT_LIST) == true) {
+                        stringResource(id = R.string.results)
+                    } else if (route == AppDestinations.EVENT_DETAILS) {
+                        stringResource(id = R.string.event_details)
+                    } else if (route == AppDestinations.FILTER) {
+                        stringResource(id = R.string.filter)
+                    } else {
+                        stringResource(id = R.string.app_name)
+                    },
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = if (showFilterButton ) { modifier.widthIn(max = 160.dp) } else { modifier }
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 FilterSortButton(
@@ -65,7 +81,7 @@ fun ConcertFinderTopBar(
                     onClick = { onBackPressed() }
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        imageVector = MyIcons.navigateBack,
                         contentDescription = stringResource(id = R.string.back_button)
                     )
                 }

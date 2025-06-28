@@ -9,7 +9,11 @@ import javax.inject.Inject
 class GetSavedEventsUseCase @Inject constructor(
     private val localEventsRepository: LocalEventsRepository
 ) {
-    suspend operator fun invoke(): Flow<Resource<List<Event>>> {
+    suspend fun getSavedEvents(): Flow<Resource<List<Event>>> {
         return localEventsRepository.getEvents()
+    }
+
+    suspend fun getSavedEventsIds(): Set<String> {
+        return localEventsRepository.getSavedEventsIds()
     }
 }

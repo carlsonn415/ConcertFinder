@@ -19,6 +19,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun ErrorListItem(
@@ -36,7 +37,7 @@ fun ErrorListItem(
             modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small))
         ) {
             Icon(
-                imageVector = Icons.Default.Info,
+                imageVector = MyIcons.info,
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))

@@ -129,4 +129,7 @@ interface EventDao {
     @Query("SELECT * FROM attractions WHERE attractionId = :attractionId")
     suspend fun getAttractionById(attractionId: String): AttractionEntity?
 
+    @Query("SELECT eventId FROM events")
+    suspend fun getAllEventIds(): List<String>
+
 }

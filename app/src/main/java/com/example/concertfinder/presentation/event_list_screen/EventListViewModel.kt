@@ -62,6 +62,11 @@ class EventListViewModel @Inject constructor(
 
         if (!hasLoadedOnce) {
             paginationJob?.cancel()
+            _uiState.update { currentState ->
+                currentState.copy(
+                    eventsResource = Resource.Loading<List<Event>>(),
+                )
+            }
         }
 
         _uiState.update { currentState ->
@@ -184,6 +189,22 @@ class EventListViewModel @Inject constructor(
         val newEventsResource: Resource<List<Event>> = Resource.Success<List<Event>>(data = _uiState.value.eventsResource.data?.map { event ->
             if (event.id == id) {
                 event.copy(saved = save)
+            } else {
+                event
+            }
+        } ?: emptyList())
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                eventsResource = newEventsResource
+            )
+        }
+    }
+
+    fun updateEventsSaved(eventSavedIds: Set<String>) {
+        val newEventsResource: Resource<List<Event>> = Resource.Success<List<Event>>(data = _uiState.value.eventsResource.data?.map { event ->
+            if (eventSavedIds.contains(event.id.toString())) {
+                event.copy(saved = true)
             } else {
                 event
             }

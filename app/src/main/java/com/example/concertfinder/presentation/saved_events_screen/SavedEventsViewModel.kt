@@ -34,7 +34,7 @@ class SavedEventsViewModel @Inject constructor(
 
     fun getSavedEvents() {
         viewModelScope.launch {
-            getSavedEventsUseCase().collect {
+            getSavedEventsUseCase.getSavedEvents().collect {
                 _uiState.update { state ->
                     state.copy(
                         events = it

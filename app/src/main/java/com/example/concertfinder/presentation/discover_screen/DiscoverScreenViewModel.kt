@@ -65,6 +65,23 @@ class DiscoverScreenViewModel @Inject constructor(
         }
     }
 
+    fun refreshAllEvents() {
+        updateIsRefreshing(true)
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(500)
+            loadEventsThisWeekend()
+            updateIsRefreshing(false)
+            delay(500)
+            loadEventsNearYou()
+            delay(500)
+            loadMusicEvents()
+            delay(500)
+            loadSportsEvents()
+            delay(500)
+            loadArtsEvents()
+        }
+    }
+
     fun loadEventsThisWeekend() {
         val weekend = getWeekendDates()
         val apiFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -316,14 +333,11 @@ class DiscoverScreenViewModel @Inject constructor(
     ): String {
         if (latitude != null && longitude != null && unit == DistanceUnit.Miles) {
             val dist = "${displayEventUseCase.getDistanceToEvent(latitude, longitude, unit)} mi"
-            Log.d("DiscoverScreenViewModel", "getDistanceFromLocation: $dist")
             return dist
         } else if (latitude != null && longitude != null && unit == DistanceUnit.Kilometers) {
             val dist = "${displayEventUseCase.getDistanceToEvent(latitude, longitude, unit)} km"
-            Log.d("DiscoverScreenViewModel", "getDistanceFromLocation: $dist")
             return dist
         } else {
-            Log.d("DiscoverScreenViewModel", "getDistanceFromLocation: No Distance Provided")
             return "No Distance Provided"
         }
     }
@@ -350,6 +364,102 @@ class DiscoverScreenViewModel @Inject constructor(
                 3 -> currentState.copy(sportsEvents = newEventsResource)
                 4 -> currentState.copy(artsEvents = newEventsResource)
                 else -> throw IllegalArgumentException("Invalid category value")
+            }
+        }
+    }
+
+    fun updateIsRefreshing(isRefreshing: Boolean) {
+        _uiState.update {
+            it.copy(
+                isRefreshing = isRefreshing
+            )
+        }
+    }
+
+    fun updateEventsSaved(eventSavedIds: Set<String>) {
+        for (event in uiState.value.eventsThisWeekend.data ?: emptyList()) {
+            if (eventSavedIds.contains(event.id.toString())) {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = true,
+                    eventList = uiState.value.eventsThisWeekend.data ?: emptyList(),
+                    category = 0
+                )
+            } else {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = false,
+                    eventList = uiState.value.eventsThisWeekend.data ?: emptyList(),
+                    category = 0
+                )
+            }
+        }
+        for (event in uiState.value.eventsNearYou.data ?: emptyList()) {
+            if (eventSavedIds.contains(event.id.toString())) {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = true,
+                    eventList = uiState.value.eventsNearYou.data ?: emptyList(),
+                    category = 1
+                )
+            } else {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = false,
+                    eventList = uiState.value.eventsNearYou.data ?: emptyList(),
+                    category = 1
+                )
+            }
+        }
+        for (event in uiState.value.musicEvents.data ?: emptyList()) {
+            if (eventSavedIds.contains(event.id.toString())) {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = true,
+                    eventList = uiState.value.musicEvents.data ?: emptyList(),
+                    category = 2
+                )
+            } else {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = false,
+                    eventList = uiState.value.musicEvents.data ?: emptyList(),
+                    category = 2
+                )
+            }
+        }
+        for (event in uiState.value.sportsEvents.data ?: emptyList()) {
+            if (eventSavedIds.contains(event.id.toString())) {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = true,
+                    eventList = uiState.value.sportsEvents.data ?: emptyList(),
+                    category = 3
+                )
+            } else {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = false,
+                    eventList = uiState.value.sportsEvents.data ?: emptyList(),
+                    category = 3
+                )
+            }
+        }
+        for (event in uiState.value.artsEvents.data ?: emptyList()) {
+            if (eventSavedIds.contains(event.id.toString())) {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = true,
+                    eventList = uiState.value.artsEvents.data ?: emptyList(),
+                    category = 4
+                )
+            } else {
+                changeEventSaved(
+                    id = event.id.toString(),
+                    save = false,
+                    eventList = uiState.value.artsEvents.data ?: emptyList(),
+                    category = 4
+                )
             }
         }
     }

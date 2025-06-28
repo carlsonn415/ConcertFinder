@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
@@ -36,6 +39,7 @@ import com.example.concertfinder.presentation.common_ui.ErrorScreen
 import com.example.concertfinder.presentation.common_ui.EventListItem
 import com.example.concertfinder.presentation.common_ui.LoadingScreen
 import com.example.concertfinder.presentation.event_list_screen.EventListViewModel
+import com.example.concertfinder.presentation.utils.AppDestinations
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -43,9 +47,11 @@ import com.example.concertfinder.presentation.event_list_screen.EventListViewMod
 fun EventListScreen(
     onEventClicked: (Event) -> Unit,
     onClickSave: (Event) -> Unit,
+    updateEventsSaved: Boolean,
+    eventSavedIds: Set<String>,
     filtersUpdated: Boolean,
     navBackStackEntry: NavBackStackEntry,
-    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: EventListViewModel = hiltViewModel()
 ) {
@@ -63,8 +69,6 @@ fun EventListScreen(
             val totalItems = layoutInfo.totalItemsCount
             val lastVisible = (layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0) + 1
             val threshold = totalItems - 5
-
-            Log.d("PaginateDebug", "isLoading: $isLoading, canLoad: $canLoad, total: $totalItems, lastVisible: $lastVisible, threshold: $threshold")
 
             if (isLoading || !canLoad) {
                 false
@@ -93,9 +97,32 @@ fun EventListScreen(
             Log.d("EventListScreen", "Filters updated, fetching initial events")
             viewModel.getEvents(hasLoadedOnce = false) // This should reset any pagination state in the ViewModel
             navBackStackEntry.savedStateHandle["filters_updated"] = false
+            Log.d("EventListScreen", "Scroll to top")
             lazyListState.scrollToItem(0)
         }
     }
+
+    LaunchedEffect(updateEventsSaved) {
+        if (updateEventsSaved) {
+            Log.d("EventListScreen", "Saved events ids: $eventSavedIds")
+            viewModel.updateEventsSaved(eventSavedIds)
+            Log.d("EventListScreen", "Updated events saved")
+        }
+    }
+
+    LaunchedEffect(navBackStackEntry) {
+        // Check if the current destination is THIS screen
+        if (navBackStackEntry.destination.route?.startsWith(AppDestinations.EVENT_LIST) == true) {
+            // Access the state within the scroll behavior
+            val topAppBarState = scrollBehavior.state
+            if (topAppBarState.heightOffset != 0f || topAppBarState.contentOffset != 0f) {
+                Log.d("TopAppBarReset", "Resetting TopAppBar state for ${navBackStackEntry.destination.route}")
+                topAppBarState.heightOffset = 0f
+                topAppBarState.contentOffset = 0f
+            }
+        }
+    }
+
 
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -114,7 +141,6 @@ fun EventListScreen(
                     lazyListState = lazyListState,
                     modifier = Modifier.fillMaxSize()
                 )
-                Log.d("EventListScreen", "EVENTS LIST SIZE: ${eventsResource.data?.size}")
             }
             is Resource.Loading -> {
                 // Show loading only if there's no data yet.
@@ -159,10 +185,7 @@ fun PaginatedEventList(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         modifier = modifier
     ) {
-        items(
-            events,
-            key = { event -> event.id.toString() }
-        ) { event ->
+        items(events) { event ->
 
             // Gets distance from location
             val distanceFromLocation = viewModel.getDistanceFromLocation(

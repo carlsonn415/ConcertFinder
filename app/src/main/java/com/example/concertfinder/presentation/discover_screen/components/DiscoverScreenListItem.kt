@@ -33,6 +33,7 @@ import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.data.remote.event_dto.DateData
 import com.example.concertfinder.data.remote.event_dto.EventImage
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 
 @Composable
@@ -65,6 +66,7 @@ fun DiscoverScreenListItem(
                 overflow = TextOverflow.Ellipsis,
                 modifier = modifier
                     .padding(vertical = dimensionResource(id = R.dimen.padding_small))
+                    .widthIn(max = 230.dp)
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -81,7 +83,7 @@ fun DiscoverScreenListItem(
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                imageVector = MyIcons.arrowRight,
                 contentDescription = stringResource(R.string.see_more),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_medium)).fillMaxSize()

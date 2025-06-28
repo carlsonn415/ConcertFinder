@@ -8,6 +8,8 @@ import androidx.annotation.RequiresExtension
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -33,11 +35,13 @@ import com.example.concertfinder.presentation.search_screen.components.SearchScr
 import com.example.concertfinder.presentation.utils.AppDestinations
 import com.example.concertfinder.presentation.utils.topLevelRoutes
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
     viewModel: AppViewModel,
     context: Context,
     uiState: State<AppUiState>,
@@ -66,7 +70,6 @@ fun AppNavHost(
                 },
                 onClickSave = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    viewModel.updateSavedEventsUpdated(true)
                     // show toast if event is saved or unsaved
                     // TODO: make these snackbars
                     if (event.saved == false) {
@@ -114,9 +117,10 @@ fun AppNavHost(
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
                 },
+                updateEventsSaved = uiState.value.savedEventsUpdated,
+                eventSavedIds = uiState.value.savedEventsIds,
                 onEventSaveClick = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    viewModel.updateSavedEventsUpdated(true)
                     // show toast if event is saved or unsaved
                     // TODO: make these snackbars
                     if (event.saved == false) {
@@ -138,7 +142,6 @@ fun AppNavHost(
             )
         ) { backStackEntry ->
             val filtersUpdated = backStackEntry.savedStateHandle.getStateFlow("filters_updated", false)
-
             EventListScreen(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
@@ -146,7 +149,6 @@ fun AppNavHost(
                 },
                 onClickSave = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    viewModel.updateSavedEventsUpdated(true)
                     // show toast if event is saved or unsaved
                     // TODO: make these snackbars
                     if (event.saved == false) {
@@ -155,9 +157,11 @@ fun AppNavHost(
                         Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
                     }
                 },
+                updateEventsSaved = uiState.value.savedEventsUpdated,
+                eventSavedIds = uiState.value.savedEventsIds,
                 filtersUpdated = filtersUpdated.collectAsState().value,
                 navBackStackEntry = backStackEntry,
-                modifier = modifier,
+                scrollBehavior = topAppBarScrollBehavior,
                 innerPadding = innerPadding
             )
         }
@@ -166,6 +170,8 @@ fun AppNavHost(
         composable(route = AppDestinations.EVENT_DETAILS) {
             EventDetailScreen(
                 event = uiState.value.currentEvent,
+                navBackStackEntry = it,
+                scrollBehavior = topAppBarScrollBehavior,
                 modifier = modifier,
                 innerPadding = innerPadding
             )
@@ -178,6 +184,7 @@ fun AppNavHost(
                 onFilterApplied = {
                     viewModel.updateAreFiltersApplied(true)
                 },
+                scrollBehavior = topAppBarScrollBehavior,
                 modifier = modifier,
                 innerPadding = innerPadding,
                 locationViewModel = locationViewModel

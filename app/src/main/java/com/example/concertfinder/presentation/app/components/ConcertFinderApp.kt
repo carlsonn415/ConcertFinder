@@ -12,12 +12,14 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -47,7 +49,7 @@ fun ConcertFinderApp(
     val context = LocalContext.current
 
     // create scroll behavior for top app bar
-    //val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
@@ -75,7 +77,7 @@ fun ConcertFinderApp(
     Log.d("ConcertFinderApp", "current destination: ${backStackEntry?.destination?.route}")
     Scaffold(
         // allows top bar to scroll
-        //modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (!uiState.value.showBottomBar) {
                 ConcertFinderTopBar(
@@ -98,11 +100,12 @@ fun ConcertFinderApp(
                     },
                     showFilterButton = backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true,
                     showBackButton = !uiState.value.showBottomBar,
-                    //scrollBehavior = scrollBehavior,
-                    scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+                    scrollBehavior = scrollBehavior,
+                    //scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
                     onFilterSortClicked = {
                         navController.navigate(AppDestinations.FILTER)
                     },
+                    route = backStackEntry?.destination?.route ?: AppDestinations.DISCOVER,
                     modifier = modifier
                 )
             }
@@ -157,6 +160,7 @@ fun ConcertFinderApp(
         AppNavHost(
             navController = navController,
             viewModel = viewModel,
+            topAppBarScrollBehavior = scrollBehavior,
             context = context,
             uiState = uiState,
             modifier = modifier,

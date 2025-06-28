@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun PriceAndLocationRow(
@@ -92,7 +93,7 @@ fun PriceAndLocationRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.LocationOn,
+                    imageVector = MyIcons.location,
                     contentDescription = null,
                     modifier = modifier.size(14.dp)
                 )
@@ -112,7 +113,7 @@ fun PriceAndLocationRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
-                    imageVector = Icons.Filled.LocationOn,
+                    imageVector = MyIcons.location,
                     contentDescription = null,
                     modifier = modifier.size(14.dp)
                 )

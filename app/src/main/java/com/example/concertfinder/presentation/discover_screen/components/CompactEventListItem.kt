@@ -45,6 +45,7 @@ import com.example.concertfinder.data.remote.event_dto.Segment
 import com.example.concertfinder.data.remote.event_dto.State
 import com.example.concertfinder.data.remote.event_dto.SubGenre
 import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun CompactEventListItem(
@@ -97,7 +98,7 @@ fun CompactEventListItem(
                     },
                 ) {
                     Icon(
-                        imageVector = if (event.saved) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = if (event.saved) MyIcons.heart else MyIcons.heartOutlined,
                         contentDescription = stringResource(R.string.save_event),
                         modifier = Modifier
                             .size(dimensionResource(R.dimen.icon_size_large))

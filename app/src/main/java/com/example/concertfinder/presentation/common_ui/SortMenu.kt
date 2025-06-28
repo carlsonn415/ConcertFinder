@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants.sortOptions
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun SortMenu(
@@ -57,7 +58,7 @@ fun SortMenu(
             )
 
             Icon(
-                imageVector = if (isSortMenuExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                imageVector = if (isSortMenuExpanded) MyIcons.arrowUp else MyIcons.arrowDown,
                 contentDescription = stringResource(id = R.string.drop_down_arrow),
                 modifier = modifier.padding(start = dimensionResource(R.dimen.padding_small))
             )
@@ -80,7 +81,7 @@ fun SortMenu(
                     RadioButton(
                         selected = sortOption.lowercase() == currentSortOption.lowercase(),
                         onClick = {
-                            onSortOptionSelected(sortOption.lowercase())
+                            onSortOptionSelected(sortOption)
                         }
                     )
                     Text(

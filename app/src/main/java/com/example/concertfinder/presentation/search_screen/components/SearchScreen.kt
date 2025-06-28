@@ -9,16 +9,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -45,6 +49,7 @@ import com.example.concertfinder.presentation.common_ui.FilterSortButton
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.search_screen.SearchScreenViewModel
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
 
@@ -124,7 +129,7 @@ fun SearchScreen(
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Filled.Search,
+                                imageVector = MyIcons.search,
                                 contentDescription = stringResource(id = R.string.search)
                             )
                         }
@@ -157,7 +162,15 @@ fun SearchScreen(
                         ) {
                             items(searchScreenUiState.value.searchHistory) { historyItem ->
                                 ListItem(
-                                    headlineContent = { Text(historyItem) },
+                                    leadingContent = {
+                                        Icon(
+                                            imageVector = MyIcons.history,
+                                            contentDescription = null,
+                                        )
+                                    },
+                                    headlineContent = {
+                                        Text(historyItem)
+                                    },
                                     trailingContent = {
                                         IconButton(
                                             onClick = {
@@ -165,7 +178,7 @@ fun SearchScreen(
                                             }
                                         ) {
                                             Icon(
-                                                Icons.Default.Clear,
+                                                MyIcons.close,
                                                 contentDescription = null
                                             )
                                         }

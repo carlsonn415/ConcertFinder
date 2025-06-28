@@ -1,13 +1,7 @@
 package com.example.concertfinder.presentation.utils
 
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Search
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.concertfinder.R
 
@@ -22,20 +16,20 @@ data class TopLevelRoute<T : Any>(
 val topLevelRoutes = listOf(
     TopLevelRoute(
         title = R.string.discover,
-        icon = Icons.Default.Home,
-        iconOutlined = Icons.Outlined.Home,
+        icon = MyIcons.home,
+        iconOutlined = MyIcons.homeOutlined,
         route = AppDestinations.DISCOVER
     ),
     TopLevelRoute(
         title = R.string.search,
-        icon = Icons.Default.Search,
-        iconOutlined = Icons.Outlined.Search,
+        icon = MyIcons.search,
+        iconOutlined = MyIcons.searchOutlined,
         route = AppDestinations.SEARCH
     ),
     TopLevelRoute(
         title = R.string.saved_events,
-        icon = Icons.Default.Favorite,
-        iconOutlined = Icons.Default.FavoriteBorder,
+        icon = MyIcons.heart,
+        iconOutlined = MyIcons.heartOutlined,
         route = AppDestinations.MY_EVENTS
     ),
 )

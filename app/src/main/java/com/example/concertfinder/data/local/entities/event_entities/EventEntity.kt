@@ -2,10 +2,14 @@ package com.example.concertfinder.data.local.entities.event_entities
 
 import androidx.room.Embedded
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 
-@Entity(tableName = "events")
+@Entity(
+    tableName = "events",
+    indices = [Index("eventId")]
+)
 data class EventEntity(
 
     @PrimaryKey val eventId: String, // Unique identifier for the event

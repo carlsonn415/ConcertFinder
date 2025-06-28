@@ -60,7 +60,7 @@ class UpdateFilterPreferenceUseCase @Inject constructor(
         }
     }
 
-    suspend fun clearSingleFilterPreference(
+    suspend fun clearSelectedFilterPreferences(
         clearGenre: Boolean = false,
         clearSubgenre: Boolean = false,
     ) {

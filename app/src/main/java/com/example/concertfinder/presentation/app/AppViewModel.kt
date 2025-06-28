@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.concertfinder.data.model.Event
+import com.example.concertfinder.domain.use_case.get_saved_events.GetSavedEventsUseCase
 import com.example.concertfinder.domain.use_case.save_event.SaveEventUseCase
 import com.example.concertfinder.domain.use_case.unsave_event.UnsaveEventUseCase
 import com.example.concertfinder.presentation.utils.AppDestinations
@@ -19,13 +20,24 @@ import javax.inject.Inject
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val saveEventUseCase: SaveEventUseCase,
-    private val unsaveEventUseCase: UnsaveEventUseCase
+    private val unsaveEventUseCase: UnsaveEventUseCase,
+    private val getSavedEventsUseCase: GetSavedEventsUseCase
 ) : ViewModel() {
 
     // Top level ui state
     private val _uiState = MutableStateFlow(AppUiState())
     val uiState = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    savedEventsIds = getSavedEventsUseCase.getSavedEventsIds()
+                )
+            }
+            Log.d("navigation", "Saved events ids: ${_uiState.value.savedEventsIds}")
+        }
+    }
 
     fun onNavigateToEventList(
         navController: NavController,
@@ -76,9 +88,22 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             if (!event.saved) {
                 saveEventUseCase(event)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        savedEventsIds = getSavedEventsUseCase.getSavedEventsIds()
+                    )
+                }
+                Log.d("navigation", "Saved events ids: ${_uiState.value.savedEventsIds}")
             } else {
                 unsaveEventUseCase(event.id ?: throw Exception("Event ID cannot be null"))
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        savedEventsIds = getSavedEventsUseCase.getSavedEventsIds()
+                    )
+                }
+                Log.d("navigation", "Saved events ids: ${_uiState.value.savedEventsIds}")
             }
+            updateSavedEventsUpdated(true)
         }
     }
 
@@ -101,8 +126,9 @@ class AppViewModel @Inject constructor(
     fun updateSavedEventsUpdated(savedEventsUpdated: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(
-                savedEventsUpdated = savedEventsUpdated
+                savedEventsUpdated = savedEventsUpdated,
             )
         }
+        Log.d("navigation", "Saved events updated: ${_uiState.value.savedEventsUpdated}")
     }
 }

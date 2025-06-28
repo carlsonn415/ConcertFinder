@@ -26,6 +26,7 @@ import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants
 import com.example.concertfinder.domain.model.LoadingStatus
 import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,13 +77,13 @@ fun LocationMenu(
                 )
                 if (isLocationPreferencesMenuExpanded) {
                     Icon(
-                        imageVector = Icons.Filled.KeyboardArrowUp,
+                        imageVector = MyIcons.arrowUp,
                         contentDescription = stringResource(id = R.string.drop_down_arrow),
                         modifier = modifier.padding(start = dimensionResource(R.dimen.padding_small))
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        imageVector = MyIcons.arrowDown,
                         contentDescription = stringResource(id = R.string.drop_down_arrow),
                         modifier = modifier.padding(start = dimensionResource(R.dimen.padding_small))
                     )
@@ -125,7 +126,7 @@ private fun LocationMenuPreview() {
         locationLoadingStatus = LoadingStatus.Success,
         isLocationPreferencesMenuExpanded = true,
         locationSearchQuery = "New York",
-        isRadiusPreferencesExpanded = true,
+        isRadiusPreferencesExpanded = false,
         onExpandLocationDropdown = {},
         onRadiusOptionSelected = {},
         onExposeRadiusDropdownChange = {},

@@ -94,7 +94,7 @@ class AppLocationManagerService(
                         }
                         // TODO: Make this toast a snackbar
                         // Shows a toast message indicating an error in getting location.
-                        Toast.makeText(context, "Error getting location (location is null)", Toast.LENGTH_SHORT).show() // Clarified message
+                        //Toast.makeText(context, "Error getting location (location is null)", Toast.LENGTH_SHORT).show() // Clarified message
 
                         // Logs that the location is null.
                         Log.d("Location", "Location is null")

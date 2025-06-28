@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.event_detail_screen.components
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,10 +21,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -39,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavBackStackEntry
 import coil.compose.AsyncImage
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
@@ -52,13 +56,17 @@ import com.example.concertfinder.presentation.event_detail_screen.components.com
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.TextBlock
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.UrlButton
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.VenueItem
+import com.example.concertfinder.presentation.ui.theme.MyIcons
+import com.example.concertfinder.presentation.utils.AppDestinations
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EventDetailScreen(
     event: Event,
+    navBackStackEntry: NavBackStackEntry,
+    scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: EventDetailViewModel = hiltViewModel()
@@ -68,6 +76,19 @@ fun EventDetailScreen(
 
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+
+    LaunchedEffect(navBackStackEntry) {
+        // Check if the current destination is THIS screen
+        if (navBackStackEntry.destination.route == AppDestinations.EVENT_DETAILS) {
+            // Access the state within the scroll behavior
+            val topAppBarState = scrollBehavior.state
+            if (topAppBarState.heightOffset != 0f || topAppBarState.contentOffset != 0f) {
+                Log.d("TopAppBarReset", "Resetting TopAppBar state for ${navBackStackEntry.destination.route}")
+                topAppBarState.heightOffset = 0f
+                topAppBarState.contentOffset = 0f
+            }
+        }
+    }
 
     // Queue of info to display, as info is displayed, it is removed from the queue
     val infoQueue = mutableMapOf<String, String>(
@@ -293,7 +314,7 @@ fun EventDetailScreen(
                             Spacer(modifier = modifier.weight(1f))
                             if (uiState.value.isAttractionPageExpanded) {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowUp,
+                                    imageVector = MyIcons.arrowUp,
                                     contentDescription = null,
                                     modifier = modifier.padding(
                                         end = dimensionResource(R.dimen.padding_small)
@@ -302,7 +323,7 @@ fun EventDetailScreen(
                                 )
                             } else {
                                 Icon(
-                                    imageVector = androidx.compose.material.icons.Icons.Filled.KeyboardArrowDown,
+                                    imageVector = MyIcons.arrowDown,
                                     contentDescription = null,
                                     modifier = modifier.padding(
                                         end = dimensionResource(R.dimen.padding_small)

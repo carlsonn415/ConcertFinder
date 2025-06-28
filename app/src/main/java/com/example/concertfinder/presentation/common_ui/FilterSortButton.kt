@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun FilterSortButton(
@@ -36,7 +37,7 @@ fun FilterSortButton(
                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
             ) {
                 Icon(
-                    imageVector = Icons.Default.Menu,
+                    imageVector = MyIcons.filter,
                     contentDescription = stringResource(R.string.filter_button_label),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
@@ -49,7 +50,7 @@ fun FilterSortButton(
                 colors = IconButtonDefaults.iconButtonColors(),
             ) {
                 Icon(
-                    imageVector = Icons.Default.Menu,
+                    imageVector = MyIcons.filter,
                     contentDescription = stringResource(R.string.filter_button_label),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )

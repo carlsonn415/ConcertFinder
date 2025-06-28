@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun TextBlock(
@@ -70,7 +71,7 @@ fun TextBlock(
                     modifier = Modifier.padding(end = dimensionResource(R.dimen.padding_small))
                 )
                 Icon(
-                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    imageVector = if (expanded) MyIcons.arrowUp else MyIcons.arrowDown,
                     contentDescription = null
                 )
             }

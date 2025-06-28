@@ -148,11 +148,12 @@ class FilterScreenViewModel @Inject constructor(
 
     fun onSortOptionSelected(sortOption: String) {
 
-        when (sortOption) {
+        val sortOptionLower = sortOption.lowercase()
+        when (sortOptionLower) {
             ("distance") -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     updateFilterPreferenceUseCase.updateFilterPreferences(
-                        sortOption = sortOption,
+                        sortOption = sortOptionLower,
                         sortType = "asc"
                     )
                 }
@@ -160,7 +161,7 @@ class FilterScreenViewModel @Inject constructor(
             ("relevance") -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     updateFilterPreferenceUseCase.updateFilterPreferences(
-                        sortOption = sortOption,
+                        sortOption = sortOptionLower,
                         sortType = "desc"
                     )
                 }
@@ -168,7 +169,7 @@ class FilterScreenViewModel @Inject constructor(
             ("date") -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     updateFilterPreferenceUseCase.updateFilterPreferences(
-                        sortOption = sortOption,
+                        sortOption = sortOptionLower,
                         sortType = "asc"
                     )
                 }
@@ -176,18 +177,14 @@ class FilterScreenViewModel @Inject constructor(
             ("name") -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     updateFilterPreferenceUseCase.updateFilterPreferences(
-                        sortOption = sortOption,
+                        sortOption = sortOptionLower,
                         sortType = "asc"
                     )
                 }
             }
             else -> {
-                viewModelScope.launch(Dispatchers.IO) {
-                    updateFilterPreferenceUseCase.updateFilterPreferences(
-                        sortOption = "relevance",
-                        sortType = "desc"
-                    )
-                }
+                Log.d("FilterScreenViewModel", "Invalid sort option: $sortOption")
+                throw Exception("Invalid sort option")
             }
         }
 
@@ -323,7 +320,7 @@ class FilterScreenViewModel @Inject constructor(
     fun clearSubgenrePreferences() {
         // clear filter preferences
         viewModelScope.launch(Dispatchers.IO) {
-            updateFilterPreferenceUseCase.clearSingleFilterPreference(clearSubgenre = true)
+            updateFilterPreferenceUseCase.clearSelectedFilterPreferences(clearSubgenre = true)
         }
         // clear ui state
         _uiState.update { currentState ->

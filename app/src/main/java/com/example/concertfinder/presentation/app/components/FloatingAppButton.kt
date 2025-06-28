@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.example.concertfinder.R
+import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable
 fun FloatingAppButton(
@@ -33,7 +34,7 @@ fun FloatingAppButton(
     ) {
         if (!filled) {
             Icon(
-                imageVector = Icons.Default.FavoriteBorder,
+                imageVector = MyIcons.heartOutlined,
                 contentDescription = stringResource(id = R.string.save_event),
                 modifier = modifier
                     .padding(dimensionResource(R.dimen.padding_medium))
@@ -41,7 +42,7 @@ fun FloatingAppButton(
             )
         } else {
             Icon(
-                imageVector = Icons.Default.Favorite,
+                imageVector = MyIcons.heart,
                 contentDescription = stringResource(id = R.string.save_event),
                 modifier = modifier
                     .padding(dimensionResource(R.dimen.padding_medium))

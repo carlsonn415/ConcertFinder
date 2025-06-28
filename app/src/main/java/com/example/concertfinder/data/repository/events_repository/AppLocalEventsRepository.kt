@@ -117,4 +117,8 @@ class AppLocalEventsRepository @Inject constructor(
         val event = eventDao.getEventById(eventId)
         return event != null
     }
+
+    override suspend fun getSavedEventsIds(): Set<String> {
+        return eventDao.getAllEventIds().toSet()
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.filter_screen.components
 
 import android.os.Build
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.clickable
@@ -16,10 +17,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -31,19 +34,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.concertfinder.R
 import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
 import com.example.concertfinder.presentation.common_ui.SortMenu
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.filter_screen.FilterScreenViewModel
+import com.example.concertfinder.presentation.ui.theme.MyIcons
+import com.example.concertfinder.presentation.utils.AppDestinations
 import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
+@OptIn(ExperimentalMaterial3Api::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun FilterScreen(
     navController: NavController,
     onFilterApplied: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     filterScreenViewModel: FilterScreenViewModel = hiltViewModel(),
     locationViewModel: LocationViewModel = hiltViewModel(),
@@ -74,6 +82,21 @@ fun FilterScreen(
     LaunchedEffect(filterScreenUiState.value.preferencesUpdated) {
         if (filterScreenUiState.value.preferencesUpdated) {
             onFilterApplied()
+        }
+    }
+
+    val navBackStackEntry = navController.currentBackStackEntryAsState().value
+
+    LaunchedEffect(navBackStackEntry) {
+        // Check if the current destination is THIS screen
+        if (navBackStackEntry?.destination?.route == AppDestinations.FILTER) {
+            // Access the state within the scroll behavior
+            val topAppBarState = scrollBehavior.state
+            if (topAppBarState.heightOffset != 0f || topAppBarState.contentOffset != 0f) {
+                Log.d("TopAppBarReset", "Resetting TopAppBar state for ${navBackStackEntry.destination.route}")
+                topAppBarState.heightOffset = 0f
+                topAppBarState.contentOffset = 0f
+            }
         }
     }
 
@@ -116,13 +139,13 @@ fun FilterScreen(
             )
             if (filterScreenUiState.value.isFilterMenuExpanded) {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    imageVector = MyIcons.arrowUp,
                     contentDescription = stringResource(id = R.string.drop_down_arrow),
                     modifier = modifier.padding(start = dimensionResource(R.dimen.padding_small))
                 )
             } else {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    imageVector = MyIcons.arrowDown,
                     contentDescription = stringResource(id = R.string.drop_down_arrow),
                     modifier = modifier.padding(start = dimensionResource(R.dimen.padding_small))
                 )

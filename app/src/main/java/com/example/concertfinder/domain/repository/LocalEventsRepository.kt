@@ -9,5 +9,5 @@ interface LocalEventsRepository {
     suspend fun getEvents(): Flow<Resource<List<Event>>>
     suspend fun deleteEventById(eventId: String)
     suspend fun getEventSavedById(eventId: String): Boolean
-
+    suspend fun getSavedEventsIds(): Set<String>
 }

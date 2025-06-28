@@ -35,7 +35,7 @@ import com.example.concertfinder.data.local.entities.event_entities.VenueImageEn
         EventVenueCrossRef::class,
         EventAttractionCrossRef::class,
     ],
-    version = 4 // Increment this version when you make changes to the database
+    version = 5 // Increment this version when you make changes to the database
 )
 abstract class AppDatabase : RoomDatabase() {
 

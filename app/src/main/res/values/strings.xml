@@ -65,8 +65,8 @@
     <string name="filter_button_label">Filter</string>
     <string name="unknown_error">Unknown error</string>
     <string name="filter">Filter</string>
-    <string name="no_saved_events">You have no saved events.</string>
-    <string name="find_saved_events">Find some by going to the discover or search page.</string>
+    <string name="no_saved_events">You have no saved events &#x1F494;</string>
+    <string name="find_saved_events">Find some by going to the discover or search tabs!</string>
     <string name="unsaved">unsaved from saved events</string>
     <string name="saved">added to saved events</string>
     <string name="error">Error</string>
