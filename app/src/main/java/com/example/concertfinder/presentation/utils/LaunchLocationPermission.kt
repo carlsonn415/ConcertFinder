@@ -5,14 +5,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresExtension
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
-import com.example.concertfinder.presentation.app.AppViewModel
+import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 import kotlinx.coroutines.flow.Flow
 
 
@@ -36,8 +36,8 @@ fun LaunchLocationPermission(
             // Permission Granted
             updateLocation()
         } else {
-            // TODO: Make this toast a snackbar with an action to launch settings
-            Toast.makeText(context, "Location permission denied", Toast.LENGTH_SHORT).show()
+            // TODO: Make this launch settings
+            AppSnackbarManager.showSnackbar(context, R.string.location_permission_denied, R.string.settings, null)
         }
     }
 

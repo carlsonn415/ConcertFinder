@@ -3,7 +3,6 @@ package com.example.concertfinder.presentation.event_detail_screen.components.co
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -14,6 +13,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.net.toUri
+import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 
 @Composable
 fun UrlButton(
@@ -41,11 +42,11 @@ fun UrlButton(
                         context.startActivity(intent)
                     } else {
                         // No activity found to handle the intent
-                        Toast.makeText(context, "No web browser found", Toast.LENGTH_SHORT).show() // TODO: make into snackbar
+                        AppSnackbarManager.showSnackbar(context, R.string.no_web_browser_found)
                         Log.e("UrlButton", "No web browser found")
                     }
                 } catch (e: Exception) {
-                    Toast.makeText(context, "Error opening URL", Toast.LENGTH_SHORT).show() // TODO: make into snackbar
+                    AppSnackbarManager.showSnackbar(context, R.string.error_opening_url)
                     Log.e("UrlButton", "Error opening URL: $url", e)
                 }
             },

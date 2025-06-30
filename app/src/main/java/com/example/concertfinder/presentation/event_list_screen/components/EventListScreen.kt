@@ -29,8 +29,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
@@ -53,14 +51,21 @@ fun EventListScreen(
     navBackStackEntry: NavBackStackEntry,
     scrollBehavior: TopAppBarScrollBehavior,
     innerPadding: PaddingValues = PaddingValues(0.dp),
-    viewModel: EventListViewModel = hiltViewModel()
+    viewModel: EventListViewModel = hiltViewModel(),
+    // These parameters are only used when coming from the discover screen, otherwise we use the user's saved preferences
+    startDateTime: String? = null,
+    endDateTime: String? = null,
+    radius: String? = null,
+    sort: String? = null,
+    segmentName: String? = null
 ) {
 
     val uiState = viewModel.uiState.collectAsState()
 
     val lazyListState = rememberLazyListState()
 
-    // Pagination loads more when user gets near the end
+    //------------------------------------------------------------------------------------------------------------------------- This turns true when user scrolls near the bottom
+    //                                                                                                                          then becomes false when more events are loaded
     val shouldRequestNextPage by remember {
         derivedStateOf {
             val isLoading = uiState.value.isLoadingMore
@@ -82,16 +87,27 @@ fun EventListScreen(
         }
     }
 
-    // This LaunchedEffect will only run if shouldRequestNextPage becomes true
-    // AND a load is not already in progress.
+    //------------------------------------------------------------------------------------------------------------------------- This only runs if shouldRequestNextPage becomes true
+    //                                                                                                                          AND a load is not already in progress.
     LaunchedEffect(shouldRequestNextPage) {
         Log.d("EventListScreen", "shouldRequestNextPage: $shouldRequestNextPage")
         if (shouldRequestNextPage && !uiState.value.isLoadingMore) { // Double check isLoadingMore here
             Log.d("EventListScreen", "Requesting more events")
-            viewModel.loadMoreEvents()
+            if (startDateTime != null || endDateTime != null || radius != null || sort != null || segmentName != null) {
+                viewModel.loadMoreEvents(
+                    startDateTime = startDateTime ?: "",
+                    endDateTime = endDateTime ?: "",
+                    radius = radius ?: "",
+                    sort = sort ?: "",
+                    segmentName = if (segmentName == "Arts") "Arts & Theatre" else segmentName ?: "",
+                )
+            } else {
+                viewModel.loadMoreEvents()
+            }
         }
     }
 
+    //------------------------------------------------------------------------------------------------------------------------- Run when filtersUpdated is true, loads new events
     LaunchedEffect(Unit) {
         if (filtersUpdated) {
             Log.d("EventListScreen", "Filters updated, fetching initial events")
@@ -102,6 +118,8 @@ fun EventListScreen(
         }
     }
 
+    //------------------------------------------------------------------------------------------------------------------------- Run when updateEventsSaved is true, checks each loaded
+    //                                                                                                                          event to see if it's saved or not
     LaunchedEffect(updateEventsSaved) {
         if (updateEventsSaved) {
             Log.d("EventListScreen", "Saved events ids: $eventSavedIds")
@@ -110,6 +128,7 @@ fun EventListScreen(
         }
     }
 
+    //------------------------------------------------------------------------------------------------------------------------- Resets the top app bar when navigating to this screen
     LaunchedEffect(navBackStackEntry) {
         // Check if the current destination is THIS screen
         if (navBackStackEntry.destination.route?.startsWith(AppDestinations.EVENT_LIST) == true) {
@@ -119,6 +138,30 @@ fun EventListScreen(
                 Log.d("TopAppBarReset", "Resetting TopAppBar state for ${navBackStackEntry.destination.route}")
                 topAppBarState.heightOffset = 0f
                 topAppBarState.contentOffset = 0f
+            }
+        }
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------- Run when navigating to this screen, checks if there are
+    //                                                                                                                          any provided parameters from the discover screen and
+    //                                                                                                                          loads initial events
+    LaunchedEffect(Unit) {
+        if (startDateTime != null || endDateTime != null || radius != null || sort != null || segmentName != null) {
+            viewModel.getEvents(
+                hasLoadedOnce = false,
+                startDateTime = startDateTime ?: "",
+                endDateTime = endDateTime ?: "",
+                radius = radius ?: "",
+                sort = sort ?: "",
+                segmentName = if (segmentName == "Arts") "Arts & Theatre" else segmentName ?: "",
+                keyWord = "",
+                genres = emptyList(),
+                subgenres = emptyList(),
+                segment = ""
+            )
+        } else {
+            if (uiState.value.eventsResource is Resource.Loading) {
+                viewModel.getEvents(hasLoadedOnce = false)
             }
         }
     }

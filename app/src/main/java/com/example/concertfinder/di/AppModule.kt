@@ -2,23 +2,24 @@ package com.example.concertfinder.di
 
 import android.content.Context
 import com.example.concertfinder.common.Constants.BASE_URL
+import com.example.concertfinder.data.local.AndroidStringResourceProvider
 import com.example.concertfinder.data.local.AppDatabase
 import com.example.concertfinder.data.local.ClassificationDao
 import com.example.concertfinder.data.local.EventDao
 import com.example.concertfinder.data.remote.AppApiService
-import com.example.concertfinder.data.repository.preference_repository.AppPreferencesRepository
-import com.example.concertfinder.data.repository.events_repository.AppRemoteRemoteEventsRepository
-import com.example.concertfinder.domain.repository.RemoteEventsRepository
-import com.example.concertfinder.domain.repository.PreferencesRepository
 import com.example.concertfinder.data.remote.AppLocationManagerService
 import com.example.concertfinder.data.remote.LocationManagerService
+import com.example.concertfinder.data.repository.AppSearchHistoryRepository
 import com.example.concertfinder.data.repository.classification_repository.AppLocalClassificationRepository
 import com.example.concertfinder.data.repository.classification_repository.AppRemoteClassificationRepository
-import com.example.concertfinder.data.repository.AppSearchHistoryRepository
 import com.example.concertfinder.data.repository.events_repository.AppLocalEventsRepository
+import com.example.concertfinder.data.repository.events_repository.AppRemoteRemoteEventsRepository
+import com.example.concertfinder.data.repository.preference_repository.AppPreferencesRepository
 import com.example.concertfinder.domain.repository.LocalClassificationRepository
 import com.example.concertfinder.domain.repository.LocalEventsRepository
+import com.example.concertfinder.domain.repository.PreferencesRepository
 import com.example.concertfinder.domain.repository.RemoteClassificationRepository
+import com.example.concertfinder.domain.repository.RemoteEventsRepository
 import com.example.concertfinder.domain.repository.SearchHistoryRepository
 import com.google.android.gms.location.LocationServices
 import dagger.Module
@@ -111,4 +112,11 @@ object AppModule {
     fun provideAppSearchHistoryRepository(@ApplicationContext context: Context): SearchHistoryRepository {
         return AppSearchHistoryRepository(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideStringResourceProvider(@ApplicationContext context: Context): AndroidStringResourceProvider {
+        return AndroidStringResourceProvider(context)
+    }
+
 }

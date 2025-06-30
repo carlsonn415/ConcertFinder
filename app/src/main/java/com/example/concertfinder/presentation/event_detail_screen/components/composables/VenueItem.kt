@@ -45,7 +45,9 @@ fun VenueItem(
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
+        modifier = modifier
+            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            .padding(bottom = dimensionResource(R.dimen.padding_medium))
     ) {
         AsyncImage(
             model = findImage(venue.images, "4_3", 360),

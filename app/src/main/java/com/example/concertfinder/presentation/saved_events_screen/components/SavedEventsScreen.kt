@@ -42,7 +42,7 @@ fun SavedEventsScreen(
 
     val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(updateSavedEvents) {
         if (updateSavedEvents) {
             viewModel.getSavedEvents()
             onSavedEventsLoaded()

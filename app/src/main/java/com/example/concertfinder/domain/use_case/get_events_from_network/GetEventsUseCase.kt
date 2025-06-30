@@ -19,7 +19,7 @@ class GetEventsUseCase @Inject constructor(
         sort: String = "",
         genres: List<String>? = null,
         subgenres: List<String>? = null,
-        segment: String? = null,
+        segmentId: String? = null,
         segmentName: String? = null,
         keyWord: String? = null,
         page: String? = null,
@@ -40,7 +40,7 @@ class GetEventsUseCase @Inject constructor(
                 includeSpellcheck = IncludeSpellcheck.Yes.value, // Always include spellcheck, user doesn't need this parameter
                 genres = genres,
                 subgenres = subgenres,
-                segment = if (segment == null) null else listOf(segment), // Convert to list for api request if not null
+                segmentId = if (segmentId == null) null else listOf(segmentId), // Convert to list for api request if not null
                 segmentName = segmentName,
                 keyWord = keyWord,
                 page = page,

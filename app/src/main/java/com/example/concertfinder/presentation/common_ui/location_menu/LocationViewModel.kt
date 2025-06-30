@@ -36,12 +36,14 @@ class LocationViewModel @Inject constructor(
 
     init {
         if (updateLocationUseCase.isLocationPermissionGranted()) {
-            updateLocation()
+            updateLocation(isAppStarting = true)
         }
     }
 
     // get current location from location manager, then save to location preferences
-    fun updateLocation() {
+    fun updateLocation(
+        isAppStarting: Boolean = false
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
 
             _uiState.update { currentState ->
@@ -51,7 +53,8 @@ class LocationViewModel @Inject constructor(
             }
 
             try {
-                updateLocationUseCase.onLocationPermissionGranted()
+                updateLocationUseCase.onLocationPermissionGranted(isAppStarting)
+                Log.d("Location", "Location updated")
 
                 // update current address in UI
                 _uiState.update { currentState ->

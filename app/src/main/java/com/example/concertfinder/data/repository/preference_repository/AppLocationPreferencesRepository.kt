@@ -5,14 +5,12 @@ import android.content.SharedPreferences
 import android.location.Address
 import android.location.Geocoder
 import android.util.Log
-import android.widget.Toast
 import androidx.core.content.edit
+import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.IOException
-import java.lang.NumberFormatException
 import java.util.Locale
 
 class AppLocationPreferencesRepository(
@@ -34,14 +32,15 @@ class AppLocationPreferencesRepository(
     override suspend fun saveLocation(
         latitude: Double?,
         longitude: Double?,
-        address: String?
+        address: String?,
+        isAppStarting: Boolean // if true, don't show snackbar
     ) {
         if (latitude != null && longitude != null) {
             getPrefs(context).edit {
                 putString(keyLatitude, latitude.toString())
                 putString(keyLongitude, longitude.toString())
             }
-            reverseGeocode(context, latitude, longitude)
+            reverseGeocode(context, latitude, longitude, isAppStarting)
         } else if (address != null) {
 
             // remove illegal characters from address
@@ -85,7 +84,8 @@ class AppLocationPreferencesRepository(
     private fun reverseGeocode(
         context: Context,
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        isAppStarting: Boolean
     ) {
         val geocoder = Geocoder(context, Locale.getDefault())
 
@@ -102,6 +102,16 @@ class AppLocationPreferencesRepository(
 
                 getPrefs(context).edit {
                     putString(keyAddress, addressString)
+                }
+
+                if (!isAppStarting) {
+                    // show snackbar that says location saved
+                    AppSnackbarManager.showSnackbar("Location saved: $addressString")
+                }
+            } else {
+                // show snackbar that says no results are found
+                if (!isAppStarting) {
+                    AppSnackbarManager.showSnackbar(context, R.string.no_results_found)
                 }
             }
         } catch (e: IOException) {
@@ -131,17 +141,12 @@ class AppLocationPreferencesRepository(
                 // to save the formatted address string
                 saveLocation(latitude, longitude)
             } else {
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "No results found", Toast.LENGTH_SHORT)
-                        .show() // TODO: Make this a snackbar
-                }
+                // show snackbar that says no results are found
+                AppSnackbarManager.showSnackbar(context, R.string.no_results_found)
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            withContext(Dispatchers.Main) {
-                Toast.makeText(context, "Service not available", Toast.LENGTH_SHORT)
-                    .show() // TODO: Make this a snackbar
-            }
+            AppSnackbarManager.showSnackbar(context, R.string.service_not_available)
         }
     }
 

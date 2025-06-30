@@ -47,6 +47,6 @@ object Constants {
     const val EVENTS_NEAR_YOU_RADIUS = "25"
 
     // Page sizes
-    const val DISCOVER_PAGE_SIZE = "5"
+    const val DISCOVER_PAGE_SIZE = "4"
     const val EVENT_LIST_PAGE_SIZE = "20"
 }

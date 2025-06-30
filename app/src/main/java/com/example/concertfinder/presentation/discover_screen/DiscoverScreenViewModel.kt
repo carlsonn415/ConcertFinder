@@ -2,7 +2,6 @@ package com.example.concertfinder.presentation.discover_screen
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -46,6 +45,12 @@ class DiscoverScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(DiscoverScreenUiState())
     val uiState: StateFlow<DiscoverScreenUiState> = _uiState.asStateFlow()
 
+    val weekend = getWeekendDates()
+    val apiFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+    val startDateTime: String = weekend.startDateTime.format(apiFormatter)
+    val endDateTime: String = weekend.endDateTime.format(apiFormatter)
+
     init {
         loadAllEvents()
     }
@@ -82,178 +87,162 @@ class DiscoverScreenViewModel @Inject constructor(
         }
     }
 
-    fun loadEventsThisWeekend() {
-        val weekend = getWeekendDates()
-        val apiFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-
-        val startDateTime = weekend.startDateTime.format(apiFormatter)
-        val endDateTime = weekend.endDateTime.format(apiFormatter)
-
-        viewModelScope.launch(Dispatchers.IO) {
-            getEvents(
-                startDateTime = startDateTime,
-                endDateTime = endDateTime
-            ).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsThisWeekend = resource
-                            )
-                        }
+    suspend fun loadEventsThisWeekend() {
+        getEvents(
+            startDateTime = startDateTime,
+            endDateTime = endDateTime
+        ).collect { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsThisWeekend = resource
+                        )
                     }
+                }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsThisWeekend = resource
-                            )
-                        }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsThisWeekend = resource
+                        )
                     }
+                }
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsThisWeekend = Resource.Loading()
-                            )
-                        }
+                is Resource.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsThisWeekend = Resource.Loading()
+                        )
                     }
                 }
             }
         }
     }
 
-    fun loadEventsNearYou() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getEvents(
-                sort = "distance,asc",
-                radius = Constants.EVENTS_NEAR_YOU_RADIUS
-            ).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsNearYou = resource
-                            )
-                        }
+    suspend fun loadEventsNearYou() {
+        getEvents(
+            sort = "distance,asc",
+            radius = Constants.EVENTS_NEAR_YOU_RADIUS
+        ).collect { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsNearYou = resource
+                        )
                     }
+                }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsNearYou = resource
-                            )
-                        }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsNearYou = resource
+                        )
                     }
+                }
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                eventsNearYou = Resource.Loading()
-                            )
-                        }
+                is Resource.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            eventsNearYou = Resource.Loading()
+                        )
                     }
                 }
             }
         }
     }
 
-    fun loadMusicEvents() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getEvents(
-                segmentName = "Music"
-            ).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                musicEvents = resource
-                            )
-                        }
+    suspend fun loadMusicEvents() {
+        getEvents(
+            segmentName = "Music"
+        ).collect { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            musicEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                musicEvents = resource
-                            )
-                        }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            musicEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                musicEvents = Resource.Loading()
-                            )
-                        }
+                is Resource.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            musicEvents = Resource.Loading()
+                        )
                     }
                 }
             }
         }
     }
 
-    fun loadSportsEvents() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getEvents(
-                segmentName = "Sports"
-            ).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                sportsEvents = resource
-                            )
-                        }
+    suspend fun loadSportsEvents() {
+        getEvents(
+            segmentName = "Sports"
+        ).collect { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            sportsEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                sportsEvents = resource
-                            )
-                        }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            sportsEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                sportsEvents = Resource.Loading()
-                            )
-                        }
+                is Resource.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            sportsEvents = Resource.Loading()
+                        )
                     }
                 }
             }
         }
     }
 
-    fun loadArtsEvents() {
-        viewModelScope.launch(Dispatchers.IO) {
-            getEvents(
-                segmentName = "Arts & Theatre"
-            ).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                artsEvents = resource
-                            )
-                        }
+    suspend fun loadArtsEvents() {
+        getEvents(
+            segmentName = "Arts & Theatre"
+        ).collect { resource ->
+            when (resource) {
+                is Resource.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            artsEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                artsEvents = resource
-                            )
-                        }
+                is Resource.Error -> {
+                    _uiState.update {
+                        it.copy(
+                            artsEvents = resource
+                        )
                     }
+                }
 
-                    is Resource.Loading -> {
-                        _uiState.update {
-                            it.copy(
-                                artsEvents = Resource.Loading()
-                            )
-                        }
+                is Resource.Loading -> {
+                    _uiState.update {
+                        it.copy(
+                            artsEvents = Resource.Loading()
+                        )
                     }
                 }
             }

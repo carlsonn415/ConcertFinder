@@ -41,10 +41,6 @@ class EventListViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(EventListUiState())
     val uiState = _uiState.asStateFlow()
 
-    init {                                                                                          // initialize events
-        getEvents(hasLoadedOnce = false)
-    }
-
 
     // load events from repository
     fun getEvents(
@@ -53,10 +49,12 @@ class EventListViewModel @Inject constructor(
         geoPoint: String = preferencesRepository.getLocationPreferences().getLocation(),            // \
         radius: String = preferencesRepository.getFilterPreferences().getRadius(),                  // |
         startDateTime: String = preferencesRepository.getFilterPreferences().getStartDateTime(),    // |
+        endDateTime: String = "", //TODO implement date filtering                                   // |
         sort: String = preferencesRepository.getFilterPreferences().getSort(),                      // filters are fetched from saved preferences
         genres: List<String>? = preferencesRepository.getFilterPreferences().getGenres(),           // |
         subgenres: List<String>? = preferencesRepository.getFilterPreferences().getSubgenres(),     // |
         segment: String? = preferencesRepository.getFilterPreferences().getSegment(),               // /
+        segmentName: String = "",
         page: String = uiState.value.page.toString(),                                               // ui state holds current page number
     ) {
 
@@ -79,15 +77,28 @@ class EventListViewModel @Inject constructor(
         paginationJob = viewModelScope.launch(Dispatchers.IO) {
             Log.d("EventListViewModel", "Getting events - Page: $page, hasLoadedOnce: $hasLoadedOnce, isLoadingMore: ${uiState.value.isLoadingMore}")
 
+            Log.d("EventListViewModel", "Keyword: $keyWord")
+            Log.d("EventListViewModel", "GeoPoint: $geoPoint")
+            Log.d("EventListViewModel", "Radius: $radius")
+            Log.d("EventListViewModel", "StartDateTime: $startDateTime")
+            Log.d("EventListViewModel", "EndDateTime: $endDateTime")
+            Log.d("EventListViewModel", "Sort: $sort")
+            Log.d("EventListViewModel", "Genres: $genres")
+            Log.d("EventListViewModel", "Subgenres: $subgenres")
+            Log.d("EventListViewModel", "Segment: $segment")
+            Log.d("EventListViewModel", "SegmentName: $segmentName")
+
             // get events from repository
             getEventsUseCase(
                 radius = radius,
                 geoPoint = geoPoint,
                 startDateTime = startDateTime,
+                endDateTime = endDateTime,
                 sort = sort,
                 genres = genres,
                 subgenres = subgenres,
-                segment = segment,
+                segmentId = segment,
+                segmentName = segmentName,
                 keyWord = keyWord,
                 page = page,
                 pageSize = Constants.EVENT_LIST_PAGE_SIZE
@@ -166,7 +177,13 @@ class EventListViewModel @Inject constructor(
         return displayEventUseCase.getImageUrl(images, aspectRatio, minImageWidth)
     }
 
-    fun loadMoreEvents() {
+    fun loadMoreEvents(
+        radius: String = preferencesRepository.getFilterPreferences().getRadius(),
+        startDateTime: String = preferencesRepository.getFilterPreferences().getStartDateTime(),
+        endDateTime: String = "", //TODO implement date filtering
+        sort: String = preferencesRepository.getFilterPreferences().getSort(),
+        segmentName: String = "",
+    ) {
         // Ensure that there is more events to load and that we are not already loading more events
         if (_uiState.value.canLoadMore && !_uiState.value.isLoadingMore) {
             // Update page number
@@ -179,7 +196,14 @@ class EventListViewModel @Inject constructor(
             }
 
             // Get the events
-            getEvents(hasLoadedOnce = true)
+            getEvents(
+                hasLoadedOnce = true,
+                radius = radius,
+                startDateTime = startDateTime,
+                endDateTime = endDateTime,
+                sort = sort,
+                segmentName = segmentName
+            )
         } else {
             return
         }
@@ -206,7 +230,7 @@ class EventListViewModel @Inject constructor(
             if (eventSavedIds.contains(event.id.toString())) {
                 event.copy(saved = true)
             } else {
-                event
+                event.copy(saved = false)
             }
         } ?: emptyList())
 

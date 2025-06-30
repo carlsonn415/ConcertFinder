@@ -6,8 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
@@ -38,11 +36,11 @@ fun FilterSortButton(
             ) {
                 Icon(
                     imageVector = MyIcons.filter,
-                    contentDescription = stringResource(R.string.filter_button_label),
+                    contentDescription = stringResource(R.string.filter),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                Text(stringResource(R.string.filter_button_label))
+                Text(stringResource(R.string.filter))
             }
         } else {
             IconButton(
@@ -51,7 +49,7 @@ fun FilterSortButton(
             ) {
                 Icon(
                     imageVector = MyIcons.filter,
-                    contentDescription = stringResource(R.string.filter_button_label),
+                    contentDescription = stringResource(R.string.filter),
                     modifier = Modifier.size(ButtonDefaults.IconSize)
                 )
             }

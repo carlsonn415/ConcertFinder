@@ -1,6 +1,7 @@
 package com.example.concertfinder.presentation.discover_screen.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,10 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -100,11 +98,12 @@ fun DiscoverScreenListItem(
                     .padding(horizontal = dimensionResource(id = R.dimen.padding_small))
             )
         } else {
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small)),
+                modifier = modifier.horizontalScroll(rememberScrollState())
             ) {
                 if (events is Resource.Success) {
-                    items(events.data ?: emptyList()) { event ->
+                    for (event in events.data ?: emptyList()) {
                         CompactEventListItem(
                             event = event,
                             onEventClick = onEventClick,
@@ -115,7 +114,7 @@ fun DiscoverScreenListItem(
                         )
                     }
                 } else if (events is Resource.Loading) {
-                    items(count = Constants.DISCOVER_PAGE_SIZE.toInt()) {
+                    for (i in 1..Constants.DISCOVER_PAGE_SIZE.toInt()) {
                         LoadingListItem()
                     }
                 }

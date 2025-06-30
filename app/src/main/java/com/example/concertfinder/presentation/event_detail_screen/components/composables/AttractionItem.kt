@@ -46,10 +46,13 @@ fun AttractionItem(
         Pair("Additional Info", attraction.additionalInfo ?: "")
     )
 
-    Column {
+    Column(
+        modifier = modifier.padding(bottom = dimensionResource(R.dimen.padding_medium))
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = modifier.padding(horizontal = dimensionResource(R.dimen.padding_medium))
+            modifier = modifier
+                .padding(horizontal = dimensionResource(R.dimen.padding_medium))
         ) {
             AsyncImage(
                 model = findImage(attraction.images, "4_3", 360),

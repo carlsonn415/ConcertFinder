@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,10 +45,10 @@ import coil.compose.AsyncImage
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
+import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
 import com.example.concertfinder.presentation.event_detail_screen.EventDetailViewModel
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AdditionalInfoDialog
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AttractionItem
-import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.InfoButton
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.PriceAndLocationRow
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.TextBlock
@@ -294,8 +292,6 @@ fun EventDetailScreen(
                 // Attraction header
                 item(key = "attraction_header") {
                     Column {
-
-                        Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
 
                         HorizontalDivider()
                         Row(

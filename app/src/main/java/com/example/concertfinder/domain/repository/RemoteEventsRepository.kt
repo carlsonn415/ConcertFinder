@@ -13,7 +13,7 @@ interface RemoteEventsRepository {
         includeSpellcheck: String,
         genres: List<String>?,
         subgenres: List<String>?,
-        segment: List<String>?,
+        segmentId: List<String>?,
         segmentName: String?,
         keyWord: String?,
         page: String?,

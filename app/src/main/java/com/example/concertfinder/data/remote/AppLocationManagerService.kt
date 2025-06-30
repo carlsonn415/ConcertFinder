@@ -6,8 +6,9 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.util.Log
-import android.widget.Toast
 import androidx.core.content.ContextCompat
+import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Priority
@@ -57,7 +58,7 @@ class AppLocationManagerService(
         // If location services are not enabled AND neither coarse nor fine location permission is granted,
         // log a message and return null (no location can be fetched).
         if (!isGpsEnabled && !(hasGrantedCoarseLocationPermission || hasGrantedFineLocationPermission)) {
-            Log.d("Location", "No location permission granted or GPS not enabled") // Corrected Log message
+            Log.d("Location", "No location permission granted or GPS not enabled")
             return null
         }
 
@@ -67,7 +68,7 @@ class AppLocationManagerService(
         // Builds a request for the current location.
         val currentLocationRequest = CurrentLocationRequest.Builder()
             .setPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY) // Sets the desired accuracy and power consumption.
-            .setDurationMillis(5000) // Sets a timeout for the location request (max time to wait).
+            .setDurationMillis(10000) // Sets a timeout for the location request (max time to wait).
             .setMaxUpdateAgeMillis(10000) // Sets how old a cached location can be before requesting a new one.
             .build() // Creates the CurrentLocationRequest object.
 
@@ -86,15 +87,14 @@ class AppLocationManagerService(
                         }
 
                         // Logs the obtained latitude and longitude.
-                        Log.d("Location", "Location is ${location.latitude}, ${location.longitude}")
+                        Log.i("Location", "Location is ${location.latitude}, ${location.longitude}")
                     } else { // If location is null (e.g., provider can't get a fix, services disabled).
                         // Resumes the coroutine with null, indicating location is not available.
                         cont.resume(null) {
                             cancellationTokenSource.cancel() // Cancel the token if coroutine cancelled.
                         }
-                        // TODO: Make this toast a snackbar
-                        // Shows a toast message indicating an error in getting location.
-                        //Toast.makeText(context, "Error getting location (location is null)", Toast.LENGTH_SHORT).show() // Clarified message
+                        // Shows a snackbar indicating an error in getting location.
+                        AppSnackbarManager.showSnackbar(context, R.string.error_getting_location)
 
                         // Logs that the location is null.
                         Log.d("Location", "Location is null")
@@ -102,16 +102,15 @@ class AppLocationManagerService(
                 }
                 .addOnFailureListener { e -> // Callback for failure in location retrieval.
                     cont.resumeWithException(e) // Resumes the coroutine with the encountered exception.
-                    Log.d("Location", "Error getting location: $e") // Logs the error.
-                    // Shows a toast message with the error.
-                    Toast.makeText(context, "Error getting location: $e", Toast.LENGTH_SHORT).show()
+                    Log.e("Location", "Error getting location: $e") // Logs the error.
+                    // Shows a message with the error.
+                    AppSnackbarManager.showSnackbar(context, R.string.error_getting_location)
                 }
 
             // Sets up a callback for when the coroutine is cancelled.
             cont.invokeOnCancellation {
                 cancellationTokenSource.cancel() // Cancels the CancellationTokenSource, stopping the location request.
-                // Shows a toast message indicating the location request was cancelled.
-                Toast.makeText(context, "Location request cancelled", Toast.LENGTH_SHORT).show() // Clarified message
+                Log.i("Location", "Location request cancelled")
             }
         }
     }

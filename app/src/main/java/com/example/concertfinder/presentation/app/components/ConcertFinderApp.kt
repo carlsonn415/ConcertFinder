@@ -2,7 +2,6 @@ package com.example.concertfinder.presentation.app.components
 
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.AnimatedVisibility
@@ -11,6 +10,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -18,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -27,6 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 import com.example.concertfinder.presentation.app.AppViewModel
 import com.example.concertfinder.presentation.utils.AppContentType
 import com.example.concertfinder.presentation.utils.AppDestinations
@@ -46,6 +50,7 @@ fun ConcertFinderApp(
     // get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
 
+    // get context
     val context = LocalContext.current
 
     // create scroll behavior for top app bar
@@ -69,43 +74,87 @@ fun ConcertFinderApp(
         viewModel.updateShowBottomBar(false)
     }
 
-    // update show fab based on current destination
-    LaunchedEffect(navController.currentDestination?.route == AppDestinations.EVENT_DETAILS) {
-        viewModel.updateFabVisibility(navController.currentDestination?.route == AppDestinations.EVENT_DETAILS)
+    // initialize snackbar manager
+    AppSnackbarManager.init(viewModel)
+
+    // update show fab and top bar title based on current destination
+    LaunchedEffect(backStackEntry) {
+        viewModel.updateFabVisibility(backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS)
+
+        if (backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS) {
+            viewModel.updateTopBarTitle(R.string.details)
+            viewModel.updateCurrentEvent(uiState.value.currentEvent)
+        } else if (backStackEntry?.destination?.route == AppDestinations.FILTER) {
+            viewModel.updateTopBarTitle(R.string.filter_with_gear)
+        } else if (backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true
+            && navController.previousBackStackEntry?.destination?.route == AppDestinations.SEARCH
+        ) {
+            viewModel.updateTopBarTitle(R.string.results)
+        }
     }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Collect snackbar messages from the ViewModel
+    LaunchedEffect(Unit) {
+        viewModel.snackbarMessages.collect { snackbarMessage ->
+            // Dismiss previous snackbar if any, to avoid queueing
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result = snackbarHostState.showSnackbar(
+                message = snackbarMessage.message,
+                actionLabel = snackbarMessage.actionLabel,
+                duration = snackbarMessage.duration,
+                withDismissAction = snackbarMessage.actionLabel == null
+            )
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    snackbarMessage.onAction?.invoke()
+                }
+                SnackbarResult.Dismissed -> {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                }
+            }
+        }
+    }
+
 
     Log.d("ConcertFinderApp", "current destination: ${backStackEntry?.destination?.route}")
     Scaffold(
-        // allows top bar to scroll
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        // allows top bar to scroll only when it is visible
+        modifier = if (!uiState.value.showBottomBar) { modifier.nestedScroll(scrollBehavior.nestedScrollConnection) } else modifier,
+
         topBar = {
+            val currentDestinationRoute = navController.currentDestination?.route
+            val previousDestinationRoute = navController.previousBackStackEntry?.destination?.route
+
+            val showFilterButton = currentDestinationRoute?.startsWith(AppDestinations.EVENT_LIST) == true
+                && previousDestinationRoute != AppDestinations.DISCOVER
+
             if (!uiState.value.showBottomBar) {
                 ConcertFinderTopBar(
                     onBackPressed = {
-                        val currentDestinationRoute = navController.currentDestination?.route
-                        val previousDestinationRoute = navController.previousBackStackEntry?.destination?.route
-
                         // check if coming from filter to event list
                         if (currentDestinationRoute == AppDestinations.FILTER
                             && previousDestinationRoute?.startsWith(AppDestinations.EVENT_LIST) == true
                             && uiState.value.areFiltersApplied
                         ) {
-                            val navBackStackEntry = navController.previousBackStackEntry
-                            navBackStackEntry?.savedStateHandle["filters_updated"] = true
+                            navController.previousBackStackEntry?.savedStateHandle["filters_updated"] = true
                             viewModel.updateAreFiltersApplied(false)
                             Log.d("TopAppBarBack", "Coming from Filter to EventList, setting filters_updated flag.")
                         }
                         // navigate up
                         navController.navigateUp()
                     },
-                    showFilterButton = backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true,
+                    // only show filter button if on event list screen and not coming from discover screen
+                    showFilterButton = showFilterButton,
                     showBackButton = !uiState.value.showBottomBar,
                     scrollBehavior = scrollBehavior,
-                    //scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
                     onFilterSortClicked = {
                         navController.navigate(AppDestinations.FILTER)
                     },
-                    route = backStackEntry?.destination?.route ?: AppDestinations.DISCOVER,
+                    // set title based on current destination
+                    titleId = uiState.value.topBarTitle,
                     modifier = modifier
                 )
             }
@@ -143,18 +192,18 @@ fun ConcertFinderApp(
                     onClick = {
                         viewModel.toggleEventSaved(event = uiState.value.currentEvent)
                         viewModel.updateSavedEventsUpdated(true)
-                        // show toast if event is saved or unsaved
-                        // TODO: make these snackbars
+                        // show snackbar if event is saved or unsaved
                         if (filled == false) {
-                            Toast.makeText(context, uiState.value.currentEvent.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                            viewModel.showSnackbar(message = uiState.value.currentEvent.name + " " + context.getString(R.string.saved))
                         } else {
-                            Toast.makeText(context, uiState.value.currentEvent.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                            viewModel.showSnackbar(message = uiState.value.currentEvent.name + " " + context.getString(R.string.unsaved))
                         }
                     },
                     filled = filled
                 )
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
 
         AppNavHost(

@@ -12,7 +12,9 @@ class UpdateLocationUseCase @Inject constructor(
     private val locationPreferencesRepository = preferencesRepository.getLocationPreferences()
 
     // get current location from location manager, then save to location preferences
-    suspend fun onLocationPermissionGranted() {
+    suspend fun onLocationPermissionGranted(
+        isAppStarting: Boolean = false
+    ) {
         try {
             val currentLocation = locationManagerService.getLocation()
 
@@ -20,7 +22,8 @@ class UpdateLocationUseCase @Inject constructor(
                 // save location to location preferences
                 locationPreferencesRepository.saveLocation(
                     latitude = currentLocation.latitude,
-                    longitude = currentLocation.longitude
+                    longitude = currentLocation.longitude,
+                    isAppStarting = isAppStarting
                 )
             }
         } catch (e: Exception) {
@@ -32,7 +35,7 @@ class UpdateLocationUseCase @Inject constructor(
     suspend fun onLocationSearch(query: String) {
         try {
             if (query.isNotBlank()) {
-                locationPreferencesRepository.saveLocation(address = query)
+                locationPreferencesRepository.saveLocation(address = query, isAppStarting = false)
             }
         } catch (e: Exception) {
             Log.d("Location", e.message.toString())

@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.LocationOn
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Search
@@ -39,7 +40,7 @@ object MyIcons {
 
     val arrowDown: ImageVector = Icons.Rounded.KeyboardArrowDown
 
-    val arrowUp: ImageVector = Icons.Rounded.KeyboardArrowDown
+    val arrowUp: ImageVector = Icons.Rounded.KeyboardArrowUp
 
     val filter: ImageVector = Icons.Rounded.FilterList
 

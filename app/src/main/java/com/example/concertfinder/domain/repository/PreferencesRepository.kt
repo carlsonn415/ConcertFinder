@@ -7,7 +7,8 @@ interface PreferencesRepository {
         suspend fun saveLocation(
             latitude: Double? = null,
             longitude: Double? = null,
-            address: String? = null
+            address: String? = null,
+            isAppStarting: Boolean = false
         )
 
         fun getLocation(): String

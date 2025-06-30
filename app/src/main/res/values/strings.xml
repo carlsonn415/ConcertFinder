@@ -6,8 +6,8 @@
     <string name="events">My Events</string>
     <string name="discover">Discover</string>
     <string name="back_button">Back Button</string>
-    <string name="results">Results</string>
-    <string name="details">Details</string>
+    <string name="results">🔍 Results</string>
+    <string name="details">🎟️ Event Details</string>
     <string name="event_details">Event Details</string>
     <string name="day_details">Day Details</string>
     <string name="home">Home</string>
@@ -62,12 +62,12 @@
     <string name="subgenre">Subgenre</string>
     <string name="reset_all">Reset all</string>
     <string name="category">Category</string>
-    <string name="filter_button_label">Filter</string>
+    <string name="filter_with_gear">⚙️ Filter</string>
     <string name="unknown_error">Unknown error</string>
     <string name="filter">Filter</string>
     <string name="no_saved_events">You have no saved events &#x1F494;</string>
     <string name="find_saved_events">Find some by going to the discover or search tabs!</string>
-    <string name="unsaved">unsaved from saved events</string>
+    <string name="unsaved">removed from saved events</string>
     <string name="saved">added to saved events</string>
     <string name="error">Error</string>
     <string name="see_more">See more</string>
@@ -76,4 +76,12 @@
     <string name="music_events">\uD83C\uDFB5 Music Events</string>
     <string name="sports_events">\uD83C\uDFC8 Sports Events</string>
     <string name="arts_and_theater">\uD83C\uDFAD Arts &amp; Theater</string>
+    <string name="error_getting_location">There was an error getting your location.</string>
+    <string name="no_results_found">Address not found</string>
+    <string name="no_web_browser_found">No web browser found</string>
+    <string name="error_opening_url">Error opening url.</string>
+    <string name="service_not_available">Service not available.</string>
+    <string name="undo">Undo</string>
+    <string name="location_permission_denied">Location permission denied</string>
+    <string name="settings">Settings</string>
 </resources>

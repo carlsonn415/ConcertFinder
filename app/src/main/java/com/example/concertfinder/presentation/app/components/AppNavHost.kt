@@ -2,7 +2,6 @@ package com.example.concertfinder.presentation.app.components
 
 import android.content.Context
 import android.os.Build
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.fadeIn
@@ -70,12 +69,17 @@ fun AppNavHost(
                 },
                 onClickSave = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    // show toast if event is saved or unsaved
-                    // TODO: make these snackbars
+                    // show snackbar if event is saved or unsaved
                     if (event.saved == false) {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.saved))
                     } else {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(
+                            message = event.name + " " + context.getString(R.string.unsaved),
+                            onAction = {
+                                viewModel.toggleEventSaved(event = event, undo = true)
+                            },
+                            actionLabel = context.getString(R.string.undo)
+                        )
                     }
                 },
                 onSavedEventsLoaded = {
@@ -95,6 +99,7 @@ fun AppNavHost(
                         navController = navController,
                         searchQuery = it
                     )
+                    viewModel.updateTopBarTitle(R.string.results)
                 },
                 onFilterSortClicked = {
                     navController.navigate(AppDestinations.FILTER)
@@ -110,8 +115,17 @@ fun AppNavHost(
             DiscoverScreen(
                 modifier = modifier,
                 innerPadding = innerPadding,
-                onSeeMoreClick = {
-                    // TODO: navigate to event list screen
+                onSeeMoreClick = { startDateTime, endDateTime, radius, sort, segmentName, title ->
+                    viewModel.onNavigateToEventList(
+                        navController = navController,
+                        searchQuery = "",
+                        startDateTime = startDateTime,
+                        endDateTime = endDateTime,
+                        sort = sort,
+                        radius = radius,
+                        segmentName = segmentName
+                    )
+                    viewModel.updateTopBarTitle(title)
                 },
                 onEventClick = {
                     viewModel.updateCurrentEvent(it)
@@ -121,12 +135,11 @@ fun AppNavHost(
                 eventSavedIds = uiState.value.savedEventsIds,
                 onEventSaveClick = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    // show toast if event is saved or unsaved
-                    // TODO: make these snackbars
+                    // show snackbar if event is saved or unsaved
                     if (event.saved == false) {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.saved))
                     } else {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.unsaved))
                     }
                 }
             )
@@ -134,10 +147,30 @@ fun AppNavHost(
 
         // event list screen composable
         composable(
-            route = AppDestinations.EVENT_LIST + "/{$PARAM_KEYWORD}",
+            route = AppDestinations.EVENT_LIST + "/{$PARAM_KEYWORD}" + "?startDateTime={startDateTime}&endDateTime={endDateTime}&sort={sort}&radius={radius}&segmentName={segmentName}",
             arguments = listOf(
                 navArgument(PARAM_KEYWORD) {
                     type = NavType.StringType
+                },
+                navArgument("startDateTime") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("endDateTime") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("sort") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("radius") {
+                    type = NavType.StringType
+                    nullable = true
+                },
+                navArgument("segmentName") {
+                    type = NavType.StringType
+                    nullable = true
                 }
             )
         ) { backStackEntry ->
@@ -146,15 +179,15 @@ fun AppNavHost(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
+                    viewModel.updateTopBarTitle(R.string.details)
                 },
                 onClickSave = { event ->
                     viewModel.toggleEventSaved(event = event)
-                    // show toast if event is saved or unsaved
-                    // TODO: make these snackbars
+                    // show snackbar if event is saved or unsaved
                     if (event.saved == false) {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.saved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.saved))
                     } else {
-                        Toast.makeText(context, event.name + " " + context.getString(R.string.unsaved), Toast.LENGTH_SHORT).show()
+                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.unsaved))
                     }
                 },
                 updateEventsSaved = uiState.value.savedEventsUpdated,
@@ -162,7 +195,12 @@ fun AppNavHost(
                 filtersUpdated = filtersUpdated.collectAsState().value,
                 navBackStackEntry = backStackEntry,
                 scrollBehavior = topAppBarScrollBehavior,
-                innerPadding = innerPadding
+                innerPadding = innerPadding,
+                startDateTime = backStackEntry.arguments?.getString("startDateTime"),
+                endDateTime = backStackEntry.arguments?.getString("endDateTime"),
+                radius = backStackEntry.arguments?.getString("radius"),
+                sort = backStackEntry.arguments?.getString("sort"),
+                segmentName = backStackEntry.arguments?.getString("segmentName")
             )
         }
 
