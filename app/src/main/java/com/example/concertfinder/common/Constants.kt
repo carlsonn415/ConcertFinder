@@ -14,7 +14,7 @@ object Constants {
     const val PARAM_KEYWORD = "searchQuery"
 
     // API KEY
-    const val API_KEY = BuildConfig.API_KEY
+    const val TICKETMASTER_API_KEY = BuildConfig.TICKETMASTER_API_KEY
 
     // List of radius options user can select
     val radiusOptions = listOf(
@@ -45,6 +45,9 @@ object Constants {
     val DEFAULT_SUBGENRE = emptySet<String>()
     val DEFAULT_SEGMENT = null
     const val EVENTS_NEAR_YOU_RADIUS = "25"
+    const val DEFAULT_LATITUDE = 40.7128
+    const val DEFAULT_LONGITUDE = -74.0060
+    const val DEFAULT_ADDRESS = "New York, NY"
 
     // Page sizes
     const val DISCOVER_PAGE_SIZE = "4"

@@ -14,7 +14,9 @@
         </intent>
     </queries>
 
+
     <application
+
         android:name=".ConcertFinderApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -25,6 +27,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ConcertFinder"
         tools:targetApi="31">
+
+        <!-- MAPS API KEY -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
+
         <activity
             android:name=".presentation.MainActivity"
             android:exported="true"

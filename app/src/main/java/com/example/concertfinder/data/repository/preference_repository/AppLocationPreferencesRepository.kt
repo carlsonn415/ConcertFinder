@@ -7,6 +7,7 @@ import android.location.Geocoder
 import android.util.Log
 import androidx.core.content.edit
 import com.example.concertfinder.R
+import com.example.concertfinder.common.Constants
 import com.example.concertfinder.data.local.AppSnackbarManager
 import com.example.concertfinder.domain.repository.PreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,12 +23,6 @@ class AppLocationPreferencesRepository(
     private val keyLatitude = "latitude"
     private val keyLongitude = "longitude"
     private val keyAddress = "address"
-
-    // Default values
-    private val defaultLatitude = 40.7128
-    private val defaultLongitude = -74.0060
-    private val defaultAddress = "New York, NY"
-
 
     override suspend fun saveLocation(
         latitude: Double?,
@@ -55,26 +50,26 @@ class AppLocationPreferencesRepository(
 
     override fun getLocation(): String {
         val prefs = getPrefs(context)
-        val latString = prefs.getString(keyLatitude, defaultLatitude.toString())
-        val longString = prefs.getString(keyLongitude, defaultLongitude.toString())
+        val latString = prefs.getString(keyLatitude, Constants.DEFAULT_LATITUDE.toString())
+        val longString = prefs.getString(keyLongitude, Constants.DEFAULT_LONGITUDE.toString())
 
         return try {
             "$latString,$longString"
         } catch (_: NumberFormatException) {
-            "$defaultLatitude,$defaultLongitude"
+            "$Constants.DEFAULT_LATITUDE,$Constants.DEFAULT_LONGITUDE"
         }
     }
 
     override fun getAddress(): String {
-        return getPrefs(context).getString(keyAddress, defaultAddress) ?: defaultAddress
+        return getPrefs(context).getString(keyAddress, Constants.DEFAULT_ADDRESS) ?: Constants.DEFAULT_ADDRESS
     }
 
     override fun getLatitude(): Double {
-        return getPrefs(context).getString(keyLatitude, defaultLatitude.toString())?.toDouble() ?: defaultLatitude
+        return getPrefs(context).getString(keyLatitude, Constants.DEFAULT_LATITUDE.toString())?.toDouble() ?: Constants.DEFAULT_LATITUDE
     }
 
     override fun getLongitude(): Double {
-        return getPrefs(context).getString(keyLongitude, defaultLongitude.toString())?.toDouble() ?: defaultLongitude
+        return getPrefs(context).getString(keyLongitude, Constants.DEFAULT_LONGITUDE.toString())?.toDouble() ?: Constants.DEFAULT_LONGITUDE
     }
 
     private fun getPrefs(context: Context): SharedPreferences {

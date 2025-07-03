@@ -1,6 +1,6 @@
 package com.example.concertfinder.data.remote
 
-import com.example.concertfinder.common.Constants.API_KEY
+import com.example.concertfinder.common.Constants.TICKETMASTER_API_KEY
 import com.example.concertfinder.data.remote.classification_dto.ClassificationApiResponse
 import com.example.concertfinder.data.remote.event_dto.EventsApiResponse
 import retrofit2.http.GET
@@ -23,12 +23,12 @@ interface AppApiService {
         @Query("keyword") keyWord: String?,
         @Query("page") page: String?,
         @Query("size") pageSize: String?,
-        @Query("apikey") apiKey: String = API_KEY,
+        @Query("apikey") apiKey: String = TICKETMASTER_API_KEY,
     ): EventsApiResponse
 
     @GET("classifications")
     suspend fun getClassificationsApiResponse(
-        @Query("apikey") apiKey: String = API_KEY,
+        @Query("apikey") apiKey: String = TICKETMASTER_API_KEY,
     ): ClassificationApiResponse
 
 }

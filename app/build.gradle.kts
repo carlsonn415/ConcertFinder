@@ -1,4 +1,3 @@
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1"
 }
 
 android {
@@ -21,11 +21,20 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val apiKey: String? = project.findProperty("API_KEY") as String?
-        if (apiKey == null) {
+        /*
+        val ticketmasterApiKey: String? = project.findProperty("TICKETMASTER_API_KEY") as String?
+        if (ticketmasterApiKey == null) {
             throw GradleException("API_KEY not found in gradle.properties. Please add it.")
         }
-        buildConfigField("String", "API_KEY", "\"$apiKey\"")
+        buildConfigField("String", "TICKETMASTER_API_KEY", "\"$ticketmasterApiKey\"")
+
+        val mapsApiKey: String? = project.findProperty("GOOGLE_MAPS_API_KEY") as String?
+        if (mapsApiKey == null) {
+            throw GradleException("API_KEY not found in gradle.properties. Please add it.")
+        }
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"$mapsApiKey\"")
+
+         */
     }
 
     buildTypes {
@@ -60,6 +69,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.maps)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.runtime.ktx.v287)
@@ -112,3 +122,18 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
+
+secrets {
+    // To add your API keys to this project:
+    // 1. If the secrets.properties file does not exist, create it in the same folder as the local.properties file.
+    // 2. Add these lines, where YOUR_API_KEY is your API key:
+    //        TICKETMASTER_API_KEY=YOUR_API_KEY
+    //        MAPS_API_KEY=YOUR_API_KEY
+    propertiesFileName = "secrets.properties"
+
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
+
