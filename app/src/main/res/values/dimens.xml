@@ -16,4 +16,6 @@
     <dimen name="compact_event_list_item_height">330.dp</dimen>
     <dimen name="icon_size_medium">30.dp</dimen>
     <dimen name="icon_size_large">36.dp</dimen>
+    <dimen name="map_height">300.dp</dimen>
+    <dimen name="event_details_map_height">200.dp</dimen>
 </resources>

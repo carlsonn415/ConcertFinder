@@ -38,7 +38,7 @@
     <string name="event_image">Event Image</string>
     <string name="no_event_name">No Event Name</string>
     <string name="information">Information</string>
-    <string name="attraction_information">Attraction information</string>
+    <string name="attraction_information">Attractions</string>
     <string name="attraction_image">Attraction image</string>
     <string name="venue_page">Venue page</string>
     <string name="Profile">Profile</string>
@@ -84,4 +84,7 @@
     <string name="undo">Undo</string>
     <string name="location_permission_denied">Location permission denied</string>
     <string name="settings">Settings</string>
+    <string name="your_location">Your location</string>
+    <string name="searching_near_here">Searching near here</string>
+    <string name="location">Location</string>
 </resources>

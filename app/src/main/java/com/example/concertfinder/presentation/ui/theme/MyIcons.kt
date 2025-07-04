@@ -5,6 +5,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.rounded.ArrowOutward
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -51,4 +52,6 @@ object MyIcons {
     val info: ImageVector = Icons.Rounded.Info
 
     val navigateBack: ImageVector = Icons.AutoMirrored.Rounded.ArrowBack
+
+    val goToLocation: ImageVector = Icons.Rounded.ArrowOutward
 }

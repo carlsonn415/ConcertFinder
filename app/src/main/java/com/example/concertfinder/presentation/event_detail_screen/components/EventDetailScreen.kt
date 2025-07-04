@@ -1,5 +1,8 @@
 package com.example.concertfinder.presentation.event_detail_screen.components
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -16,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,15 +44,19 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import coil.compose.AsyncImage
 import com.example.concertfinder.R
+import com.example.concertfinder.data.local.AppSnackbarManager
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
 import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
+import com.example.concertfinder.presentation.common_ui.MapItem
 import com.example.concertfinder.presentation.event_detail_screen.EventDetailViewModel
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AdditionalInfoDialog
+import com.example.concertfinder.presentation.event_detail_screen.components.composables.AddressText
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AttractionItem
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.InfoButton
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.PriceAndLocationRow
@@ -74,6 +83,7 @@ fun EventDetailScreen(
 
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(navBackStackEntry) {
         // Check if the current destination is THIS screen
@@ -233,6 +243,64 @@ fun EventDetailScreen(
 
                 Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
 
+                // ------------------------------------------------------------------------------------------------------------Location
+
+                HorizontalDivider()
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+
+                Text(
+                    text = stringResource(R.string.location),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = modifier
+                        .padding(
+                            horizontal = dimensionResource(id = R.dimen.padding_medium)
+                        )
+                )
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = modifier
+                        .clickable {
+                            openMapsAndSearch(context = context, getEventAddress(event))
+                        }
+                ) {
+                    AddressText(
+                        event,
+                        clickable = true,
+                        modifier = modifier
+                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
+                            .widthIn(max = 320.dp)
+                    )
+
+                    Spacer(modifier = modifier.weight(1f))
+
+                    Icon(
+                        imageVector = MyIcons.goToLocation,
+                        contentDescription = null,
+                        modifier = modifier
+                            .padding(
+                                end = dimensionResource(R.dimen.padding_medium)
+                            )
+                            .size(dimensionResource(R.dimen.icon_button_size))
+                    )
+                }
+
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+
+                MapItem(
+                    latitude = latitude ?: 0.0,
+                    longitude = longitude ?: 0.0,
+                    eventTitle = event.name ?: stringResource(R.string.no_event_name),
+                    showMarker = true,
+                    showRadius = false,
+                    modifier = modifier
+                        .height(dimensionResource(R.dimen.event_details_map_height))
+                        .fillMaxWidth()
+                        .padding(bottom = dimensionResource(R.dimen.padding_small))
+                )
+
                 // ------------------------------------------------------------------------------------------------------------Event venue(s)
 
                 // Checks if event has at least one venue
@@ -327,7 +395,6 @@ fun EventDetailScreen(
                                 )
                             }
                         }
-                        HorizontalDivider()
                     }
                 }
 
@@ -350,6 +417,14 @@ fun EventDetailScreen(
                             },
                         )
                     }
+                }
+
+                item() {
+                    Spacer(
+                        modifier = modifier.height(
+                            dimensionResource(R.dimen.padding_extra_large)
+                        )
+                    )
                 }
             }
         }
@@ -471,20 +546,20 @@ private fun determineTextBlockText(infoQueue: MutableMap<String, String>): Strin
         infoQueue.remove(infoQueue.keys.first()) // Remove first element
         return result
 
-    } else if (infoQueue.values.elementAt(1).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(1)?.isNotEmpty() ?: return "Description not provided.") {
         val result = infoQueue.values.elementAt(1)
         infoQueue.remove(infoQueue.keys.first()) // Remove first element
         infoQueue.remove(infoQueue.keys.first()) // Remove second element
         return result
 
-    } else if (infoQueue.values.elementAt(2).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(2)?.isNotEmpty() ?: return "Description not provided.") {
         val result = infoQueue.values.elementAt(2)
         infoQueue.remove(infoQueue.keys.first()) // Remove first element
         infoQueue.remove(infoQueue.keys.first()) // Remove second element
         infoQueue.remove(infoQueue.keys.first()) // Remove third element
         return result
 
-    } else if (infoQueue.values.elementAt(3).isNotEmpty()) {
+    } else if (infoQueue.values.elementAtOrNull(3)?.isNotEmpty() ?: return "Description not provided.") {
         val result = infoQueue.values.elementAt(3)
         infoQueue.clear() // Remove all elements
         return result
@@ -492,5 +567,58 @@ private fun determineTextBlockText(infoQueue: MutableMap<String, String>): Strin
     } else {
         infoQueue.clear() // Remove all elements
         return "Description not provided."
+    }
+}
+
+private fun getEventAddress(event: Event): String {
+    if (
+        event.place != null
+        && event.place.address?.line1.toString() != "null"
+        && event.place.city?.name.toString() != "null"
+        && event.place.state?.name.toString() != "null"
+    ) {
+        return event.place.address?.line1 + ", " + event.place.city?.name + ", " + event.place.state
+    } else if (
+        event.embedded?.venues != null
+        && event.embedded.venues.first().address.toString() != "null"
+        && event.embedded.venues.first().city.toString() != "null"
+        && event.embedded.venues.first().state.toString() != "null"
+    ) {
+        return event.embedded.venues.first().address?.line1 + ", " + event.embedded.venues.first().city?.name + ", " + event.embedded.venues.first().state?.name
+    } else {
+        return "No location provided."
+    }
+}
+
+private fun openMapsAndSearch(context: Context, searchQuery: String) {
+    // Encode the search query to be URL-safe
+    val encodedSearchQuery = Uri.encode(searchQuery)
+
+    // Create the base URI for a search query
+    // geo:0,0?q= defines a search query.
+    // The 0,0 are placeholders for lat/lng if you wanted to search near a specific point,
+    // but for a general search query, just the 'q' parameter is sufficient.
+    val gmmIntentUri = "geo:0,0?q=$encodedSearchQuery".toUri()
+
+    // Create an Intent with the action view and the URI
+    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+    // Set the package to specifically launch Google Maps
+    // This is optional but ensures Google Maps is opened if installed.
+    // If not set, and multiple apps can handle geo URIs, the user might be prompted.
+    mapIntent.setPackage("com.google.android.apps.maps")
+
+    // Verify that Google Maps is installed before attempting to start the intent
+    if (mapIntent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(mapIntent)
+    } else {
+        // Google Maps is not installed, handle this case by trying to open in browser
+        val webIntentUri = "https://www.google.com/maps/search/?api=1&query=$encodedSearchQuery".toUri()
+        val webIntent = Intent(Intent.ACTION_VIEW, webIntentUri)
+        if (webIntent.resolveActivity(context.packageManager) != null) {
+            context.startActivity(webIntent)
+        } else {
+            AppSnackbarManager.showSnackbar(message = "No maps application found.")
+        }
     }
 }

@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
 import com.example.concertfinder.data.model.Event
@@ -83,52 +82,71 @@ fun PriceAndLocationRow(
             )
         }
         //------------------------------------------------------------------------------------------ Check if event has location, if not use venue location
-        if (
-            event.place != null
-            && event.place.address?.line1.toString() != "null"
-            && event.place.city?.name.toString() != "null"
-            && event.place.state?.name.toString() != "null"
+        AddressText(event)
+    }
+}
+
+@Composable
+fun AddressText(
+    event: Event,
+    modifier: Modifier = Modifier,
+    clickable: Boolean = false,
+) {
+    if (
+        event.place != null
+        && event.place.address?.line1.toString() != "null"
+        && event.place.city?.name.toString() != "null"
+        && event.place.state?.name.toString() != "null"
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            if (!clickable) {
                 Icon(
                     imageVector = MyIcons.location,
                     contentDescription = null,
-                    modifier = modifier.size(14.dp)
-                )
-                Text(
-                    text = event.place.address?.line1 + ", " + event.place.city?.name + ", " + event.place.state,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
+                    modifier = Modifier.size(14.dp)
                 )
             }
-        } else if (
-            event.embedded?.venues != null
-            && event.embedded.venues.first().address.toString() != "null"
-            && event.embedded.venues.first().city.toString() != "null"
-            && event.embedded.venues.first().state.toString() != "null"
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = MyIcons.location,
-                    contentDescription = null,
-                    modifier = modifier.size(14.dp)
-                )
-                Text(
-                    text = event.embedded.venues.first().address?.line1 + ", " + event.embedded.venues.first().city?.name + ", " + event.embedded.venues.first().state?.name,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
-                )
-            }
-        } else {
             Text(
-                text = "Location not provided",
+                text = event.place.address?.line1 + ", " + event.place.city?.name + ", " + event.place.state,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
+                color = if (clickable) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurface,
+                textDecoration = if (clickable) TextDecoration.Underline else TextDecoration.None,
+                modifier = if (!clickable) Modifier.padding(start = dimensionResource(R.dimen.padding_extra_small)) else Modifier
             )
         }
+    } else if (
+        event.embedded?.venues != null
+        && event.embedded.venues.first().address.toString() != "null"
+        && event.embedded.venues.first().city.toString() != "null"
+        && event.embedded.venues.first().state.toString() != "null"
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = modifier
+        ) {
+            if (!clickable) {
+                Icon(
+                    imageVector = MyIcons.location,
+                    contentDescription = null,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+            Text(
+                text = event.embedded.venues.first().address?.line1 + ", " + event.embedded.venues.first().city?.name + ", " + event.embedded.venues.first().state?.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (clickable) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.onSurface,
+                textDecoration = if (clickable) TextDecoration.Underline else TextDecoration.None,
+                modifier = if (!clickable) Modifier.padding(start = dimensionResource(R.dimen.padding_extra_small)) else Modifier
+            )
+        }
+    } else {
+        Text(
+            text = "Location not provided",
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = dimensionResource(R.dimen.padding_extra_small))
+        )
     }
 }

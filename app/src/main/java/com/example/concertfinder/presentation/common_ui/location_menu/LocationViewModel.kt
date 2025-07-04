@@ -25,6 +25,8 @@ class LocationViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(LocationUiState(
         address = preferencesRepository.getLocationPreferences().getAddress(),
+        latitude = preferencesRepository.getLocationPreferences().getLatitude(),
+        longitude = preferencesRepository.getLocationPreferences().getLongitude(),
         radius = preferencesRepository.getFilterPreferences().getRadius(),
         locationLoadingStatus = LoadingStatus.Idle
     ))
@@ -60,7 +62,9 @@ class LocationViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         locationLoadingStatus = LoadingStatus.Success,
-                        address = preferencesRepository.getLocationPreferences().getAddress()
+                        address = preferencesRepository.getLocationPreferences().getAddress(),
+                        latitude = preferencesRepository.getLocationPreferences().getLatitude(),
+                        longitude = preferencesRepository.getLocationPreferences().getLongitude()
                     )
                 }
             } catch (e: Exception) {
@@ -92,7 +96,9 @@ class LocationViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         locationLoadingStatus = LoadingStatus.Success,
-                        address = preferencesRepository.getLocationPreferences().getAddress()
+                        address = preferencesRepository.getLocationPreferences().getAddress(),
+                        latitude = preferencesRepository.getLocationPreferences().getLatitude(),
+                        longitude = preferencesRepository.getLocationPreferences().getLongitude()
                     )
                 }
 

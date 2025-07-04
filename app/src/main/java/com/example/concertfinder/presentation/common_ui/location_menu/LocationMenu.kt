@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
 import com.example.concertfinder.common.Constants
 import com.example.concertfinder.domain.model.LoadingStatus
+import com.example.concertfinder.presentation.common_ui.MapItem
 import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
 import com.example.concertfinder.presentation.ui.theme.MyIcons
 
@@ -32,6 +31,8 @@ import com.example.concertfinder.presentation.ui.theme.MyIcons
 @Composable
 fun LocationMenu(
     address: String,
+    latitude: Double,
+    longitude: Double,
     radius: String,
     isLocationPreferencesMenuExpanded: Boolean,
     locationSearchQuery: String,
@@ -92,6 +93,25 @@ fun LocationMenu(
 
             if (isLocationPreferencesMenuExpanded) {
 
+                MapItem(
+                    latitude = latitude,
+                    longitude = longitude,
+                    eventTitle = stringResource(R.string.searching_near_here),
+                    modifier = modifier
+                        .padding(
+                            horizontal = dimensionResource(R.dimen.padding_medium),
+                            vertical = dimensionResource(R.dimen.padding_small)
+                        )
+                        .fillMaxWidth()
+                        .height(dimensionResource(R.dimen.map_height))
+                        .clip(MaterialTheme.shapes.medium),
+                    showMarker = false,
+                    showRadius = true,
+                    radiusInMiles = radius.toDoubleOrNull()
+                )
+
+                //Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_large)))
+
                 LocationSearchField(
                     locationSearchQuery = locationSearchQuery,
                     onGetLocation = onGetLocation,
@@ -112,6 +132,8 @@ fun LocationMenu(
                     onPreferenceSelected = onRadiusOptionSelected,
                     modifier = modifier
                 )
+
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_large)))
             }
         }
     }
@@ -123,6 +145,8 @@ private fun LocationMenuPreview() {
     LocationMenu(
         address = "123 Main St",
         radius = "10",
+        latitude = 40.7128,
+        longitude = -74.0060,
         locationLoadingStatus = LoadingStatus.Success,
         isLocationPreferencesMenuExpanded = true,
         locationSearchQuery = "New York",

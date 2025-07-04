@@ -59,6 +59,8 @@ fun ConcertFinderApp(
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
 
+    var previousTopBarTitle = remember { R.string.app_name }
+
     /* TODO: add support for different screen sizes */
     val contentType = when(windowSize) {
         WindowWidthSizeClass.Compact -> AppContentType.Compact
@@ -82,6 +84,7 @@ fun ConcertFinderApp(
         viewModel.updateFabVisibility(backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS)
 
         if (backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS) {
+            previousTopBarTitle = uiState.value.topBarTitle
             viewModel.updateTopBarTitle(R.string.details)
             viewModel.updateCurrentEvent(uiState.value.currentEvent)
         } else if (backStackEntry?.destination?.route == AppDestinations.FILTER) {

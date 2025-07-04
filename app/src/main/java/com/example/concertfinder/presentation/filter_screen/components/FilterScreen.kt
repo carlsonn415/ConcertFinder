@@ -13,9 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -223,6 +220,8 @@ fun FilterScreen(
 
         LocationMenu(
             address = locationUiState.value.address,
+            latitude = locationUiState.value.latitude,
+            longitude = locationUiState.value.longitude,
             radius = locationUiState.value.radius,
             isLocationPreferencesMenuExpanded = filterScreenUiState.value.isLocationPreferencesMenuExpanded,
             locationSearchQuery = filterScreenUiState.value.locationSearchQuery,

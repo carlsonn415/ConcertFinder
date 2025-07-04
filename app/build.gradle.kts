@@ -69,7 +69,11 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    // Google maps
     implementation(libs.play.services.maps)
+    implementation (libs.maps.compose) // Or the latest version
+    implementation (libs.maps.utils.ktx)
 
     // ViewModel
     implementation(libs.androidx.lifecycle.runtime.ktx.v287)
