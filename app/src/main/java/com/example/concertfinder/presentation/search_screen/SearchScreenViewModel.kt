@@ -69,7 +69,6 @@ class SearchScreenViewModel @Inject constructor(
             currentState.copy(
                 isSearchBarExpanded = false,
                 searchQuery = "",
-                isRadiusPreferencesExpanded = false,
                 isLocationPreferencesMenuExpanded = false,
                 locationSearchQuery = "",
             )
@@ -81,15 +80,6 @@ class SearchScreenViewModel @Inject constructor(
         _uiState.update { currentState ->
             currentState.copy(
                 isLocationPreferencesMenuExpanded = expanded
-            )
-        }
-    }
-
-    // update drop down expanded
-    fun updateDropDownExpanded(expanded: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isRadiusPreferencesExpanded = expanded
             )
         }
     }

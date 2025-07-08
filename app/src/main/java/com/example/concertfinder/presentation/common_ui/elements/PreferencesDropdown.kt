@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.common_ui
+package com.example.concertfinder.presentation.common_ui.elements
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

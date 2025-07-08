@@ -8,8 +8,12 @@ data class AppUiState(
     val showBottomBar: Boolean = true,
     val currentEvent: Event = Event(),
     val showFab: Boolean = false,
-    val areFiltersApplied: Boolean = false,
-    val savedEventsUpdated: Boolean = false,
+    val areFiltersAppliedFlag: Boolean = false,
+    val savedEventsScreenReloadSavedEventsFlag: Boolean = false,
+    val discoverScreenReloadSavedEventsFlag: Boolean = false,
+    val eventListScreenReloadSavedEventsFlag: Boolean = false,
+    val eventListScreenLoadNewEventsFlag: Boolean = true,
+    val locationChangedFlag: Boolean = false,
     val savedEventsIds: Set<String> = emptySet(),
-    @StringRes val topBarTitle: Int = R.string.app_name
+    @StringRes val topBarTitleStack: List<Int> = listOf(R.string.empty_string),
 )

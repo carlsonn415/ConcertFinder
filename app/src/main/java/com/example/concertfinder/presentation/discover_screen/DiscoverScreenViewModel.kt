@@ -52,12 +52,14 @@ class DiscoverScreenViewModel @Inject constructor(
     val endDateTime: String = weekend.endDateTime.format(apiFormatter)
 
     init {
-        loadAllEvents()
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(500)
+            loadAllEvents()
+        }
     }
 
     fun loadAllEvents() {
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
             loadEventsThisWeekend()
             delay(500)
             loadEventsNearYou()
@@ -73,10 +75,9 @@ class DiscoverScreenViewModel @Inject constructor(
     fun refreshAllEvents() {
         updateIsRefreshing(true)
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500)
             loadEventsThisWeekend()
-            updateIsRefreshing(false)
             delay(500)
+            updateIsRefreshing(false)
             loadEventsNearYou()
             delay(500)
             loadMusicEvents()
@@ -331,6 +332,14 @@ class DiscoverScreenViewModel @Inject constructor(
         }
     }
 
+    fun updateIsRefreshing(isRefreshing: Boolean) {
+        _uiState.update {
+            it.copy(
+                isRefreshing = isRefreshing
+            )
+        }
+    }
+
     fun changeEventSaved(
         id: String,
         save: Boolean,
@@ -352,104 +361,36 @@ class DiscoverScreenViewModel @Inject constructor(
                 2 -> currentState.copy(musicEvents = newEventsResource)
                 3 -> currentState.copy(sportsEvents = newEventsResource)
                 4 -> currentState.copy(artsEvents = newEventsResource)
-                else -> throw IllegalArgumentException("Invalid category value")
+                else -> currentState
             }
-        }
-    }
-
-    fun updateIsRefreshing(isRefreshing: Boolean) {
-        _uiState.update {
-            it.copy(
-                isRefreshing = isRefreshing
-            )
         }
     }
 
     fun updateEventsSaved(eventSavedIds: Set<String>) {
-        for (event in uiState.value.eventsThisWeekend.data ?: emptyList()) {
-            if (eventSavedIds.contains(event.id.toString())) {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = true,
-                    eventList = uiState.value.eventsThisWeekend.data ?: emptyList(),
-                    category = 0
-                )
-            } else {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = false,
-                    eventList = uiState.value.eventsThisWeekend.data ?: emptyList(),
-                    category = 0
-                )
+        _uiState.update { currentState ->
+            // Helper function to update a single list within the current state
+            fun updateCategoryEvents(
+                currentResource: Resource<List<Event>>,
+                savedIds: Set<String>
+            ): Resource<List<Event>> {
+                return when (currentResource) {
+                    is Resource.Success -> {
+                        val updatedEvents = currentResource.data?.map { event ->
+                            event.copy(saved = savedIds.contains(event.id)) // Use event.id directly
+                        }
+                        Resource.Success(updatedEvents ?: emptyList())
+                    }
+                    else -> currentResource
+                }
             }
-        }
-        for (event in uiState.value.eventsNearYou.data ?: emptyList()) {
-            if (eventSavedIds.contains(event.id.toString())) {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = true,
-                    eventList = uiState.value.eventsNearYou.data ?: emptyList(),
-                    category = 1
-                )
-            } else {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = false,
-                    eventList = uiState.value.eventsNearYou.data ?: emptyList(),
-                    category = 1
-                )
-            }
-        }
-        for (event in uiState.value.musicEvents.data ?: emptyList()) {
-            if (eventSavedIds.contains(event.id.toString())) {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = true,
-                    eventList = uiState.value.musicEvents.data ?: emptyList(),
-                    category = 2
-                )
-            } else {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = false,
-                    eventList = uiState.value.musicEvents.data ?: emptyList(),
-                    category = 2
-                )
-            }
-        }
-        for (event in uiState.value.sportsEvents.data ?: emptyList()) {
-            if (eventSavedIds.contains(event.id.toString())) {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = true,
-                    eventList = uiState.value.sportsEvents.data ?: emptyList(),
-                    category = 3
-                )
-            } else {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = false,
-                    eventList = uiState.value.sportsEvents.data ?: emptyList(),
-                    category = 3
-                )
-            }
-        }
-        for (event in uiState.value.artsEvents.data ?: emptyList()) {
-            if (eventSavedIds.contains(event.id.toString())) {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = true,
-                    eventList = uiState.value.artsEvents.data ?: emptyList(),
-                    category = 4
-                )
-            } else {
-                changeEventSaved(
-                    id = event.id.toString(),
-                    save = false,
-                    eventList = uiState.value.artsEvents.data ?: emptyList(),
-                    category = 4
-                )
-            }
+
+            currentState.copy(
+                eventsThisWeekend = updateCategoryEvents(currentState.eventsThisWeekend, eventSavedIds),
+                eventsNearYou = updateCategoryEvents(currentState.eventsNearYou, eventSavedIds),
+                musicEvents = updateCategoryEvents(currentState.musicEvents, eventSavedIds),
+                sportsEvents = updateCategoryEvents(currentState.sportsEvents, eventSavedIds),
+                artsEvents = updateCategoryEvents(currentState.artsEvents, eventSavedIds)
+            )
         }
     }
 }

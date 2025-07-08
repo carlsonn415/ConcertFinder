@@ -5,7 +5,6 @@ import com.example.concertfinder.data.model.Segment
 import com.example.concertfinder.data.model.Subgenre
 
 data class FilterScreenUiState(
-    val isRadiusPreferencesExpanded: Boolean = false,
     val isLocationPreferencesMenuExpanded: Boolean = false, // set to false to reduce maps api calls
     val locationSearchQuery: String = "",
     val isSortMenuExpanded: Boolean = true,

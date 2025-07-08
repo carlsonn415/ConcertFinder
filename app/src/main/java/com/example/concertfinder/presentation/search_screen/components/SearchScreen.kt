@@ -34,18 +34,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.FilterSortButton
-import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
+import com.example.concertfinder.presentation.common_ui.elements.FilterSortButton
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
+import com.example.concertfinder.presentation.common_ui.location_menu.components.LocationMenu
 import com.example.concertfinder.presentation.search_screen.SearchScreenViewModel
 import com.example.concertfinder.presentation.ui.theme.MyIcons
-import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -54,14 +52,14 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 fun SearchScreen(
     onSearch: (String) -> Unit,
     onFilterSortClicked: () -> Unit,
+    onLocationUpdated: () -> Unit,
+    innerPadding: PaddingValues,
+    locationViewModel: LocationViewModel,
     modifier: Modifier = Modifier,
     searchScreenViewModel: SearchScreenViewModel = hiltViewModel(),
-    locationViewModel: LocationViewModel = hiltViewModel(),
-    innerPadding: PaddingValues
 ) {
 
     val searchScreenUiState = searchScreenViewModel.uiState.collectAsState()
-    val locationUiState = locationViewModel.uiState.collectAsState()
 
     // Animate the horizontal padding
     val searchBarPadding by animateDpAsState(
@@ -75,15 +73,6 @@ fun SearchScreen(
             searchScreenViewModel.resetSearchBarScreen()
         }
     }
-
-    // launch location permission launcher when view model requests it
-    LaunchLocationPermission(
-        context = LocalContext.current,
-        updateLocation = {
-            locationViewModel.updateLocation()
-        },
-        requestLocationPermissionEvent = locationViewModel.requestLocationPermissionEvent
-    )
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -210,30 +199,17 @@ fun SearchScreen(
         }
 
         LocationMenu(
-            address = locationUiState.value.address,
-            latitude = locationUiState.value.latitude,
-            longitude = locationUiState.value.longitude,
-            radius = locationUiState.value.radius,
             isLocationPreferencesMenuExpanded = searchScreenUiState.value.isLocationPreferencesMenuExpanded,
             locationSearchQuery = searchScreenUiState.value.locationSearchQuery,
-            isRadiusPreferencesExpanded = searchScreenUiState.value.isRadiusPreferencesExpanded,
-            locationLoadingStatus = locationUiState.value.locationLoadingStatus,
-            onExposeRadiusDropdownChange = {
-                searchScreenViewModel.updateDropDownExpanded(it)
-            },
-            onRadiusOptionSelected = {
-                locationViewModel.updateRadiusFilterPreference(radius = it)
-                searchScreenViewModel.updateDropDownExpanded(false)
-            },
-            onExpandLocationDropdown = {
+            onExpandLocationMenu = {
                 searchScreenViewModel.updateLocationMenuExpanded(it)
             },
-            onGetLocation = { locationViewModel.initiateLocationUpdate() },
             onLocationQueryUpdate = {
                 searchScreenViewModel.updateLocationSearchQuery(it)
             },
-            onLocationSearch = {
-                locationViewModel.searchForLocation(it)
+            viewModel = locationViewModel,
+            onLocationUpdated = {
+                onLocationUpdated()
             }
         )
     }

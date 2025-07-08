@@ -1,4 +1,4 @@
-package com.example.concertfinder.presentation.common_ui
+package com.example.concertfinder.presentation.common_ui.elements
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,17 +35,20 @@ fun MapItem(
     val eventLocation = remember(latitude, longitude) { LatLng(latitude, longitude) }
     val cameraPositionState = rememberCameraPositionState {
         // Default position, will be updated if radius is shown
-        position = CameraPosition.fromLatLngZoom(eventLocation, 15f) // Initial zoom and position
+        position = CameraPosition.fromLatLngZoom(
+            eventLocation,
+            if (showRadius && radiusInMiles == null) 1f else 15f
+        ) // Initial zoom and position
     }
     var uiSettings by remember {
         mutableStateOf(MapUiSettings(
             zoomControlsEnabled = true,
             scrollGesturesEnabled = false,
-            zoomGesturesEnabled = true,
+            zoomGesturesEnabled = false,
             rotationGesturesEnabled = false,
             tiltGesturesEnabled = false,
             mapToolbarEnabled = false
-        )) // Enable zoom controls
+        ))
     }
     var mapProperties by remember {
         mutableStateOf(MapProperties(mapType = MapType.NORMAL, mapStyleOptions = null))
@@ -64,12 +67,13 @@ fun MapItem(
                 update = CameraUpdateFactory.newLatLngBounds(circleBounds, padding),
                 durationMs = 500 // Animation duration
             )
+        } else if (showRadius && radiusInMeters == null) {
+            cameraPositionState.animate(
+                update = CameraUpdateFactory.newLatLngZoom(eventLocation, 1f),
+                durationMs = 500 // Animation duration
+            )
         } else {
             // If no radius or not shown, just zoom to the event location
-            //cameraPositionState.animate(
-            //    update = CameraUpdateFactory.newLatLngZoom(eventLocation, 15f),
-            //    durationMs = 500
-            //)
             cameraPositionState.position = CameraPosition.fromLatLngZoom(eventLocation, 15f)
         }
     }

@@ -27,7 +27,7 @@ import com.example.concertfinder.data.remote.event_dto.EventImage
 import com.example.concertfinder.data.remote.event_dto.Genre
 import com.example.concertfinder.data.remote.event_dto.Segment
 import com.example.concertfinder.data.remote.event_dto.SubGenre
-import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
+import com.example.concertfinder.presentation.common_ui.elements.ClassificationFlowRow
 
 @Composable
 fun AttractionItem(

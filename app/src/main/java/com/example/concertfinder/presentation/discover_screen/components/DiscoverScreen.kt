@@ -49,9 +49,12 @@ fun DiscoverScreen(
         segmentName: String?,
         titleId: Int,
     ) -> Unit,
+    locationUpdatedFlag: Boolean,
+    onLocationUpdated: () -> Unit,
     onEventClick: (event: Event) -> Unit,
     onEventSaveClick: (event: Event) -> Unit,
-    updateEventsSaved: Boolean,
+    onSavedEventsLoaded: () -> Unit,
+    refreshSavedEvents: Boolean,
     eventSavedIds: Set<String>,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
@@ -59,11 +62,19 @@ fun DiscoverScreen(
 ) {
     val uiState = viewModel.uiState.collectAsState()
 
-    LaunchedEffect(updateEventsSaved) {
-        if (updateEventsSaved) {
+    LaunchedEffect(refreshSavedEvents) {
+        if (refreshSavedEvents) {
             Log.d("DiscoverScreen", "Saved events ids: $eventSavedIds")
             viewModel.updateEventsSaved(eventSavedIds)
+            onSavedEventsLoaded()
             Log.d("DiscoverScreen", "Updated events saved")
+        }
+    }
+
+    LaunchedEffect(locationUpdatedFlag) {
+        if (locationUpdatedFlag) {
+            viewModel.refreshAllEvents()
+            onLocationUpdated()
         }
     }
 

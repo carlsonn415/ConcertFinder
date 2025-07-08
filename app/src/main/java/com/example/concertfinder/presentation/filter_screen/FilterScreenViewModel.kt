@@ -112,15 +112,6 @@ class FilterScreenViewModel @Inject constructor(
         }
     }
 
-    // update drop down expanded
-    fun updateDropDownExpanded(expanded: Boolean) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isRadiusPreferencesExpanded = expanded
-            )
-        }
-    }
-
     // update location search query
     fun updateLocationSearchQuery(query: String) {
         _uiState.update { currentState ->

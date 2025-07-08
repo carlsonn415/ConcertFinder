@@ -1,5 +1,6 @@
 package com.example.concertfinder.data.repository.events_repository
 
+import android.util.Log
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.local.EventDao
 import com.example.concertfinder.data.local.entities.event_entities.EventAttractionCrossRef
@@ -97,15 +98,18 @@ class AppLocalEventsRepository @Inject constructor(
 
     override suspend fun getEvents(): Flow<Resource<List<Event>>> {
         return flow {
-            emit(Resource.Loading())
-
-            val events = eventDao.getAllEventsWithAllDetails().map {
-                it.toEvent(
-                    venues = eventDao.getVenuesForEvent(it.event.eventId),
-                    attractions = eventDao.getAttractionsForEvent(it.event.eventId)
-                )
+            try {
+                val events = eventDao.getAllEventsWithAllDetails().map {
+                    it.toEvent(
+                        venues = eventDao.getVenuesForEvent(it.event.eventId),
+                        attractions = eventDao.getAttractionsForEvent(it.event.eventId)
+                    )
+                }
+                emit(Resource.Success(events))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "Unknown error occurred"))
+                Log.e("AppLocalEventsRepository", "Error fetching events: ${e.message}")
             }
-            emit(Resource.Success(events))
         }
     }
 

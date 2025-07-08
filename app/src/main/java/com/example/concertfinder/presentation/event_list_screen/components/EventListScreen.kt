@@ -2,6 +2,7 @@ package com.example.concertfinder.presentation.event_list_screen.components
 
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,9 +34,9 @@ import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
-import com.example.concertfinder.presentation.common_ui.ErrorScreen
-import com.example.concertfinder.presentation.common_ui.EventListItem
-import com.example.concertfinder.presentation.common_ui.LoadingScreen
+import com.example.concertfinder.presentation.common_ui.elements.EventListItem
+import com.example.concertfinder.presentation.common_ui.screens.ErrorScreen
+import com.example.concertfinder.presentation.common_ui.screens.LoadingScreen
 import com.example.concertfinder.presentation.event_list_screen.EventListViewModel
 import com.example.concertfinder.presentation.utils.AppDestinations
 
@@ -45,9 +46,12 @@ import com.example.concertfinder.presentation.utils.AppDestinations
 fun EventListScreen(
     onEventClicked: (Event) -> Unit,
     onClickSave: (Event) -> Unit,
-    updateEventsSaved: Boolean,
+    onBackClick: () -> Unit,
+    onSavedEventsLoaded: () -> Unit,
+    reloadSavedEventsFlag: Boolean,
     eventSavedIds: Set<String>,
-    filtersUpdated: Boolean,
+    filtersUpdatedFlag: Boolean,
+    reloadEventListFlag: Boolean,
     navBackStackEntry: NavBackStackEntry,
     scrollBehavior: TopAppBarScrollBehavior,
     innerPadding: PaddingValues = PaddingValues(0.dp),
@@ -109,7 +113,7 @@ fun EventListScreen(
 
     //------------------------------------------------------------------------------------------------------------------------- Run when filtersUpdated is true, loads new events
     LaunchedEffect(Unit) {
-        if (filtersUpdated) {
+        if (filtersUpdatedFlag) {
             Log.d("EventListScreen", "Filters updated, fetching initial events")
             viewModel.getEvents(hasLoadedOnce = false) // This should reset any pagination state in the ViewModel
             navBackStackEntry.savedStateHandle["filters_updated"] = false
@@ -120,10 +124,11 @@ fun EventListScreen(
 
     //------------------------------------------------------------------------------------------------------------------------- Run when updateEventsSaved is true, checks each loaded
     //                                                                                                                          event to see if it's saved or not
-    LaunchedEffect(updateEventsSaved) {
-        if (updateEventsSaved) {
+    LaunchedEffect(reloadSavedEventsFlag) {
+        if (reloadSavedEventsFlag) {
             Log.d("EventListScreen", "Saved events ids: $eventSavedIds")
             viewModel.updateEventsSaved(eventSavedIds)
+            onSavedEventsLoaded()
             Log.d("EventListScreen", "Updated events saved")
         }
     }
@@ -146,7 +151,8 @@ fun EventListScreen(
     //                                                                                                                          any provided parameters from the discover screen and
     //                                                                                                                          loads initial events
     LaunchedEffect(Unit) {
-        if (startDateTime != null || endDateTime != null || radius != null || sort != null || segmentName != null) {
+        if ((startDateTime != null || endDateTime != null || radius != null || sort != null || segmentName != null) && reloadEventListFlag == true) {
+            Log.d("EventListScreen", "Initial load with parameters")
             viewModel.getEvents(
                 hasLoadedOnce = false,
                 startDateTime = startDateTime ?: "",
@@ -159,13 +165,17 @@ fun EventListScreen(
                 subgenres = emptyList(),
                 segment = ""
             )
+        } else if (reloadEventListFlag == true) {
+            Log.d("EventListScreen", "Initial load")
+            viewModel.getEvents(hasLoadedOnce = false)
         } else {
-            if (uiState.value.eventsResource is Resource.Loading) {
-                viewModel.getEvents(hasLoadedOnce = false)
-            }
+            Log.d("EventListScreen", "EventListScreen already loaded")
         }
     }
 
+    BackHandler {
+        onBackClick()
+    }
 
     Box(
         contentAlignment = Alignment.TopCenter,

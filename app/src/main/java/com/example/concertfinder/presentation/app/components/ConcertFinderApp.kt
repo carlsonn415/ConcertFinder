@@ -59,8 +59,6 @@ fun ConcertFinderApp(
     // collect ui state from view model
     val uiState = viewModel.uiState.collectAsState()
 
-    var previousTopBarTitle = remember { R.string.app_name }
-
     /* TODO: add support for different screen sizes */
     val contentType = when(windowSize) {
         WindowWidthSizeClass.Compact -> AppContentType.Compact
@@ -83,17 +81,17 @@ fun ConcertFinderApp(
     LaunchedEffect(backStackEntry) {
         viewModel.updateFabVisibility(backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS)
 
-        if (backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS) {
-            previousTopBarTitle = uiState.value.topBarTitle
-            viewModel.updateTopBarTitle(R.string.details)
-            viewModel.updateCurrentEvent(uiState.value.currentEvent)
-        } else if (backStackEntry?.destination?.route == AppDestinations.FILTER) {
-            viewModel.updateTopBarTitle(R.string.filter_with_gear)
-        } else if (backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true
-            && navController.previousBackStackEntry?.destination?.route == AppDestinations.SEARCH
-        ) {
-            viewModel.updateTopBarTitle(R.string.results)
-        }
+//        if (backStackEntry?.destination?.route == AppDestinations.EVENT_DETAILS) {
+//            previousTopBarTitle = uiState.value.topBarTitle
+//            viewModel.updateTopBarTitle(R.string.details)
+//            viewModel.updateCurrentEvent(uiState.value.currentEvent)
+//        } else if (backStackEntry?.destination?.route == AppDestinations.FILTER) {
+//            viewModel.updateTopBarTitle(R.string.filter_with_gear)
+//        } else if (backStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true
+//            && navController.previousBackStackEntry?.destination?.route == AppDestinations.SEARCH
+//        ) {
+//            viewModel.updateTopBarTitle(R.string.results)
+//        }
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -140,14 +138,22 @@ fun ConcertFinderApp(
                         // check if coming from filter to event list
                         if (currentDestinationRoute == AppDestinations.FILTER
                             && previousDestinationRoute?.startsWith(AppDestinations.EVENT_LIST) == true
-                            && uiState.value.areFiltersApplied
+                            && uiState.value.areFiltersAppliedFlag
                         ) {
                             navController.previousBackStackEntry?.savedStateHandle["filters_updated"] = true
                             viewModel.updateAreFiltersApplied(false)
                             Log.d("TopAppBarBack", "Coming from Filter to EventList, setting filters_updated flag.")
                         }
-                        // navigate up
-                        navController.navigateUp()
+                        if (uiState.value.topBarTitleStack.size > 1) {
+                            viewModel.popTopBarTitle()
+                        }
+                        if (currentDestinationRoute == AppDestinations.EVENT_DETAILS && previousDestinationRoute?.startsWith(AppDestinations.EVENT_LIST) == true) {
+                            viewModel.updateEventListScreenLoadNewEventsFlag(false)
+                            navController.navigateUp()
+                            viewModel.updateEventListScreenLoadNewEventsFlag(true)
+                        } else {
+                            navController.navigateUp()
+                        }
                     },
                     // only show filter button if on event list screen and not coming from discover screen
                     showFilterButton = showFilterButton,
@@ -155,9 +161,10 @@ fun ConcertFinderApp(
                     scrollBehavior = scrollBehavior,
                     onFilterSortClicked = {
                         navController.navigate(AppDestinations.FILTER)
+                        viewModel.pushOntoTopBarTitle(R.string.filter_with_gear)
                     },
                     // set title based on current destination
-                    titleId = uiState.value.topBarTitle,
+                    titleId = uiState.value.topBarTitleStack.last(),
                     modifier = modifier
                 )
             }
@@ -179,7 +186,7 @@ fun ConcertFinderApp(
                             // Restore state when re-selecting a previously selected item
                             restoreState = true
                         }
-                    }
+                    },
                 )
             }
         },
@@ -194,12 +201,18 @@ fun ConcertFinderApp(
                 FloatingAppButton(
                     onClick = {
                         viewModel.toggleEventSaved(event = uiState.value.currentEvent)
-                        viewModel.updateSavedEventsUpdated(true)
+                        viewModel.updateAllEventSavedFlags(true)
                         // show snackbar if event is saved or unsaved
                         if (filled == false) {
                             viewModel.showSnackbar(message = uiState.value.currentEvent.name + " " + context.getString(R.string.saved))
                         } else {
-                            viewModel.showSnackbar(message = uiState.value.currentEvent.name + " " + context.getString(R.string.unsaved))
+                            viewModel.showSnackbar(
+                                message = uiState.value.currentEvent.name + " " + context.getString(R.string.unsaved),
+                                onAction = {
+                                    viewModel.toggleEventSaved(event = uiState.value.currentEvent, undo = true)
+                                },
+                                actionLabel = context.getString(R.string.undo)
+                            )
                         }
                     },
                     filled = filled

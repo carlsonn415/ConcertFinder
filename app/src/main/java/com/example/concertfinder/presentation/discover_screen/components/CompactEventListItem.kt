@@ -41,7 +41,7 @@ import com.example.concertfinder.data.remote.event_dto.PriceRange
 import com.example.concertfinder.data.remote.event_dto.Segment
 import com.example.concertfinder.data.remote.event_dto.State
 import com.example.concertfinder.data.remote.event_dto.SubGenre
-import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
+import com.example.concertfinder.presentation.common_ui.elements.ClassificationFlowRow
 import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @Composable

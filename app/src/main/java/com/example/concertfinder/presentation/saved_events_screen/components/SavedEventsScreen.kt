@@ -23,9 +23,9 @@ import com.example.concertfinder.R
 import com.example.concertfinder.common.Resource
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
-import com.example.concertfinder.presentation.common_ui.ErrorScreen
-import com.example.concertfinder.presentation.common_ui.EventListItem
-import com.example.concertfinder.presentation.common_ui.LoadingScreen
+import com.example.concertfinder.presentation.common_ui.elements.EventListItem
+import com.example.concertfinder.presentation.common_ui.screens.ErrorScreen
+import com.example.concertfinder.presentation.common_ui.screens.LoadingScreen
 import com.example.concertfinder.presentation.saved_events_screen.SavedEventsViewModel
 
 @Composable
@@ -33,7 +33,7 @@ fun SavedEventsScreen(
     onEventClicked: (Event) -> Unit,
     onClickSave: (Event) -> Unit,
     onSavedEventsLoaded: () -> Unit,
-    updateSavedEvents: Boolean,
+    refreshSavedEvents: Boolean,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
     viewModel: SavedEventsViewModel = hiltViewModel()
@@ -42,8 +42,8 @@ fun SavedEventsScreen(
 
     val lazyListState = rememberLazyListState()
 
-    LaunchedEffect(updateSavedEvents) {
-        if (updateSavedEvents) {
+    LaunchedEffect(refreshSavedEvents) {
+        if (refreshSavedEvents) {
             viewModel.getSavedEvents()
             onSavedEventsLoaded()
         }

@@ -2,8 +2,11 @@ package com.example.concertfinder.presentation.utils
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,7 +26,6 @@ fun LaunchLocationPermission(
     updateLocation: () -> Unit,
     requestLocationPermissionEvent: Flow<Unit>,
 ) {
-
     // Launcher for location permission request
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -37,7 +39,18 @@ fun LaunchLocationPermission(
             updateLocation()
         } else {
             // TODO: Make this launch settings
-            AppSnackbarManager.showSnackbar(context, R.string.location_permission_denied, R.string.settings, null)
+            AppSnackbarManager.showSnackbar(context, R.string.location_permission_denied, R.string.settings) {
+                // Action to take the user to app settings
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri = Uri.fromParts("package", context.packageName, null)
+                intent.data = uri
+                // Important: Check if an activity can handle this intent
+                if (intent.resolveActivity(context.packageManager) != null) {
+                    context.startActivity(intent)
+                } else {
+                    AppSnackbarManager.showSnackbar(context, R.string.could_not_open_settings)
+                }
+            }
         }
     }
 

@@ -87,4 +87,6 @@
     <string name="your_location">Your location</string>
     <string name="searching_near_here">Searching near here</string>
     <string name="location">Location</string>
+    <string name="could_not_open_settings">Could not open settings.</string>
+    <string name="empty_string" />
 </resources>

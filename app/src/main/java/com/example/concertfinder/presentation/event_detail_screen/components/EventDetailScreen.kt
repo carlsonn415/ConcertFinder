@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -52,8 +54,8 @@ import com.example.concertfinder.R
 import com.example.concertfinder.data.local.AppSnackbarManager
 import com.example.concertfinder.data.model.Event
 import com.example.concertfinder.domain.model.DistanceUnit
-import com.example.concertfinder.presentation.common_ui.ClassificationFlowRow
-import com.example.concertfinder.presentation.common_ui.MapItem
+import com.example.concertfinder.presentation.common_ui.elements.ClassificationFlowRow
+import com.example.concertfinder.presentation.common_ui.elements.MapItem
 import com.example.concertfinder.presentation.event_detail_screen.EventDetailViewModel
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AdditionalInfoDialog
 import com.example.concertfinder.presentation.event_detail_screen.components.composables.AddressText
@@ -73,6 +75,7 @@ import kotlinx.coroutines.launch
 fun EventDetailScreen(
     event: Event,
     navBackStackEntry: NavBackStackEntry,
+    onBackClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues = PaddingValues(0.dp),
@@ -85,6 +88,7 @@ fun EventDetailScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+    // manages top app bar scroll state
     LaunchedEffect(navBackStackEntry) {
         // Check if the current destination is THIS screen
         if (navBackStackEntry.destination.route == AppDestinations.EVENT_DETAILS) {
@@ -96,6 +100,10 @@ fun EventDetailScreen(
                 topAppBarState.contentOffset = 0f
             }
         }
+    }
+
+    BackHandler {
+        onBackClick()
     }
 
     // Queue of info to display, as info is displayed, it is removed from the queue
@@ -184,27 +192,47 @@ fun EventDetailScreen(
 
                 // -------------------------------------------------------------------------------------------------------------Event start date
                 if (eventStartDate != null) {
-                    Text(
-                        text = "Start: $eventStartDate",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = modifier
-                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    )
+                    Row {
+                        Text(
+                            text = "Start: ",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = modifier
+                                .padding(start = dimensionResource(R.dimen.padding_medium))
+                        )
+                        Text(
+                            text = eventStartDate,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = modifier
+                                .padding(end = dimensionResource(R.dimen.padding_medium))
+                        )
+                    }
 
-                    Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+                    if (eventEndDate == null) {
+                        Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
+                    } else {
+                        Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+                    }
                 }
                 // -------------------------------------------------------------------------------------------------------------Event end date
                 if (eventEndDate != null) {
-                    Text(
-                        text = "End: $eventEndDate",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = modifier
-                            .padding(
-                                horizontal = dimensionResource(R.dimen.padding_medium),
-                            )
-                    )
+                    Row {
+                        Text(
+                            text = "End: ",
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = modifier
+                                .padding(start = dimensionResource(R.dimen.padding_medium))
+                        )
+                        Text(
+                            text = eventEndDate,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = modifier
+                                .padding(end = dimensionResource(R.dimen.padding_medium))
+                        )
+                    }
 
-                    Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_small)))
+                    Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
                 }
 
                 // ------------------------------------------------------------------------------------------------------------Event description

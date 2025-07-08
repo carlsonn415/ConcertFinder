@@ -65,6 +65,7 @@ fun AppNavHost(
             SavedEventsScreen(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
+                    viewModel.pushOntoTopBarTitle(R.string.details)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
                 },
                 onClickSave = { event ->
@@ -83,9 +84,9 @@ fun AppNavHost(
                     }
                 },
                 onSavedEventsLoaded = {
-                    viewModel.updateSavedEventsUpdated(false)
+                    viewModel.updateSavedEventsScreenReloadFlag(false)
                 },
-                updateSavedEvents = uiState.value.savedEventsUpdated,
+                refreshSavedEvents = uiState.value.savedEventsScreenReloadSavedEventsFlag,
                 modifier = modifier,
                 innerPadding = innerPadding
             )
@@ -99,14 +100,18 @@ fun AppNavHost(
                         navController = navController,
                         searchQuery = it
                     )
-                    viewModel.updateTopBarTitle(R.string.results)
+                    viewModel.pushOntoTopBarTitle(R.string.results)
                 },
                 onFilterSortClicked = {
                     navController.navigate(AppDestinations.FILTER)
+                    viewModel.pushOntoTopBarTitle(R.string.filter_with_gear)
                 },
                 innerPadding = innerPadding,
                 modifier = modifier,
-                locationViewModel = locationViewModel
+                locationViewModel = locationViewModel,
+                onLocationUpdated = {
+                    viewModel.updateLocationChangedFlag(true)
+                }
             )
         }
 
@@ -115,6 +120,7 @@ fun AppNavHost(
             DiscoverScreen(
                 modifier = modifier,
                 innerPadding = innerPadding,
+                locationUpdatedFlag = uiState.value.locationChangedFlag,
                 onSeeMoreClick = { startDateTime, endDateTime, radius, sort, segmentName, title ->
                     viewModel.onNavigateToEventList(
                         navController = navController,
@@ -125,13 +131,17 @@ fun AppNavHost(
                         radius = radius,
                         segmentName = segmentName
                     )
-                    viewModel.updateTopBarTitle(title)
+                    viewModel.pushOntoTopBarTitle(title)
                 },
                 onEventClick = {
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
+                    viewModel.pushOntoTopBarTitle(R.string.details)
                 },
-                updateEventsSaved = uiState.value.savedEventsUpdated,
+                onSavedEventsLoaded = {
+                    viewModel.updateDiscoverScreenReloadFlag(false)
+                },
+                refreshSavedEvents = uiState.value.discoverScreenReloadSavedEventsFlag,
                 eventSavedIds = uiState.value.savedEventsIds,
                 onEventSaveClick = { event ->
                     viewModel.toggleEventSaved(event = event)
@@ -139,8 +149,17 @@ fun AppNavHost(
                     if (event.saved == false) {
                         viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.saved))
                     } else {
-                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.unsaved))
+                        viewModel.showSnackbar(
+                            message = event.name + " " + context.getString(R.string.unsaved),
+                            onAction = {
+                                viewModel.toggleEventSaved(event = event, undo = true)
+                            },
+                            actionLabel = context.getString(R.string.undo)
+                        )
                     }
+                },
+                onLocationUpdated = {
+                    viewModel.updateLocationChangedFlag(false)
                 }
             )
         }
@@ -179,7 +198,7 @@ fun AppNavHost(
                 onEventClicked = {
                     viewModel.updateCurrentEvent(it)
                     navController.navigate(AppDestinations.EVENT_DETAILS)
-                    viewModel.updateTopBarTitle(R.string.details)
+                    viewModel.pushOntoTopBarTitle(R.string.details)
                 },
                 onClickSave = { event ->
                     viewModel.toggleEventSaved(event = event)
@@ -187,12 +206,26 @@ fun AppNavHost(
                     if (event.saved == false) {
                         viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.saved))
                     } else {
-                        viewModel.showSnackbar(message = event.name + " " + context.getString(R.string.unsaved))
+                        viewModel.showSnackbar(
+                            message = event.name + " " + context.getString(R.string.unsaved),
+                            onAction = {
+                                viewModel.toggleEventSaved(event = event, undo = true)
+                            },
+                            actionLabel = context.getString(R.string.undo)
+                        )
                     }
                 },
-                updateEventsSaved = uiState.value.savedEventsUpdated,
+                onBackClick = {
+                    navController.popBackStack()
+                    viewModel.popTopBarTitle()
+                },
+                onSavedEventsLoaded = {
+                    viewModel.updateEventListScreenReloadFlag(false)
+                },
+                reloadSavedEventsFlag = uiState.value.eventListScreenReloadSavedEventsFlag,
                 eventSavedIds = uiState.value.savedEventsIds,
-                filtersUpdated = filtersUpdated.collectAsState().value,
+                filtersUpdatedFlag = filtersUpdated.collectAsState().value,
+                reloadEventListFlag = uiState.value.eventListScreenLoadNewEventsFlag,
                 navBackStackEntry = backStackEntry,
                 scrollBehavior = topAppBarScrollBehavior,
                 innerPadding = innerPadding,
@@ -208,6 +241,17 @@ fun AppNavHost(
         composable(route = AppDestinations.EVENT_DETAILS) {
             EventDetailScreen(
                 event = uiState.value.currentEvent,
+                onBackClick = {
+                    if (navController.previousBackStackEntry?.destination?.route?.startsWith(AppDestinations.EVENT_LIST) == true) {
+                        viewModel.updateEventListScreenLoadNewEventsFlag(false)
+                        navController.popBackStack()
+                        viewModel.popTopBarTitle()
+                        viewModel.updateEventListScreenLoadNewEventsFlag(true)
+                    } else {
+                        navController.popBackStack()
+                        viewModel.popTopBarTitle()
+                    }
+                },
                 navBackStackEntry = it,
                 scrollBehavior = topAppBarScrollBehavior,
                 modifier = modifier,
@@ -222,10 +266,17 @@ fun AppNavHost(
                 onFilterApplied = {
                     viewModel.updateAreFiltersApplied(true)
                 },
+                onBackClick = {
+                    navController.popBackStack()
+                    viewModel.popTopBarTitle()
+                },
                 scrollBehavior = topAppBarScrollBehavior,
                 modifier = modifier,
                 innerPadding = innerPadding,
-                locationViewModel = locationViewModel
+                locationViewModel = locationViewModel,
+                onLocationUpdated = {
+                    viewModel.updateLocationChangedFlag(true)
+                }
             )
         }
     }

@@ -1,5 +1,7 @@
-package com.example.concertfinder.presentation.common_ui.location_menu
+package com.example.concertfinder.presentation.common_ui.location_menu.components
 
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,39 +15,44 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.concertfinder.R
-import com.example.concertfinder.common.Constants
 import com.example.concertfinder.domain.model.LoadingStatus
-import com.example.concertfinder.presentation.common_ui.MapItem
-import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
+import com.example.concertfinder.presentation.common_ui.elements.MapItem
+import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
 import com.example.concertfinder.presentation.ui.theme.MyIcons
+import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationMenu(
-    address: String,
-    latitude: Double,
-    longitude: Double,
-    radius: String,
     isLocationPreferencesMenuExpanded: Boolean,
     locationSearchQuery: String,
-    isRadiusPreferencesExpanded: Boolean,
-    locationLoadingStatus: LoadingStatus,
-    onExpandLocationDropdown: (Boolean) -> Unit,
-    onGetLocation: () -> Unit,
-    onExposeRadiusDropdownChange: (Boolean) -> Unit,
-    onRadiusOptionSelected: (String) -> Unit,
+    onExpandLocationMenu: (Boolean) -> Unit,
     onLocationQueryUpdate: (String) -> Unit,
-    onLocationSearch: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onLocationUpdated: () -> Unit,
+    viewModel: LocationViewModel,
+    modifier: Modifier = Modifier,
 ) {
+
+    val uiState = viewModel.uiState.collectAsState()
+
+    LaunchLocationPermission(
+        context = LocalContext.current,
+        updateLocation = {
+            viewModel.updateLocation()
+        },
+        requestLocationPermissionEvent = viewModel.requestLocationPermissionEvent
+    )
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -58,7 +65,7 @@ fun LocationMenu(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier
                     .clickable {
-                        onExpandLocationDropdown(!isLocationPreferencesMenuExpanded)
+                        onExpandLocationMenu(!isLocationPreferencesMenuExpanded)
                     }
                     .padding(
                         horizontal = dimensionResource(R.dimen.padding_medium),
@@ -66,10 +73,10 @@ fun LocationMenu(
                     )
             ) {
                 Text(
-                    text = if (locationLoadingStatus == LoadingStatus.Loading) {
+                    text = if (uiState.value.locationLoadingStatus == LoadingStatus.Loading) {
                         stringResource(R.string.getting_location)
                     } else {
-                        stringResource(R.string.searching_near) + address
+                        stringResource(R.string.searching_near) + uiState.value.address
                     },
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.bodyLarge,
@@ -94,8 +101,8 @@ fun LocationMenu(
             if (isLocationPreferencesMenuExpanded) {
 
                 MapItem(
-                    latitude = latitude,
-                    longitude = longitude,
+                    latitude = uiState.value.latitude,
+                    longitude = uiState.value.longitude,
                     eventTitle = stringResource(R.string.searching_near_here),
                     modifier = modifier
                         .padding(
@@ -104,32 +111,33 @@ fun LocationMenu(
                         )
                         .fillMaxWidth()
                         .height(dimensionResource(R.dimen.map_height))
-                        .clip(MaterialTheme.shapes.medium),
+                        .clip(MaterialTheme.shapes.small),
                     showMarker = false,
                     showRadius = true,
-                    radiusInMiles = radius.toDoubleOrNull()
+                    radiusInMiles = uiState.value.radius.toDoubleOrNull()
                 )
 
-                //Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_large)))
+                RadiusSlider(
+                    modifier = modifier.padding(
+                        horizontal = dimensionResource(R.dimen.padding_large)
+                    ),
+                    initialRadius = uiState.value.radius,
+                    onRadiusChange = {viewModel.updateRadiusFilterPreference(it)}
+                )
+
+                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium_small)))
 
                 LocationSearchField(
                     locationSearchQuery = locationSearchQuery,
-                    onGetLocation = onGetLocation,
+                    onGetLocation = {
+                        viewModel.initiateLocationUpdate()
+                        onLocationUpdated()
+                    },
                     onLocationQueryUpdate = onLocationQueryUpdate,
-                    onLocationSearch = onLocationSearch,
-                    modifier = modifier
-                )
-
-                Spacer(modifier = modifier.height(dimensionResource(R.dimen.padding_medium)))
-
-                PreferencesDropdown(
-                    currentPreference = radius,
-                    dropdownLabel = stringResource(R.string.select_a_radius_to_search),
-                    preferenceOptions = Constants.radiusOptions.map { it.radius },
-                    preferenceLabel = Constants.radiusOptions.first().unit.name,
-                    isPreferencesExpanded = isRadiusPreferencesExpanded,
-                    onPreferencesExpandedChange = onExposeRadiusDropdownChange,
-                    onPreferenceSelected = onRadiusOptionSelected,
+                    onLocationSearch = {
+                        viewModel.searchForLocation(it)
+                        onLocationUpdated()
+                    },
                     modifier = modifier
                 )
 
@@ -137,25 +145,4 @@ fun LocationMenu(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun LocationMenuPreview() {
-    LocationMenu(
-        address = "123 Main St",
-        radius = "10",
-        latitude = 40.7128,
-        longitude = -74.0060,
-        locationLoadingStatus = LoadingStatus.Success,
-        isLocationPreferencesMenuExpanded = true,
-        locationSearchQuery = "New York",
-        isRadiusPreferencesExpanded = false,
-        onExpandLocationDropdown = {},
-        onRadiusOptionSelected = {},
-        onExposeRadiusDropdownChange = {},
-        onGetLocation = {},
-        onLocationQueryUpdate = {},
-        onLocationSearch = {},
-    )
 }

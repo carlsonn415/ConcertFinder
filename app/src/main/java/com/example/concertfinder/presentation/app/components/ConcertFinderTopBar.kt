@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.FilterSortButton
+import com.example.concertfinder.presentation.common_ui.elements.FilterSortButton
 import com.example.concertfinder.presentation.ui.theme.MyIcons
 
 @OptIn(ExperimentalMaterial3Api::class)

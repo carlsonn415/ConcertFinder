@@ -13,6 +13,7 @@ import com.example.concertfinder.presentation.utils.AppDestinations
 import com.example.concertfinder.presentation.utils.SnackbarMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -136,7 +137,9 @@ class AppViewModel @Inject constructor(
                 }
                 Log.d("navigation", "Saved events ids: ${_uiState.value.savedEventsIds}")
             }
-            updateSavedEventsUpdated(true)
+
+            // sends flags to reload all events
+            updateAllEventSavedFlags(true)
         }
     }
 
@@ -148,10 +151,18 @@ class AppViewModel @Inject constructor(
         }
     }
 
-    fun updateTopBarTitle(titleId: Int) {
+    fun pushOntoTopBarTitle(titleId: Int) {
         _uiState.update { currentState ->
             currentState.copy(
-                topBarTitle = titleId
+                topBarTitleStack = currentState.topBarTitleStack.plus(titleId)
+            )
+        }
+    }
+
+    fun popTopBarTitle() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                topBarTitleStack = currentState.topBarTitleStack.dropLast(1)
             )
         }
     }
@@ -159,18 +170,66 @@ class AppViewModel @Inject constructor(
     fun updateAreFiltersApplied(areFiltersApplied: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(
-                areFiltersApplied = areFiltersApplied
+                areFiltersAppliedFlag = areFiltersApplied
             )
         }
     }
 
-    fun updateSavedEventsUpdated(savedEventsUpdated: Boolean) {
+    fun updateAllEventSavedFlags(saved: Boolean) {
+        updateSavedEventsScreenReloadFlag(saved)
+        updateDiscoverScreenReloadFlag(saved)
+        updateEventListScreenReloadFlag(saved)
+    }
+
+    fun updateSavedEventsScreenReloadFlag(savedEventsScreenReloadFlag: Boolean) {
         _uiState.update { currentState ->
             currentState.copy(
-                savedEventsUpdated = savedEventsUpdated,
+                savedEventsScreenReloadSavedEventsFlag = savedEventsScreenReloadFlag,
             )
         }
-        Log.d("navigation", "Saved events updated: ${_uiState.value.savedEventsUpdated}")
+    }
+
+    fun updateDiscoverScreenReloadFlag(discoverScreenReloadFlag: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                discoverScreenReloadSavedEventsFlag = discoverScreenReloadFlag,
+            )
+        }
+    }
+
+    fun updateEventListScreenReloadFlag(eventListScreenReloadFlag: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                eventListScreenReloadSavedEventsFlag = eventListScreenReloadFlag,
+            )
+        }
+    }
+
+    fun updateLocationChangedFlag(locationChangedFlag: Boolean) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                locationChangedFlag = locationChangedFlag,
+            )
+        }
+    }
+
+    fun updateEventListScreenLoadNewEventsFlag(eventListScreenLoadNewEventsFlag: Boolean) {
+        if (eventListScreenLoadNewEventsFlag == false) {
+            _uiState.update { currentState ->
+                currentState.copy(
+                    eventListScreenLoadNewEventsFlag = false,
+                )
+            }
+        } else {
+            viewModelScope.launch(Dispatchers.IO) {
+                delay(1000)
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        eventListScreenLoadNewEventsFlag = true,
+                    )
+                }
+            }
+        }
     }
 
     fun showSnackbar(

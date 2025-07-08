@@ -23,9 +23,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,14 +33,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.concertfinder.R
-import com.example.concertfinder.presentation.common_ui.PreferencesDropdown
-import com.example.concertfinder.presentation.common_ui.SortMenu
-import com.example.concertfinder.presentation.common_ui.location_menu.LocationMenu
+import com.example.concertfinder.presentation.common_ui.elements.PreferencesDropdown
 import com.example.concertfinder.presentation.common_ui.location_menu.LocationViewModel
+import com.example.concertfinder.presentation.common_ui.location_menu.components.LocationMenu
 import com.example.concertfinder.presentation.filter_screen.FilterScreenViewModel
 import com.example.concertfinder.presentation.ui.theme.MyIcons
 import com.example.concertfinder.presentation.utils.AppDestinations
-import com.example.concertfinder.presentation.utils.LaunchLocationPermission
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -48,32 +47,25 @@ import com.example.concertfinder.presentation.utils.LaunchLocationPermission
 fun FilterScreen(
     navController: NavController,
     onFilterApplied: () -> Unit,
+    onLocationUpdated: () -> Unit,
+    onBackClick: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    locationViewModel: LocationViewModel,
     modifier: Modifier = Modifier,
     filterScreenViewModel: FilterScreenViewModel = hiltViewModel(),
-    locationViewModel: LocationViewModel = hiltViewModel(),
     innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
 
     val filterScreenUiState = filterScreenViewModel.uiState.collectAsState()
-    val locationUiState = locationViewModel.uiState.collectAsState()
-
-    // launch location permission launcher when view model requests it
-    LaunchLocationPermission(
-        context = LocalContext.current,
-        updateLocation = {
-            locationViewModel.updateLocation()
-            filterScreenViewModel.setPreferencesUpdated(true)
-        },
-        requestLocationPermissionEvent = locationViewModel.requestLocationPermissionEvent
-    )
+    val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope() // to allow scrolling to bottom of screen
 
     BackHandler {
         // Checks if preferences have been updated and if so, sends signal to event list screen to reload
         if (filterScreenUiState.value.preferencesUpdated) {
             navController.previousBackStackEntry?.savedStateHandle?.set("filters_updated", true)
         }
-        navController.popBackStack()
+        onBackClick()
     }
 
     LaunchedEffect(filterScreenUiState.value.preferencesUpdated) {
@@ -101,7 +93,7 @@ fun FilterScreen(
         modifier = modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ) {
         SortMenu(
             currentSortOption = filterScreenUiState.value.currentSortOption,
@@ -219,35 +211,24 @@ fun FilterScreen(
         Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_extra_small)))
 
         LocationMenu(
-            address = locationUiState.value.address,
-            latitude = locationUiState.value.latitude,
-            longitude = locationUiState.value.longitude,
-            radius = locationUiState.value.radius,
             isLocationPreferencesMenuExpanded = filterScreenUiState.value.isLocationPreferencesMenuExpanded,
             locationSearchQuery = filterScreenUiState.value.locationSearchQuery,
-            isRadiusPreferencesExpanded = filterScreenUiState.value.isRadiusPreferencesExpanded,
-            locationLoadingStatus = locationUiState.value.locationLoadingStatus,
-            onExposeRadiusDropdownChange = {
-                filterScreenViewModel.updateDropDownExpanded(it)
-            },
-            onRadiusOptionSelected = {
-                locationViewModel.updateRadiusFilterPreference(radius = it)
-                filterScreenViewModel.setPreferencesUpdated(true)
-                filterScreenViewModel.updateDropDownExpanded(false)
-            },
-            onExpandLocationDropdown = {
+            onExpandLocationMenu = {
                 filterScreenViewModel.updateLocationMenuExpanded(it)
-            },
-            onGetLocation = {
-                locationViewModel.initiateLocationUpdate()
-                filterScreenViewModel.setPreferencesUpdated(true)
+                scope.launch {
+                    scrollState.animateScrollTo(
+                        Int.MAX_VALUE, // Scroll to the bottom
+                    )
+                }
             },
             onLocationQueryUpdate = {
                 filterScreenViewModel.updateLocationSearchQuery(it)
             },
-            onLocationSearch = {
-                locationViewModel.searchForLocation(it)
-            }
+            onLocationUpdated = {
+                filterScreenViewModel.setPreferencesUpdated(true)
+                onLocationUpdated()
+            },
+            viewModel = locationViewModel
         )
 
         Spacer(modifier = Modifier.padding(dimensionResource(R.dimen.padding_medium)))
