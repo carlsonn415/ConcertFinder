@@ -1,8 +1,0 @@
-package com.example.concertfinder.presentation.discover_screen.components
-
-import java.time.ZonedDateTime
-
-data class WeekendDates(
-    val startDateTime: ZonedDateTime,
-    val endDateTime: ZonedDateTime
-)

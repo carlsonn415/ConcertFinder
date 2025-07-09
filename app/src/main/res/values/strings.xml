@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Concert Finder</string>
+    <string name="app_name">LineUp</string>
     <string name="loading_failed">loading Api data failed</string>
     <string name="loading_succeeded">loading Api succeeded</string>
     <string name="search">Search</string>

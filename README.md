@@ -9,6 +9,7 @@ Concert Finder is a native Android application built with **Kotlin** and **Jetpa
   * **Location-Based Search:** Find events near your current location using the Google Geocoding API.
   * **Comprehensive Event Details:** View information about concerts, including date, time, venue, and artists, powered by the Ticketmaster Discovery API.
   * **Save Events Locally:** Store your favorite events for offline access and quick retrieval using **Room Persistence Library**.
+  * **Google Maps Integration** View event location info in-app using Google Maps.
   * **User-Friendly Interface:** A modern and intuitive design built with Jetpack Compose.
 
 

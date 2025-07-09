@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.concertfinder"
+    namespace = "com.example.lineup_app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.concertfinder"
+        applicationId = "com.example.lineup_app"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
