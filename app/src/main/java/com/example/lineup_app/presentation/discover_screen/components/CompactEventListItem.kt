@@ -58,7 +58,7 @@ fun CompactEventListItem(
         modifier = modifier
             .width(dimensionResource(R.dimen.compact_event_list_item_width))
             .clip(MaterialTheme.shapes.medium)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .clickable {
                 onEventClick(event)
             }

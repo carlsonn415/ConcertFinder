@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Concert Finder"
+rootProject.name = "LineUp"
 include(":app")
  
