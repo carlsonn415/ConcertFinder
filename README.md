@@ -1,4 +1,7 @@
-# LineUp
+<h1>
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp" alt="App Icon" width="40">
+  LineUp
+</h1>
 
 ## 🎵 Find Concerts Near You\!
 
@@ -15,7 +18,7 @@ LineUp is a native Android application built with **Kotlin** and **Jetpack Compo
 
 ## 📸 Screenshots
 
-<img src="screenshots/EventList.png" alt="Events" width="200"> <img src="screenshots/EventDetails.png" alt="Event Details" width="200"> <img src="screenshots/SearchScreen.png" alt="Search" width="201"> <img src="screenshots/FilterSelect.png" alt="Filter Select" width="198">
+<img src="screenshots/DiscoverScreen.jpg" alt="Discover" width="180"> <img src="screenshots/SearchScreen.jpg" alt="Search Bar" width="180"> <img src="screenshots/ResultsScreen.jpg" alt="Search Results" width="180"> <img src="screenshots/EventDetails.jpg" alt="Event Details" width="180"> <img src="screenshots/FilterScreen.jpg" alt="Filter Select" width="180">
 
 
 ## 🚀 Technologies and Architecture
@@ -24,14 +27,16 @@ LineUp is built with a focus on modern Android development practices, leveraging
 
   * **Kotlin:** The primary programming language for Android development.
   * **Jetpack Compose:** Android's modern toolkit for building native UI.
-  * **Retrofit:** A type-safe HTTP client for Android and Java to consume the Ticketmaster Discovery API.
+  * **Retrofit:** A type-safe HTTP client for Android to consume the Ticketmaster Discovery API.
   * **GSON:** Used for serializing and deserializing JSON data from the API responses.
   * **Room Persistence Library:** For local data storage, including caching and saving user-favorite events.
   * **Ticketmaster Discovery API:** The primary source for concert and event data.
+  * **Google Maps API:** Allows users to see where events are located without leaving the app.
   * **Google Geocoding Library:** To convert location names into geographical coordinates for event searches.
   * **Hilt:** For robust and scalable dependency injection, ensuring a modular and testable codebase.
   * **Clean Architecture:** The project follows a clean architecture approach, separating concerns into data, domain, and presentation layers.
   * **MVVM (Model-View-ViewModel):** The architectural pattern used for building a reactive and maintainable UI.
+  * **Kotlin Coroutines:** Allows the UI to stay responsive while separate threads handle network requests.
   * **Android Studio:** The official IDE for Android development.
   * **Gradle:** Build automation tool.
 
