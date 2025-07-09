@@ -1,8 +1,8 @@
-# Concert Finder
+# LineUp
 
 ## 🎵 Find Concerts Near You\!
 
-Concert Finder is a native Android application built with **Kotlin** and **Jetpack Compose**, designed to help you easily discover concerts and events happening in your vicinity. Whether you're looking for a big arena show or a local band at a small venue, Concert Finder aims to connect you with the music you love.
+LineUp is a native Android application built with **Kotlin** and **Jetpack Compose**, designed to help you easily discover concerts and events happening in your vicinity. Whether you're looking for a big arena show or a local band at a small venue, Concert Finder aims to connect you with the music you love.
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@ Concert Finder is a native Android application built with **Kotlin** and **Jetpa
 
 ## 🚀 Technologies and Architecture
 
-Concert Finder is built with a focus on modern Android development practices, leveraging the following key technologies and architectural principles:
+LineUp is built with a focus on modern Android development practices, leveraging the following key technologies and architectural principles:
 
   * **Kotlin:** The primary programming language for Android development.
   * **Jetpack Compose:** Android's modern toolkit for building native UI.
@@ -37,15 +37,15 @@ Concert Finder is built with a focus on modern Android development practices, le
 
 ## 📱 Installation and Setup
 
-To get Concert Finder up and running on your local machine, follow these steps:
+To get LineUp running on your local machine, follow these steps:
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/carlsonn415/ConcertFinder.git
+    git clone https://github.com/carlsonn415/LineUp.git
     ```
 2.  **Open in Android Studio:**
       * Launch Android Studio.
-      * Select `File > Open` and navigate to the cloned `ConcertFinder` directory.
+      * Select `File > Open` and navigate to the cloned `LineUp` directory.
       * Click `Open`.
 3.  **Add API Keys and configure gradle:**
       * You'll need a **Ticketmaster Discovery API Key** and a **Google Maps Platform API Key**.
@@ -64,7 +64,7 @@ To get Concert Finder up and running on your local machine, follow these steps:
 
 ## 🤝 Contributing
 
-Concert Finder is currently under active development. Contributions are welcome\! If you'd like to contribute, please follow these steps:
+LineUp is currently under active development. Contributions are welcome\! If you'd like to contribute, please follow these steps:
 
 1.  **Fork the repository.**
 2.  **Create a new branch:**
